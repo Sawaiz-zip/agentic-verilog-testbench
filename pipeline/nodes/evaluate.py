@@ -176,6 +176,7 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
 
     result = {
         "run_id": run_id,
+        "task_id": state.get("task_id") or state.get("module_name", ""),
         "module_name": state.get("module_name", ""),
         "mode": state.get("mode", ""),
         "circuit_type": state.get("circuit_type", ""),

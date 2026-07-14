@@ -32,10 +32,14 @@ def _load_records(results_dir: str) -> list[dict]:
 
 
 def _dedup_newest(records: list[dict]) -> list[dict]:
-    """Keep the newest record per (module_name, mode) by file mtime."""
+    """Keep the newest record per (task_id, mode) by file mtime. Uses task_id
+    (logical circuit identity) rather than module_name, because every VerilogEval
+    task shares module_name "RefModule" and would otherwise collapse into one.
+    Falls back to module_name for older records written before task_id existed."""
     best: dict[tuple, dict] = {}
     for rec in records:
-        key = (rec.get("module_name", ""), rec.get("mode", "unknown"))
+        ident = rec.get("task_id") or rec.get("module_name", "")
+        key = (ident, rec.get("mode", "unknown"))
         cur = best.get(key)
         if cur is None or rec.get("_mtime", 0) > cur.get("_mtime", 0):
             best[key] = rec
