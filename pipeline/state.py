@@ -52,6 +52,11 @@ class GraphState(TypedDict):
         "invalid_dut",
     ]
 
+    # Best-so-far testbench across repair iterations (Issue A). The repair loop
+    # regenerates the whole TB, so a later iteration can be worse than an earlier
+    # one; we report the highest-quality evaluated TB, not the last.
+    best_snapshot: dict
+
     # ── Telemetry ────────────────────────────────────────────────────────────
     run_id: str
     run_started_at: float    # time.monotonic() at run entry — for end-to-end wall time
