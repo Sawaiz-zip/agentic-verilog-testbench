@@ -1,0 +1,168 @@
+@startuml component_uml
+title S6.ReKI.1 — LLM-Driven Verilog Testbench Generation\nComponent & Class UML Diagram
+
+skinparam roundcorner 10
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam ArrowThickness 1.5
+
+skinparam packageBorderThickness 2
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+
+' ═══════════════════════════════════════════════════════════════
+' LANGGRAPH PIPELINE
+' ═══════════════════════════════════════════════════════════════
+package "LangGraph Pipeline  (src/graph/)" #E8F4FD {
+
+  package "Stage 1 — Generation" #D6EAF8 {
+    component "ClassifyNode\n---\nModel: cheap\nInput: nl_description\nOutput: circuit_type" as CN
+    component "GenDutNode\n---\nModel: strong\nInput: nl_desc + circuit_type\nOutput: dut_rtl (design)" as GDU
+    component "SpecExtractNode\n---\nModel: strong\nInput: nl_desc + dut_rtl\nOutput: spec JSON" as SE
+    component "ScenarioGenNode\n---\nModel: cheap\nInput: spec\nOutput: scenarios list" as SG
+
+    package "Parallel Branches" #C8E6C9 {
+      component "DriverGenNode\n---\nModel: strong\nInput: spec + scenarios + error_report\nOutput: driver_rtl (.v)" as DG
+      component "CheckerGenNode\n---\nModel: strong\nInput: spec + scenarios + error_report\nOutput: checker_py (.py)" as CK
+    }
+    component "MergeGenerationNode\n---\nNo LLM (fan-in barrier)\nWaits for driver + checker\nRoutes SEQ→standardise, CMB→analysis" as MG
+  }
+
+  package "Stage 2 — Static Analysis" #FEF9E7 {
+    component "PyverilogNode\n---\nDeterministic (no LLM)\nInput: driver_rtl + golden_dut\nOutput: pyverilog_report" as PVN
+    component "VeribleFallbackNode\n---\nDeterministic (no LLM)\nActivated if Pyverilog fails\nOutput: pyverilog_report" as VFN
+  }
+
+  package "Stage 3 — LLM Error Reasoning" #D6EAF8 {
+    component "ErrorReasonNode\n---\nModel: Sonnet\nInput: pyverilog_report + spec\nOutput: error_report" as ER
+  }
+
+  package "Stage 4 — Standardization" #FEF9E7 {
+    component "StandardizerNode\n---\nDeterministic Python AST\nSEQ only (no LLM)\nInserts $fdisplay, normalises clocking" as ST
+  }
+
+  package "Stage 5 — Repair Loop Controller" #FCE4EC {
+    component "RepairRouter\n---\nConditional LangGraph edge\nChecks: errors empty? Oscillation? iter>=max?" as RR
+  }
+
+  package "Stage 6 — Evaluation" #FADBD8 {
+    component "EvalNode\n---\nDeterministic\nInput: driver_rtl + DUTs\nEval0: compile / Eval1: golden / Eval2: mutants" as EV
+  }
+}
+
+' ═══════════════════════════════════════════════════════════════
+' GRAPH STATE (shared across all nodes)
+' ═══════════════════════════════════════════════════════════════
+rectangle "GraphState  <<TypedDict>>\n---\nINPUTS\nnl_description : str\ntask_id : str  (logical circuit identity)\nmodule_name : str  (Verilog module name)\ngolden_dut : str  (eval-only, optional)\nmutant_duts : list[str]\n---\nSTAGE OUTPUTS\ncircuit_type : CMB or SEQ\ndut_rtl : str  (generated design)\nspec : dict\nscenarios : list[dict]\ndriver_rtl : str\nchecker_py : str\npyverilog_report : dict\nerror_report : list[dict]\nscenario_results : list[dict]\neval_dut_source : golden or generated\n---\nLOOP CONTROL\nrepair_iter : int\nmax_repair_iter : int\noscillation_detected : bool\nfeedback_source : static/compile/simulation\nrepair_history : list[dict]\nbest_snapshot : dict  (best-so-far TB)\n---\nEVALUATION\neval0_pass / eval1_pass : bool\neval2_pass_rate : float\nfailure_stage : Optional[str]\nfinal_status : str\n---\nTELEMETRY\nrun_id : str\nmode : str\nllm_calls : list[dict]" as GraphState #FDFEFE
+
+' ═══════════════════════════════════════════════════════════════
+' EXTERNAL TOOLS
+' ═══════════════════════════════════════════════════════════════
+package "LLM Backends  (provider-agnostic, OpenAI-compatible)" #D5D8DC {
+  component "Cheap model\n---\ne.g. gpt-4o-mini\nclassify / scenarios / mutants" as Haiku
+  component "Strong model\n---\ne.g. claude-sonnet-4.5\ncode gen + reasoning + repair\nconfigurable temperature (0.7 default)\ntraced via LangSmith" as Sonnet
+}
+
+package "Static Analysis Tools  (src/tools/)" #F9E79F {
+  component "Pyverilog\n---\nAST parser\nDataflow analyser\nControl-flow analyser" as Pyv
+  component "Verible\n---\nFallback linter\nHandles edge-case syntax\nLLM output can break Pyverilog" as Ver
+}
+
+package "Simulator  (src/tools/)" #FADBD8 {
+  component "Icarus Verilog\n---\niverilog (compile)\nvvp (simulate)\nIEEE 1800-2012" as IVT
+}
+
+package "Prompt Templates  (prompts/)" #E8DAEF {
+  component "Jinja2 Templates\n---\nOne .j2 file per node\nDecoupled from code\nVersioned separately" as JT
+}
+
+package "Dataset  (data/)" #D5F5E3 {
+  component "VerilogEval\n---\n156 problems (HDLBits)\n80/20 dev/test split\nShips golden RTL" as VE
+  component "Golden DUT + Testbench\n---\nGround truth for Eval1 + Eval2" as GD
+  component "Mutant DUTs\n---\nLLM-generated buggy RTL\nfor Eval2 mutation testing" as MD
+}
+
+' ═══════════════════════════════════════════════════════════════
+' NODE EDGES (pipeline flow)
+' ═══════════════════════════════════════════════════════════════
+CN  -down-> GDU : circuit_type
+GDU -down-> SE  : dut_rtl
+SE  -down-> SG  : spec
+SG  -down-> DG  : scenarios
+SG  -down-> CK  : scenarios
+DG  -down-> MG  : driver_rtl
+CK  -down-> MG  : checker_py
+MG  -down-> ST  : SEQ (standardise)
+MG  -down-> PVN : CMB (skip standardise)
+ST  -down-> PVN : standardized driver_rtl
+PVN -right-> VFN : on parse failure (fallback)
+PVN -down-> ER  : pyverilog_report
+VFN -down-> ER  : pyverilog_report
+ER  -down-> RR  : error_report
+RR  -down-> EV  : no errors / loop exhausted
+RR  -up-> DG    : errors found → repair (best-so-far kept)
+EV  -right-> RR : compile/sim fail (mode-gated re-entry)
+
+' ═══════════════════════════════════════════════════════════════
+' TOOL CONNECTIONS (dashed)
+' ═══════════════════════════════════════════════════════════════
+CN  ..> Haiku   : API call (classify, cheap)
+GDU ..> Sonnet  : API call (DUT gen, strong)
+SE  ..> Sonnet  : API call (spec, strong)
+SG  ..> Haiku   : API call (scenarios, cheap)
+DG  ..> Sonnet  : API call (driver code, strong)
+CK  ..> Sonnet  : API call (checker code, strong)
+ER  ..> Sonnet  : API call (error reason, strong)
+
+PVN ..> Pyv     : parse() + dataflow()
+VFN ..> Ver     : lint()
+EV  ..> IVT     : compile + simulate
+
+CN  ..> JT      : render classify.j2
+GDU ..> JT      : render gen_dut.j2
+SE  ..> JT      : render spec_extract.j2
+SG  ..> JT      : render scenario_gen.j2
+DG  ..> JT      : render driver_gen.j2
+CK  ..> JT      : render checker_gen.j2
+ER  ..> JT      : render error_reason.j2
+
+VE  ..> GD      : provides golden RTL
+VE  ..> MD      : provides / seeds mutants
+GD  ..> EV      : Eval1 input
+MD  ..> EV      : Eval2 input
+
+' ═══════════════════════════════════════════════════════════════
+' GRAPH STATE ties all nodes together
+' ═══════════════════════════════════════════════════════════════
+GraphState .right. CN
+GraphState .right. GDU
+GraphState .right. SE
+GraphState .right. SG
+GraphState .right. DG
+GraphState .right. CK
+GraphState .right. MG
+GraphState .right. PVN
+GraphState .right. ER
+GraphState .right. ST
+GraphState .right. RR
+GraphState .right. EV
+
+note bottom of GraphState
+  Single shared state object threaded through every node.
+  Nodes READ from it and WRITE to it.
+  LangGraph passes updated state along each edge.
+  All llm_calls entries accumulate here for telemetry.
+  final_status values: success | failed_compile |
+  failed_eval1 | failed_eval2 | oscillated | exhausted_iters
+  max_repair_iter defaults to 3.
+end note
+
+note bottom of RR
+  Conditional edge logic:
+  1. error_report empty         -> EvalNode
+  2. error_report == prev       -> oscillation_detected=true -> EvalNode
+  3. repair_iter >= max (3)     -> exhausted_iters -> EvalNode
+  4. errors + iter < max        -> back to DriverGen + CheckerGen
+end note
+
+@enduml

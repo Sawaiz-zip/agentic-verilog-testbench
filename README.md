@@ -31,42 +31,48 @@ The standard fix is to run the simulator, read the error, and try again. This is
 ## How It Works
 
 ```
-INPUT: Plain-English description + golden DUT (Verilog circuit)
+INPUT: Plain-English description (golden DUT optional, for evaluation only)
          │
          ▼
-[1] CLASSIFY — Is this a simple (combinational) or clocked (sequential) circuit?  [Haiku]
+[1] CLASSIFY — combinational (CMB) or sequential (SEQ)?           [cheap model]
          │
          ▼
-[2] EXTRACT SPEC — What ports does it have? What should it do?  [Sonnet]
+[2] GEN DUT — synthesise the design-under-test from the description   [strong]
          │
          ▼
-[3] GENERATE SCENARIOS — What test cases should we run?  [Haiku]
+[3] EXTRACT SPEC — ports, behaviour, timing (structured JSON)         [strong]
+         │
+         ▼
+[4] GENERATE SCENARIOS — the test cases to cover                  [cheap model]
          │
          ├──────────────────────────┐
          ▼                          ▼
-[4a] GENERATE DRIVER          [4b] GENERATE CHECKER
-     (Verilog testbench)           (Python result checker)
-     [Sonnet]                      [Sonnet]
+[5a] GENERATE DRIVER          [5b] GENERATE CHECKER
+     (Verilog testbench) [strong]   (Python checker) [strong]
          │                          │
-         └──────────────────────────┘
+         └────────── MERGE ─────────┘   (fan-in barrier)
          │
          ▼  (SEQ only)
-[5] STANDARDISE — Insert missing $fdisplay statements  [Python AST, no LLM]
+[6] STANDARDISE — insert missing $monitor / clock toggle   [Python, no LLM]
          │
          ▼
-[6] PYVERILOG ANALYSIS — Check port bindings, sensitivity lists, dataflow  [Pyverilog / Verible]
+[7] PYVERILOG ANALYSIS — port bindings, sensitivity, dataflow  [Pyverilog / Verible]
          │
          ▼
-[7] ERROR REASONER — Interpret analysis output into actionable fixes  [Sonnet]
+[8] ERROR REASONER — turn findings into actionable fixes (skipped if clean)  [strong]
          │
-         ├── errors found AND iterations left ──▶ [8] REPAIR ──▶ back to [4a]
-         │
-         ▼
-[9] EVALUATE — Compile (Eval0) → Run vs golden DUT (Eval1) → Run vs mutants (Eval2)  [Icarus Verilog]
+         ├── errors + iterations left ──▶ [9] REPAIR (regenerate, best-so-far) ──▶ re-analyse
          │
          ▼
-OUTPUT: Testbench + per-run JSON log (errors, tokens, repair iterations, pass rates)
+[10] EVALUATE — Eval0 compile → Eval1 vs correct DUT → Eval2 vs mutants  [Icarus Verilog]
+         │
+         ▼
+OUTPUT: Testbench + per-run JSON (errors, tokens, repair iterations, Eval0/1/2)
 ```
+
+> Model routing: a **cheap** model (e.g. `gpt-4o-mini`) for classify/scenarios/mutants;
+> a **strong** model (e.g. `claude-sonnet-4.5`) for DUT/spec/driver/checker/reasoning/repair.
+> Deterministic nodes (standardise, pyverilog_analysis, merge, evaluate) use no LLM.
 
 ---
 
@@ -77,7 +83,7 @@ OUTPUT: Testbench + per-run JSON log (errors, tokens, repair iterations, pass ra
 | Error detection | Simulator errors only (vague) | **Pyverilog static analysis** (precise, pre-simulation) |
 | `$fdisplay` insertion | LLM-based (fragile) | **Deterministic Python AST pass** (100% reliable) |
 | Failure attribution | Not available | **Per-node failure stage logged** for every run |
-| Model tested | GPT-4 only | Claude Haiku + Sonnet |
+| Model tested | GPT-4 only | Claude Sonnet + gpt-4o-mini (provider-agnostic) |
 | Cost analysis | Not reported | **Token cost per module per ablation mode** |
 | Ablation study | None | 4 modes: baseline / compiler-only / pyverilog-only / hybrid |
 
@@ -89,7 +95,7 @@ OUTPUT: Testbench + per-run JSON log (errors, tokens, repair iterations, pass ra
 pipeline/          Main package
   config.py        AblationMode enum + PipelineConfig
   state.py         GraphState TypedDict (all pipeline data)
-  llm.py           Shared LLM wrapper (logging, backoff, temperature=0)
+  llm.py           Shared LLM wrapper (logging, backoff, configurable temperature, LangSmith tracing)
   graph.py         LangGraph graph definition
   nodes/           One file per pipeline node
   analysis/        Pyverilog runner + Verible fallback + error taxonomy
@@ -98,7 +104,7 @@ pipeline/          Main package
 
 prompts/           Jinja2 prompt templates (one per LLM node)
 tests/             pytest unit + integration tests + fixtures
-scripts/           run_smoke.sh, run_eval.sh, aggregate_results.py
+scripts/           run_eval.py (ablation runner), aggregate_results.py, aggregate_repeats.py
 specs/             Spec-kit planning documents (constitution, spec, plan, tasks)
 data/verilog_eval/ VerilogEval dataset (download separately)
 results/           Per-run JSON output (git-ignored)
@@ -117,15 +123,19 @@ cd ResearchProject
 uv sync --extra dev
 # or: pip install -e ".[dev]"
 
-# 3. Configure your LLM provider (pick one — Groq is free)
+# 3. Configure your LLM provider (any OpenAI-compatible provider works)
 cp .env.example .env
-# Option A — Groq free tier (recommended, no credit card):
-#   LLM_API_KEY=gsk_...   (get from console.groq.com)
-#   LLM_BASE_URL=https://api.groq.com/openai/v1
-#   LLM_CHEAP_MODEL=llama-3.3-70b-versatile
-#   LLM_STRONG_MODEL=llama-3.3-70b-versatile
-# Option B — Anthropic:
-#   ANTHROPIC_API_KEY=sk-ant-...
+# Option A — OpenRouter (current, paid — best model quality):
+#   LLM_API_KEY=sk-or-...   (get from openrouter.ai/keys)
+#   LLM_BASE_URL=https://openrouter.ai/api/v1
+#   LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5
+#   LLM_CHEAP_MODEL=openai/gpt-4o-mini
+#   LLM_TEMPERATURE=0.7
+# Option B — Groq free tier (no credit card):
+#   LLM_API_KEY=gsk_...   LLM_BASE_URL=https://api.groq.com/openai/v1
+#   LLM_CHEAP_MODEL=LLM_STRONG_MODEL=llama-3.3-70b-versatile
+# Option C — Anthropic direct:  ANTHROPIC_API_KEY=sk-ant-...
+# Optional observability:  LANGSMITH_TRACING=true  LANGSMITH_PROJECT=S6-ReKI-1
 
 # 4. Verify tools are available
 iverilog --version   # Icarus Verilog (brew install icarus-verilog)
@@ -157,14 +167,17 @@ python -m pipeline run --nl desc.txt --dut golden.v --module m  # explicit golde
 # Configurable sampling temperature (default 0.7; the pipeline is robust to >0)
 LLM_TEMPERATURE=0.9 python -m pipeline run --module half_adder --mode hybrid
 
-# Run the 5-module CMB smoke set
-bash scripts/run_smoke.sh hybrid
+# Ablation over the local fixtures (8 circuits × 4 modes)
+python scripts/run_eval.py --modules alu_1bit mux2to1 half_adder comparator_2bit \
+  priority_encoder dff counter_4bit shift_register --yes --results-dir results/my_sweep
 
-# Full 156-module evaluation
-bash scripts/run_eval.sh hybrid
+# Full held-out VerilogEval 156 (156 × 4 modes = 624 runs)
+python scripts/run_eval.py --modules verilogeval --yes --results-dir results/vle156
 
-# Aggregate results across ablation modes
-python scripts/aggregate_results.py
+# temp=0 (deterministic): prefix with LLM_TEMPERATURE=0
+
+# Aggregate a results folder into a per-mode comparison table
+python scripts/aggregate_results.py --results-dir results/my_sweep
 ```
 
 ### Testing
@@ -196,18 +209,34 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 
 ---
 
-## Implementation Status
+## Implementation Status (2026-07-15)
 
 | Phase | Focus | Status |
 |---|---|---|
 | 0 — Setup | Env, deps, Pyverilog smoke test | ✅ Done |
-| 1 — Generation | CMB pipeline end-to-end | ✅ Done — Eval0 5/5, Eval1 4/5, Eval2 4/4 |
-| 2 — Pyverilog | Static analysis layer | 🟢 In progress (branch: `phase-2-pyverilog`) |
-| 3 — Repair + SEQ | Repair loop + sequential support | ⚪ Planned |
-| 4 — Evaluation | Full 156-module eval + ablations | ⚪ Planned |
-| 5 — Writing | Final report (deadline Sept 1 2026) | ⚪ Planned |
+| 1 — Generation | CMB pipeline end-to-end | ✅ Done |
+| 2 — Pyverilog | Static analysis layer | ✅ Done |
+| 3 — Repair + SEQ | Repair loop + sequential support | ✅ Done |
+| 4 — Evaluation | Ablation sweeps + analysis | 🟢 First real results (below); held-out 156 next |
+| 5 — Writing | Final report (deadline Sept 1 2026) | ⚪ Not started |
 
-**Active LLM provider:** Groq free tier (Llama-3.3-70b-versatile) via OpenAI-compatible API.
+**First ablation results** (8 fixtures × 4 modes, OpenRouter Sonnet + gpt-4o-mini):
+
+| mode | Eval1 @ temp 0.7 | Eval1 @ temp 0 |
+|---|---|---|
+| baseline | 75% | 62% |
+| compiler_only | 75% | 75% |
+| **pyverilog_only** (ours) | **88%** | **88%** |
+| hybrid | **100%** | 75% |
+
+Eval0 = 100% (beats AutoBench's 95.7%). **Static analysis beats baseline at both
+temperatures** — the core contribution, demonstrated. Caveat: 8 hand-built fixtures,
+SEQ prompt tuned on them → the **held-out VerilogEval 156** run is the real head-to-head
+vs AutoBench. Full detail and honest caveats in [`PROGRESS.md`](PROGRESS.md).
+
+**Active LLM provider:** OpenRouter (paid) — `claude-sonnet-4.5` (strong) + `gpt-4o-mini`
+(cheap). Provider-agnostic via the OpenAI-compatible abstraction (Groq/Anthropic/OpenAI also work).
+**Tests:** 73 passed, 3 skipped (offline).
 
 ---
 
