@@ -92,7 +92,7 @@ The paper splits LLM-based testbench generation into a multi-stage pipeline:
 | **Pyverilog** for static analysis | AST + dataflow + control-flow; no simulation needed |
 | **Verible fallback** | Backup parser when Pyverilog rejects LLM output (it sometimes does) |
 | **Icarus Verilog** for ground-truth eval | Standard, free, IEEE 1800-2012 |
-| **VerilogEval as primary dataset** | Public, well-known, ships golden RTL + testbenches; remove a supervisor dependency |
+| ~~**VerilogEval as primary dataset**~~ → **12-circuit hard set** (2026-08-24) | The full 156 is not funded. Replaced by 12 circuits (6 easy / 6 hard, 6 CMB / 6 SEQ) × 5 modes × 2 repeats. Deliberately harder circuits, because four of five static checks cannot fire on 8–17 line fixtures. |
 | **CMB first, SEQ later** | Iterate fast on the easier case; SEQ is where AutoBench struggles |
 | **Deterministic standardizer** for SEQ | Replace AutoBench's fragile LLM-based `$fdisplay` insertion with a Python parser |
 | **Model routing per node** | Haiku for classification/scenarios, Sonnet for code generation/debugging |
@@ -208,7 +208,7 @@ class GraphState(TypedDict):
 3. **Deterministic `$fdisplay` standardiser** — Python AST pass that replaces AutoBench's fragile LLM-based standardisation step.
 4. **Testbench-error taxonomy** — categorised catalogue of testbench error types with frequency and Pyverilog detectability, bootstrapped on a hand-labelled dev subset.
 5. **Per-node failure attribution** — empirical breakdown of where failures originate in the 6-stage pipeline, enabled for free by LangGraph logging (AutoBench does not provide this).
-6. **Empirical comparison of feedback strategies** — baseline, compiler-only, Pyverilog-only, LLM-only, and hybrid, across CMB and SEQ benchmarks.
+6. **Empirical comparison of feedback strategies** — baseline, retry-only (control), compiler-only, Pyverilog-only, and hybrid, across CMB and SEQ benchmarks. The `retry_only` arm is what makes the comparison sound: every repairing mode gets an extra LLM sample that baseline does not, so without it a gain cannot be attributed to the feedback.
 
 ---
 
@@ -225,7 +225,9 @@ class GraphState(TypedDict):
 | **Iterations to pass** | Distribution of repair iterations needed |
 | **Tokens per module** | LLM cost per generated testbench |
 
-**Ablations:** baseline (no repair) | compiler-feedback-only | Pyverilog-only | LLM-reasoning-only | hybrid (ours).
+**Ablations (5 modes):** `baseline` (no repair) | `retry_only` (one extra sample, **zero diagnostics** — the control) | `compiler_only` | `pyverilog_only` | `hybrid` (ours).
+
+A mode must beat **`retry_only`**, not merely `baseline`, before its feedback can be claimed to work.
 
 ---
 
@@ -291,7 +293,7 @@ All 9 references verified correct as of session creation.
 - **Pipeline must be graph-based** — every step a LangGraph node; no hidden control flow
 - **Prompts go in `prompts/` directory** as Jinja templates, not inline strings
 - **All LLM calls logged** — node, model, tokens, latency
-- **Temperature configurable** via `LLM_TEMPERATURE` (default 0.7, supervisor's choice; Constitution v1.1.0). Run a temp=0 sweep separately for the controlled/deterministic ablation.
+- **Temperature configurable** via `LLM_TEMPERATURE` (default 0.7, supervisor's choice; Constitution v1.1.0). **Temp 0.7 only as of 2026-08-24** — the temp-0 arm is dropped; use repeats for error bars instead.
 - **CMB before SEQ** — never start sequential work until combinational pipeline is solid
 - **Don't re-read `paper.pdf`** unless I ask — section 4 above is the canonical summary
 - **Don't run any code or install dependencies** until Phase 1 begins (after dataset arrives)
@@ -301,10 +303,12 @@ All 9 references verified correct as of session creation.
 ## 16. Open Questions / Unknowns
 
 - ✅ **Scope pivot confirmed** — supervisor email 2026-05-26 confirmed testbench gen + Pyverilog localisation.
-- ✅ **Dataset confirmed** — VerilogEval (156 HDLBits problems); golden models used for eval.
+- ⚠️ **Dataset re-scoped (2026-08-24)** — the VerilogEval 156 run is **not funded** and will not be done. Evaluation uses a 12-circuit set (6 easy existing + 6 purpose-built hard) × 5 modes × 2 repeats at temp 0.7. Note the absence of a public-benchmark head-to-head as a limitation in the report.
 - **Pyverilog robustness on LLM-generated code** — *quantified* (2026-07-15): Pyverilog parses **7/8** LLM testbenches after fixing a concat/newline bug; Verible fallback (now installed) covers the rest. Failure was structural (parse), not semantic.
 - ✅ **SEQ standardisation** — done deterministically in Python (`fdisplay_inserter.py`), no LLM.
-- **Overfitting / generalisation** (new, 2026-07-15) — the SEQ prompt was tuned on the 8 local fixtures; the VerilogEval 156 must be treated as **held-out** to test generalisation and compare to AutoBench.
+- **Overfitting / generalisation** — the SEQ prompt was tuned on the 8 local fixtures. Without the 156 held-out run this cannot be fully resolved; mitigate by freezing prompts before the sweep and by adding 6 circuits the prompt was never tuned on.
+- **Static checks are untestable on trivial circuits** (2026-08-24) — four of five checks cannot fire on 8–17 line fixtures with 2–4 unambiguous ports: `port_binding_mismatch` needs ≥3 confusable names, `width_mismatch` needs differing bus widths, `undriven_input` needs enough inputs to forget one, `sensitivity_list_error` needs `always` blocks the testbench does not have. Hence the hard-circuit set and the error-injection study.
+- **`WIDTH_MISMATCH` is declared but never emitted** — implement it or remove it from the taxonomy before the report claims it.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
