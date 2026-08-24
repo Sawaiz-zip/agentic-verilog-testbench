@@ -27,6 +27,8 @@ import json
 import pathlib
 import sys
 
+sys.stdout.reconfigure(line_buffering=True)
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 from pipeline.analysis import fault_injection as fi
@@ -131,7 +133,14 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/injection_study.json")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--report-only", action="store_true",
+                    help="re-render the tables from a saved run, without re-running it")
     args = ap.parse_args()
+
+    if args.report_only:
+        saved = json.loads((_ROOT / args.out).read_text())
+        report(saved["baseline"], saved["cases"])
+        return
 
     corpus, rejected = load_corpus(args.limit)
     if not corpus:
