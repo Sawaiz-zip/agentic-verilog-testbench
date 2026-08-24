@@ -249,3 +249,62 @@ def test_unobserved_seq_output_is_reported_once_not_twice():
     report = run(tb, _SEQ_DUT, module_name="dff")
     for_q = [e for e in report.all_errors() if e.affected_signal == "q"]
     assert len(for_q) == 1, [e.error_type.value for e in for_q]
+
+
+# ── Sensitivity-list check: correct testbench styles must not be flagged ──────
+
+def test_clock_generator_alone_is_not_a_sensitivity_error():
+    """`always #5 clk = ~clk;` has no sensitivity list by design. Treating it as
+    "an always-block with no edge trigger" flagged every testbench that generates
+    its own clock — which is all of them."""
+    tb = _seq_tb(
+        '    d = 1; @(posedge clk); #1;\n'
+        '    if (q === 1) $display("PASS: capture");\n'
+    )
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    types = {e.error_type.value for e in report.all_errors()}
+    assert "sensitivity_list_error" not in types
+
+
+def test_edge_event_control_in_initial_block_counts_as_synchronisation():
+    """A self-checking testbench synchronises with `@(posedge clk)` from an
+    initial block rather than with an edge-triggered always. That is edge
+    synchronisation; it simply is not in a sensitivity list."""
+    tb = (
+        "module tb;\n"
+        "  reg clk, d; wire q;\n"
+        "  dff uut(.clk(clk), .d(d), .q(q));\n"
+        "  initial clk = 0;\n"
+        "  always #5 clk = ~clk;\n"
+        "  always @(d) $display(\"d changed\");\n"   # sensitised, but not an edge
+        "  initial begin\n"
+        "    d = 1; @(posedge clk); #1;\n"
+        "    if (q === 1) $display(\"PASS: capture\");\n"
+        "    $finish;\n"
+        "  end\n"
+        "endmodule\n"
+    )
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    types = {e.error_type.value for e in report.all_errors()}
+    assert "sensitivity_list_error" not in types
+
+
+def test_no_edge_synchronisation_anywhere_is_still_flagged():
+    """The check must still fire when the testbench drives a sequential DUT with
+    bare delays and never synchronises to a clock edge."""
+    tb = (
+        "module tb;\n"
+        "  reg clk, d; wire q;\n"
+        "  dff uut(.clk(clk), .d(d), .q(q));\n"
+        "  initial clk = 0;\n"
+        "  always @(d) clk = ~clk;\n"              # sensitised, no edge, no @(posedge)
+        "  initial begin\n"
+        "    d = 1; #10;\n"
+        "    if (q === 1) $display(\"PASS: capture\");\n"
+        "    $finish;\n"
+        "  end\n"
+        "endmodule\n"
+    )
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    types = {e.error_type.value for e in report.all_errors()}
+    assert "sensitivity_list_error" in types

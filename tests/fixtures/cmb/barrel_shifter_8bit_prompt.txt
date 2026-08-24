@@ -1,0 +1,22 @@
+Implement a module named barrel_shifter_8bit — an 8-bit barrel shifter that can
+shift left or right by 0 to 7 positions in a single combinational step.
+
+Interface:
+  - input  [7:0] data_in
+  - input  [2:0] shamt      (shift amount, 0 to 7)
+  - input        dir        (direction: 0 = shift left, 1 = shift right)
+  - input        arith      (1 = arithmetic shift, only meaningful when dir = 1)
+  - output [7:0] data_out
+
+Behaviour:
+  - dir = 0                  data_out = data_in shifted LEFT by shamt, zero filled.
+                             arith is ignored in this case.
+  - dir = 1 and arith = 0    data_out = data_in shifted RIGHT by shamt, zero filled
+                             (logical right shift).
+  - dir = 1 and arith = 1    data_out = data_in shifted RIGHT by shamt with the
+                             sign bit data_in[7] replicated into the vacated
+                             positions (arithmetic right shift).
+
+A shift amount of 0 leaves data_in unchanged in every mode.
+
+This is a purely combinational circuit.

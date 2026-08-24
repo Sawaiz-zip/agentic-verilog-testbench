@@ -6,6 +6,7 @@ Eval2: does it catch bugs in mutant DUTs?
 """
 
 import os
+import re
 import subprocess
 import tempfile
 
@@ -55,6 +56,27 @@ def compile_tb(
                 pass
 
 
+# A VerilogEval-style reference testbench reports failures as "Mismatches: N in M
+# samples". Searching the whole output for the bare substring "mismatch" is unsafe on
+# two counts, both observed: a *scenario name* can contain it (a run with 8/8 PASS and
+# a scenario called "immediate_mismatch" was scored as a failure), and a zero-mismatch
+# line is a report of success, not of failure.
+_ZERO_MISMATCH_RE = re.compile(r"\b0\s+mismatch|mismatches\s*:?\s*0\b", re.IGNORECASE)
+_MISMATCH_RE = re.compile(r"\bmismatch(es)?\b", re.IGNORECASE)
+
+
+def _has_mismatch_report(output: str) -> bool:
+    """True only for a line that actually reports a non-zero mismatch count."""
+    for line in output.splitlines():
+        stripped = line.strip()
+        # A passing scenario line is a verdict, not a report — its name is free text.
+        if stripped.upper().startswith("PASS:"):
+            continue
+        if _MISMATCH_RE.search(stripped) and not _ZERO_MISMATCH_RE.search(stripped):
+            return True
+    return False
+
+
 def simulate_tb(compiled_path: str, timeout_s: int = 30) -> tuple[bool, str]:
     """
     Eval1: run compiled simulation with vvp.
@@ -74,10 +96,8 @@ def simulate_tb(compiled_path: str, timeout_s: int = 30) -> tuple[bool, str]:
         output = (result.stdout + result.stderr).strip()
         # Our prompt instructs the TB to print exactly "FAIL: <name>" on failure.
         # Match that precisely to avoid catching words like "failed" in debug prints.
-        import re as _re
-        has_fail_marker = bool(_re.search(r'\bFAIL\s*:', output))
-        # Also catch VerilogEval reference TB style ("mismatch") and $error crashes
-        has_mismatch    = "mismatch" in output.lower()
+        has_fail_marker = bool(re.search(r'\bFAIL\s*:', output))
+        has_mismatch    = _has_mismatch_report(output)
         has_error_crash = result.returncode not in (0, 1)
         failed = has_fail_marker or has_mismatch or has_error_crash
         return not failed, output

@@ -17,6 +17,7 @@ Smoke-test findings (Phase 0, 2026-06-23):
 
 import io
 import os
+import re
 import sys
 import tempfile
 
@@ -61,6 +62,11 @@ def _find_dut_instances(tb_module, dut_module_name: str) -> list:
         if isinstance(item, vast.InstanceList) and item.module == dut_module_name:
             instances.extend(item.instances)
     return instances
+
+
+# `@(posedge clk)` / `@(negedge clk)` used as an event control — the usual way a
+# self-checking testbench synchronises from inside an initial block.
+_EDGE_CONTROL_RE = re.compile(r"@\s*\(\s*(?:posedge|negedge)\b")
 
 
 def _has_posedge(verilog_text: str) -> bool:
@@ -251,33 +257,55 @@ def _check_driven_observed(
 
 # ── Sensitivity list check (SEQ) ─────────────────────────────────────────────
 
-def _check_sensitivity_lists(tb_module) -> list[ErrorReportItem]:
+def _check_sensitivity_lists(tb_module, tb_verilog: str) -> list[ErrorReportItem]:
     """
-    For sequential circuits: verify TB always-blocks use posedge/negedge clock.
-    If always-blocks exist but none have an edge trigger → SENSITIVITY_LIST_ERROR.
-    Only called when the DUT contains 'posedge' (is_seq=True).
+    For sequential circuits: verify the testbench synchronises to a clock edge
+    somewhere.
+
+    Two things this must NOT flag, both of which are ordinary correct style:
+
+    1. A clock generator (`always #5 clk = ~clk;`) has no sensitivity list by
+       design. Counting it as "an always-block with no edge trigger" flagged
+       every testbench that generates its own clock — which is all of them.
+    2. A self-checking testbench usually drives from an `initial` block and
+       synchronises with `@(posedge clk)` event controls rather than with an
+       edge-triggered `always`. That is edge synchronisation; it simply is not
+       in a sensitivity list.
+
+    So: ignore always-blocks that carry no sensitivity list at all, and accept
+    an edge event control anywhere in the source as satisfying the check.
     """
+    if _EDGE_CONTROL_RE.search(tb_verilog):
+        return []
+
     always_blocks = [
         item for item in (tb_module.items or [])
         if isinstance(item, vast.Always)
     ]
-    if not always_blocks:
+
+    def _sens_entries(always_block) -> list:
+        sens_list = getattr(always_block, "sens_list", None)
+        if sens_list is None:
+            return []
+        return list(sens_list.list or [])
+
+    # A delay-driven always (clock generator) has nothing to be sensitive to.
+    triggered = [ab for ab in always_blocks if _sens_entries(ab)]
+    if not triggered:
         return []
 
     def _has_edge_trigger(always_block) -> bool:
-        sens_list = always_block.sens_list
-        if sens_list is None:
-            return False
-        for sens in (sens_list.list or []):
+        for sens in _sens_entries(always_block):
             if getattr(sens, "type", None) in ("posedge", "negedge"):
                 return True
         return False
 
-    if any(_has_edge_trigger(ab) for ab in always_blocks):
+    if any(_has_edge_trigger(ab) for ab in triggered):
         return []
 
-    # All always-blocks exist but none are clock-triggered
-    first_line = getattr(always_blocks[0], "lineno", None)
+    # Sensitised always-blocks exist, none is clock-triggered, and there is no
+    # edge event control anywhere — the testbench really is not clock-synchronous.
+    first_line = getattr(triggered[0], "lineno", None)
     return [
         ErrorReportItem(
             error_type=ErrorType.SENSITIVITY_LIST_ERROR,
@@ -466,7 +494,7 @@ def run(
     sensitivity_errors: list[ErrorReportItem] = []
     fdisplay_missing: list[ErrorReportItem] = []
     if is_seq:
-        sensitivity_errors = _check_sensitivity_lists(tb_module)
+        sensitivity_errors = _check_sensitivity_lists(tb_module, tb_verilog)
         fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_verilog)
         # MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation
         # criterion, so an unobserved SEQ output would otherwise be reported

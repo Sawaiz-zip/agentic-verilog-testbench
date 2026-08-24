@@ -1,0 +1,39 @@
+Implement a module named fifo_8x8 — a synchronous first-in first-out buffer that
+holds up to 8 entries of 8 bits each.
+
+Interface:
+  - input        clk
+  - input        rst        (synchronous reset, active high)
+  - input        wr_en
+  - input        rd_en
+  - input  [7:0] data_in
+  - output [7:0] data_out
+  - output       full
+  - output       empty
+  - output [3:0] count      (number of entries currently stored, 0 to 8)
+
+Behaviour, all state changes on the rising edge of clk:
+
+  Reset: when rst is high on a rising edge, the buffer becomes empty (count
+  returns to 0) and data_out becomes 8'd0. Reset takes priority over wr_en and
+  rd_en.
+
+  Write: when wr_en is high and the buffer is not full, data_in is stored at the
+  tail. A write while full is ignored and the stored data is unchanged.
+
+  Read: when rd_en is high and the buffer is not empty, the entry at the head is
+  removed and driven onto data_out. data_out is REGISTERED: it updates on the
+  same rising edge that performs the read, so the value read is visible after
+  that edge. A read while empty is ignored and data_out keeps its previous value.
+
+  Simultaneous read and write in the same cycle is allowed whenever the write is
+  permitted and the read is permitted; count is then unchanged.
+
+Status outputs, all combinational functions of the current count:
+  - empty is 1 when count is 0
+  - full  is 1 when count is 8
+  - count is the current number of stored entries
+
+Entries are returned in the order they were written.
+
+This is a sequential circuit.

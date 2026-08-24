@@ -1,0 +1,34 @@
+Implement a module named traffic_light_fsm — a fixed-timing traffic light
+controller.
+
+Interface:
+  - input        clk
+  - input        rst        (synchronous reset, active high)
+  - output [1:0] light
+  - output [1:0] timer      (cycles already spent in the current state)
+
+Light encoding:
+  2'b00 = RED
+  2'b01 = GREEN
+  2'b10 = YELLOW
+
+Timing, in clock cycles:
+  RED lasts 3 cycles, then GREEN
+  GREEN lasts 3 cycles, then YELLOW
+  YELLOW lasts 1 cycle, then RED
+
+The controller keeps a cycle counter for the current state. On every rising edge
+of clk with rst low: if the counter has reached one less than the current state's
+duration, the machine moves to the next state and the counter returns to 0.
+Otherwise the machine stays in the current state and the counter increments.
+
+When rst is high on a rising edge, the machine returns to RED with its counter
+at 0.
+
+timer outputs the current value of that counter, so it runs 0,1,2 during RED and
+GREEN, and is only ever 0 during YELLOW.
+
+Starting from reset the light sequence is therefore:
+RED, RED, RED, GREEN, GREEN, GREEN, YELLOW, RED, RED, RED, ...
+
+This is a sequential circuit.
