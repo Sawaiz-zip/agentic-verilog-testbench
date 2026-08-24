@@ -14,6 +14,7 @@ class ErrorType(str, Enum):
     WIDTH_MISMATCH = "width_mismatch"
     SENSITIVITY_LIST_ERROR = "sensitivity_list_error"
     MISSING_FDISPLAY = "missing_fdisplay"
+    CLOCK_NEVER_TOGGLED = "clock_never_toggled"
     PARSE_FAILED = "parse_failed"
 
 

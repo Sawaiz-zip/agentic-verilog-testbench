@@ -46,6 +46,88 @@ def _extract_ports(module_def) -> list[tuple[str, str]]:
     return ports
 
 
+def _const_int(node) -> int | None:
+    """Integer value of a constant AST node, or None if it is not a plain constant.
+
+    Widths given by a parameter or an expression are deliberately not resolved —
+    a width we cannot evaluate must produce no finding rather than a guess.
+    """
+    if node is None:
+        return None
+    value = getattr(node, "value", None)
+    if value is None:
+        return None
+    try:
+        text = str(value).strip()
+        # Sized literals such as 4'd7 — take the part after the base.
+        if "'" in text:
+            text = re.sub(r"^\d*'[sSbBoOdDhH]*", "", text)
+            return int(text, 0)
+        return int(text, 0)
+    except (TypeError, ValueError):
+        return None
+
+
+def _width_of(node) -> int | None:
+    """Declared bit width of a port/signal node. None when it cannot be resolved.
+
+    A node with no `width` is a scalar, i.e. 1 bit.
+    """
+    if node is None:
+        return None
+    width = getattr(node, "width", None)
+    if width is None:
+        return 1
+    msb = _const_int(getattr(width, "msb", None))
+    lsb = _const_int(getattr(width, "lsb", None))
+    if msb is None or lsb is None:
+        return None
+    return abs(msb - lsb) + 1
+
+
+def _extract_port_widths(module_def) -> dict[str, int]:
+    """{port_name: width} for a module, covering both port declaration styles.
+
+    ANSI style (`module m(input [7:0] a);`) carries the width on the port itself.
+    Verilog-1995 style (`module m(a); input [7:0] a;`) carries it on a separate
+    declaration in the module body, so both places are read.
+    """
+    widths: dict[str, int] = {}
+
+    for item in module_def.portlist.ports:
+        decl = item.first if isinstance(item, vast.Ioport) else None
+        if decl is None:
+            continue
+        w = _width_of(decl)
+        if w is not None and getattr(decl, "name", None):
+            widths[decl.name] = w
+
+    for item in (module_def.items or []):
+        if not isinstance(item, vast.Decl):
+            continue
+        for child in (item.list or []):
+            if isinstance(child, (vast.Input, vast.Output, vast.Inout)):
+                w = _width_of(child)
+                if w is not None and getattr(child, "name", None):
+                    widths.setdefault(child.name, w)
+
+    return widths
+
+
+def _extract_signal_widths(module_def) -> dict[str, int]:
+    """{signal_name: width} for the reg/wire declarations inside a testbench."""
+    widths: dict[str, int] = {}
+    for item in (module_def.items or []):
+        if not isinstance(item, vast.Decl):
+            continue
+        for child in (item.list or []):
+            if isinstance(child, (vast.Reg, vast.Wire, vast.Integer)):
+                w = _width_of(child)
+                if w is not None and getattr(child, "name", None):
+                    widths.setdefault(child.name, w)
+    return widths
+
+
 def _find_module_defs(ast) -> dict[str, object]:
     """Return {module_name: ModuleDef} for all modules in parsed AST."""
     return {
@@ -183,6 +265,149 @@ def _check_port_bindings(
                     )
                 )
 
+    return errors
+
+
+# ── Width-mismatch check ──────────────────────────────────────────────────────
+
+def _check_port_widths(
+    instances: list,
+    dut_port_widths: dict[str, int],
+    tb_signal_widths: dict[str, int],
+    module_name: str,
+) -> list[ErrorReportItem]:
+    """Compare each DUT port's declared width against the testbench signal bound
+    to it.
+
+    A width mismatch is silent at simulation time — Verilog zero-extends or
+    truncates without complaint — so the testbench compiles, runs, and reports
+    wrong results. That makes it exactly the class of defect static analysis is
+    for, and it cannot be found by the compiler.
+
+    Only plain identifier connections are compared. A concatenation, a slice or
+    an expression is skipped rather than guessed at.
+    """
+    errors: list[ErrorReportItem] = []
+    seen: set[tuple[str, str]] = set()
+
+    for inst in instances:
+        for pa in (inst.portlist or []):
+            portname = pa.portname
+            argname = pa.argname
+            if portname is None or argname is None:
+                continue
+            # Only a bare identifier has an unambiguous declared width.
+            if not isinstance(argname, vast.Identifier):
+                continue
+            signal = argname.name
+
+            port_w = dut_port_widths.get(portname)
+            sig_w = tb_signal_widths.get(signal)
+            if port_w is None or sig_w is None or port_w == sig_w:
+                continue
+            if (portname, signal) in seen:
+                continue
+            seen.add((portname, signal))
+
+            errors.append(
+                ErrorReportItem(
+                    error_type=ErrorType.WIDTH_MISMATCH,
+                    affected_signal=portname,
+                    line=getattr(pa, "lineno", None),
+                    suggested_fix=(
+                        f"Port '{portname}' of {module_name} is {port_w} bit(s) "
+                        f"wide but the testbench signal '{signal}' bound to it is "
+                        f"{sig_w} bit(s). Verilog silently truncates or "
+                        f"zero-extends, so this produces wrong values with no "
+                        f"compiler warning. Declare '{signal}' as "
+                        f"[{port_w - 1}:0]."
+                    ),
+                    severity=Severity.ERROR,
+                )
+            )
+
+    return errors
+
+
+# ── Clock-toggle check (SEQ) ─────────────────────────────────────────────────
+
+def _dut_clock_ports(dut_verilog: str, dut_ports: list[tuple[str, str]]) -> list[str]:
+    """DUT input ports that appear in an edge expression in the DUT itself.
+
+    Derived from the DUT source rather than from a name convention, so a clock
+    called `ck` or `pclk` is found and a data signal called `clock_enable` is not.
+    """
+    edged = set(re.findall(r"(?:pos|neg)edge\s+(\w+)", dut_verilog))
+    inputs = {name for direction, name in dut_ports if direction in ("Input", "Inout")}
+    return sorted(edged & inputs)
+
+
+def _clock_is_toggled(tb_verilog: str, signal: str) -> bool:
+    """Whether the testbench ever makes this signal change value repeatedly.
+
+    Deliberately generous: any inversion, any assignment inside a repeating
+    block, or more than one assignment anywhere counts as toggling. A clock that
+    is assigned exactly once and never inverted is the only shape reported, so a
+    correct-but-unusual clock generator is never flagged.
+    """
+    word = re.escape(signal)
+    if re.search(rf"~\s*{word}\b", tb_verilog):
+        return True
+    if re.search(rf"\b{word}\s*<?=\s*~", tb_verilog):
+        return True
+    # An assignment inside an always/forever/repeat block re-runs by definition.
+    for block in re.finditer(r"\b(?:always|forever|repeat)\b", tb_verilog):
+        tail = tb_verilog[block.end():block.end() + 400]
+        if re.search(rf"\b{word}\s*<?=", tail):
+            return True
+    assignments = re.findall(rf"\b{word}\s*<?=", tb_verilog)
+    return len(assignments) > 1
+
+
+def _check_clock_toggle(
+    instances: list,
+    dut_ports: list[tuple[str, str]],
+    dut_verilog: str,
+    tb_verilog: str,
+) -> list[ErrorReportItem]:
+    """A sequential DUT whose clock is initialised but never toggled.
+
+    The simulation still compiles and runs; it simply never advances, so every
+    scenario reports the reset value and the failure looks like a logic error
+    rather than a missing clock. `_signal_is_driven` is satisfied by the initial
+    assignment alone, so the undriven-input check cannot see this.
+    """
+    if not instances:
+        return []
+
+    inst = instances[0]
+    port_to_signal: dict[str, str] = {}
+    for pa in (inst.portlist or []):
+        if pa.portname and pa.argname is not None and hasattr(pa.argname, "name"):
+            port_to_signal[pa.portname] = pa.argname.name
+
+    errors: list[ErrorReportItem] = []
+    for clock_port in _dut_clock_ports(dut_verilog, dut_ports):
+        signal = port_to_signal.get(clock_port, clock_port)
+        if not re.search(rf"\b{re.escape(signal)}\s*<?=", tb_verilog):
+            continue  # never assigned at all — that is the undriven-input check
+        if _clock_is_toggled(tb_verilog, signal):
+            continue
+        errors.append(
+            ErrorReportItem(
+                error_type=ErrorType.CLOCK_NEVER_TOGGLED,
+                affected_signal=clock_port,
+                line=None,
+                suggested_fix=(
+                    f"Clock '{clock_port}' (testbench signal '{signal}') is "
+                    "assigned once but never toggled, so no clock edge ever "
+                    "occurs and the DUT never advances past its reset state. "
+                    f"Add a generator: initial {signal} = 0; always #5 {signal} "
+                    f"= ~{signal};"
+                ),
+                severity=Severity.ERROR,
+            )
+        )
     return errors
 
 
@@ -485,9 +710,16 @@ def run(
     # ── Run checks ────────────────────────────────────────────────────────────
     port_errors = _check_port_bindings(instances, dut_ports, module_name)
 
-    # Only run undriven/unobserved if port bindings look okay (avoid noise)
+    # Only run the signal-level checks if port bindings look okay (avoid noise:
+    # a mis-bound instance makes every downstream signal look wrong).
     if not port_errors:
         dataflow_errors = _check_driven_observed(instances, dut_ports, tb_verilog)
+        port_errors = port_errors + _check_port_widths(
+            instances,
+            _extract_port_widths(dut_module),
+            _extract_signal_widths(tb_module),
+            module_name,
+        )
     else:
         dataflow_errors = []
 
@@ -496,6 +728,9 @@ def run(
     if is_seq:
         sensitivity_errors = _check_sensitivity_lists(tb_module, tb_verilog)
         fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_verilog)
+        sensitivity_errors = sensitivity_errors + _check_clock_toggle(
+            instances, dut_ports, dut_verilog, tb_verilog
+        )
         # MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation
         # criterion, so an unobserved SEQ output would otherwise be reported
         # twice and double-counted in the taxonomy. Keep the SEQ-specific class.

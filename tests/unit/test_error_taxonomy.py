@@ -12,9 +12,27 @@ def test_all_error_types_defined():
         "width_mismatch",
         "sensitivity_list_error",
         "missing_fdisplay",
+        "clock_never_toggled",
         "parse_failed",
     }
     assert {e.value for e in ErrorType} == expected
+
+
+def test_every_declared_error_type_is_actually_emitted_somewhere():
+    """A taxonomy entry that no check emits is a claim the implementation cannot
+    back. WIDTH_MISMATCH sat unemitted for the whole project until the
+    mixed-width fixtures made it testable; parse_failed is constructed via the
+    PyverilogReport(parse_ok=False) path rather than as an ErrorReportItem."""
+    import pathlib
+    source = (pathlib.Path(__file__).parent.parent.parent
+              / "pipeline" / "analysis" / "pyverilog_runner.py").read_text()
+    exempt = {"parse_failed"}
+    for member in ErrorType:
+        if member.value in exempt:
+            continue
+        assert f"ErrorType.{member.name}" in source, (
+            f"{member.name} is declared in the taxonomy but emitted nowhere"
+        )
 
 
 def test_severity_values():

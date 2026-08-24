@@ -171,3 +171,28 @@ _MINIMAL_TB = {
         "endmodule\n"
     ),
 }
+
+
+@pytest.mark.parametrize("name,mutate,expected", [
+    # The mixed-width circuits are the reason WIDTH_MISMATCH became testable:
+    # every original fixture is 1-bit or uniformly 4-bit.
+    ("alu_8bit", lambda tb: tb.replace("reg [2:0] op;", "reg [1:0] op;"),
+     "width_mismatch"),
+    ("barrel_shifter_8bit", lambda tb: tb.replace("reg [2:0] shamt;", "reg [1:0] shamt;"),
+     "width_mismatch"),
+    ("bcd_to_7seg", lambda tb: tb.replace("wire [6:0] seg;", "wire [3:0] seg;"),
+     "width_mismatch"),
+    ("fifo_8x8", lambda tb: tb.replace("reg [7:0] data_in;", "reg [3:0] data_in;"),
+     "width_mismatch"),
+    # A clock that is initialised but never toggled: the simulation runs but
+    # never advances, so every scenario reads back the reset value.
+    ("fifo_8x8", lambda tb: tb.replace("  always #5 clk=~clk;\n", ""),
+     "clock_never_toggled"),
+    ("traffic_light_fsm", lambda tb: tb.replace("  always #5 clk=~clk;\n", ""),
+     "clock_never_toggled"),
+])
+def test_width_and_clock_faults_are_caught(name, mutate, expected):
+    _, ref = _paths(name)
+    report = run(mutate(_MINIMAL_TB[name]), ref.read_text(), module_name=name)
+    types = {e.error_type.value for e in report.all_errors()}
+    assert expected in types, types
