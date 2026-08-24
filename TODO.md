@@ -72,12 +72,26 @@ Results: `results/injection_study_final.json`; write-up `specs/011-error-injecti
       now recorded by a test. Six checks remain, all injection-verified.
 - [x] Eight defects found and fixed in already-tested code (see write-up)
 
-### Day 4 — Freeze prompts, run the sweep
+### Day 4 — Freeze prompts, run the sweep  ⟵ NEXT
+**Pre-flight completed 2026-08-25 — 10/10 checks green, 3 bugs found and fixed.**
+
+Launch command (one line, resumable into the same dir if interrupted):
+
+```bash
+python scripts/run_eval.py --yes --results-dir results/final_hard_r1 --modules \
+  alu_1bit comparator_2bit priority_encoder alu_8bit barrel_shifter_8bit bcd_to_7seg \
+  dff counter_4bit shift_register fsm_sequence_detector fifo_8x8 traffic_light_fsm
+```
+then repeat 2 into `results/final_hard_r2`, then:
+```bash
+python scripts/aggregate_repeats.py results/final_hard_r1 results/final_hard_r2
+```
+
 - [ ] **Freeze all prompts**, tag the commit `prompts-frozen`
-- [ ] `python scripts/run_eval.py --modules <12-circuit set> --yes --results-dir results/final_hard_r1`
-- [ ] Second repeat → `results/final_hard_r2`
-- [ ] 12 circuits × 5 modes × 2 repeats = **120 runs**, ≈1.93M tokens, ≈$15, ~4–6 h
-- [ ] Start it in the morning; it is the only long-running step
+- [ ] Repeat 1 → `results/final_hard_r1` (60 runs)
+- [ ] Repeat 2 → `results/final_hard_r2` (60 runs)
+- [ ] 12 circuits × 5 modes × 2 repeats = **120 runs**, ≈1.9M tokens, ≈$15, ~4–6 h
+- [ ] Start in the morning; it is the only long-running step
 
 ### Day 5 — Aggregate and produce the tables
 - [ ] Per-node failure attribution (already logged — aggregator computes it)

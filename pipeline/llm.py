@@ -115,6 +115,33 @@ def _is_daily_rate_limit(exc: Exception) -> bool:
     return ("per day" in msg) or ("tpd" in msg) or ("tokens per day" in msg)
 
 
+def _is_out_of_credits(exc: Exception) -> bool:
+    """The account has no credit left (HTTP 402 or an equivalent message).
+
+    Distinct from a rate limit: waiting does not help, and no later call in the
+    sweep can succeed either. Without this an exhausted balance fails all
+    remaining runs one at a time, each with its own retries and backoff — hours
+    of wall time spent producing worthless records.
+    """
+    status = getattr(exc, "status_code", None) or getattr(
+        getattr(exc, "response", None), "status_code", None
+    )
+    if status == 402:
+        return True
+    msg = str(exc).lower()
+    return any(
+        phrase in msg
+        for phrase in (
+            "insufficient credit",
+            "insufficient_quota",
+            "out of credit",
+            "payment required",
+            "exceeded your current quota",
+            "billing",
+        )
+    )
+
+
 def resolve_temperature(temperature: float | None = None) -> float:
     """
     Resolve the sampling temperature (Constitution IV, amended v1.1.0).
@@ -242,13 +269,12 @@ def _call_anthropic(
             return response.content[0].text, log
 
         except anthropic.RateLimitError as e:
-            if _is_daily_rate_limit(e):
-                raise  # daily quota — retrying won't help
+            if _is_daily_rate_limit(e) or _is_out_of_credits(e):
+                raise  # quota or balance — retrying won't help
             log["rate_limit_retries"] += 1
             if attempt == max_retries - 1:
                 raise
             time.sleep(2 ** attempt)
-
     raise RuntimeError("_call_anthropic: unreachable")
 
 
@@ -287,8 +313,11 @@ def _call_openai_compat(
             return response.choices[0].message.content, log
 
         except RateLimitError as e:
-            if _is_daily_rate_limit(e):
-                raise  # daily quota — retrying won't help
+            # A 402 sometimes arrives typed as a rate limit. Neither a daily
+            # quota nor an exhausted balance clears by waiting, so retrying only
+            # spends wall time.
+            if _is_daily_rate_limit(e) or _is_out_of_credits(e):
+                raise
             log["rate_limit_retries"] += 1
             if attempt == max_retries - 1:
                 raise

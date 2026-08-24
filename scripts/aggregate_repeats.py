@@ -17,7 +17,12 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from pipeline.eval.aggregate import aggregate
 
-MODES = ["baseline", "compiler_only", "pyverilog_only", "hybrid"]
+# Derived from the harness rather than hardcoded: a literal list silently drops
+# any mode added later. It had already gone stale — `retry_only`, the control arm
+# the whole comparison depends on, was missing.
+from pipeline.eval.harness import ALL_MODES
+
+MODES = [m.value for m in ALL_MODES]
 METRICS = [
     ("eval0_pass_rate", "Eval0"),
     ("eval1_pass_rate", "Eval1"),
