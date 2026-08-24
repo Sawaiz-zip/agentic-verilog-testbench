@@ -1,0 +1,34 @@
+Implement a module named alu_8bit — an 8-bit arithmetic logic unit with status flags.
+
+Interface:
+  - input  [7:0] a
+  - input  [7:0] b
+  - input  [2:0] op
+  - output [7:0] result
+  - output       zero
+  - output       carry
+  - output       overflow
+
+Operations selected by op:
+  op=3'b000  result = a + b                (addition)
+  op=3'b001  result = a - b                (subtraction)
+  op=3'b010  result = a & b                (bitwise AND)
+  op=3'b011  result = a | b                (bitwise OR)
+  op=3'b100  result = a ^ b                (bitwise XOR)
+  op=3'b101  result = a << 1               (logical shift left by one, zero fill)
+  op=3'b110  result = a >> 1               (logical shift right by one, zero fill)
+  op=3'b111  result = 1 if a < b else 0    (signed comparison; result is 8 bits,
+                                            so either 8'd1 or 8'd0)
+
+Flags:
+  - zero     is 1 when result is 8'b00000000, otherwise 0. It applies to every op.
+  - carry    for op=000 is the carry out of bit 7 of the unsigned addition.
+             For op=001 it is the borrow, i.e. 1 when the unsigned value of a is
+             less than the unsigned value of b. For every other op carry is 0.
+  - overflow for op=000 is signed addition overflow: 1 when a and b have the same
+             sign bit and the result's sign bit differs from it.
+             For op=001 it is signed subtraction overflow: 1 when a and b have
+             different sign bits and the result's sign bit differs from a's.
+             For every other op overflow is 0.
+
+This is a purely combinational circuit.

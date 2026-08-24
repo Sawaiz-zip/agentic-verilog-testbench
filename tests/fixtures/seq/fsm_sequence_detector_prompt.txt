@@ -1,0 +1,37 @@
+Implement a module named fsm_sequence_detector — a Moore finite state machine
+that detects the overlapping bit sequence 1011 on a serial input.
+
+Interface:
+  - input       clk
+  - input       rst        (synchronous reset, active high)
+  - input       din        (serial input bit, sampled on the rising edge of clk)
+  - output      detected
+  - output [2:0] state     (the current state, exposed for observation)
+
+The machine has five states, encoded exactly as follows:
+  S0 = 3'd0   no useful prefix seen
+  S1 = 3'd1   seen "1"
+  S2 = 3'd2   seen "10"
+  S3 = 3'd3   seen "101"
+  S4 = 3'd4   seen "1011"  (the full pattern)
+
+State transitions, taken on every rising edge of clk when rst is low:
+  from S0:  din=1 -> S1    din=0 -> S0
+  from S1:  din=1 -> S1    din=0 -> S2
+  from S2:  din=1 -> S3    din=0 -> S0
+  from S3:  din=1 -> S4    din=0 -> S2
+  from S4:  din=1 -> S1    din=0 -> S2
+
+Detection overlaps: the transitions out of S4 above reuse the tail of the pattern
+just matched, so the input 1011011 produces two detections.
+
+When rst is high on a rising edge, the state becomes S0 on that edge.
+
+This is a Moore machine, so detected depends only on the current state:
+detected is 1 exactly when state is S4, and 0 in every other state. It therefore
+becomes high on the clock edge that enters S4, one edge after the final 1 of the
+pattern is sampled.
+
+state outputs the current state value directly.
+
+This is a sequential circuit.
