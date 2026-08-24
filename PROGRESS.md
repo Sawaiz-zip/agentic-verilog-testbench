@@ -2,7 +2,7 @@
 
 > **For future Claude sessions:** Update this file as work progresses. Read `CLAUDE.md` first for full project context.
 
-**Last updated:** 2026-07-15 (session: real OpenRouter sweeps + pipeline fixes + SEQ prompt)
+**Last updated:** 2026-08-24 (session: results audit → 4 measurement fixes + `retry_only` control arm)
 
 ---
 
@@ -16,10 +16,14 @@
 | Feature 003 — DUT-gen + temp + results | ✅ Done | gen_dut node (description→DUT); configurable temperature (Constitution v1.1.0); human-readable run summary; offline test suite 36 pass / 1 live-skip |
 | Phase 3 — Repair loop (Wks 10–13) | ✅ Done | repair_node + 3-source feedback (static/compile/sim); 4 ablation modes distinct; oscillation + exhaustion termination. |
 | Phase 3b — SEQ support | ✅ Done | Deterministic $monitor/clock standardiser (Python-only, idempotent); merge_generation fan-in barrier; SEQ→standardise routing (CMB skips); dff/counter/shift_register fixtures; 60 tests pass. |
-| Phase 4 — Evaluation (Wks 14–16) | 🟢 First real sweeps done | Full 8-fixture × 4-mode ablation run on OpenRouter (Sonnet + gpt-4o-mini) at temp 0.7 AND temp 0. Results below. Remaining: held-out VerilogEval 156 run; Pyverilog precision/recall (FR-017). |
+| Phase 4 — Evaluation (Wks 14–16) | 🟡 Re-planned after audit | First sweeps (8 fixtures × 4 modes, temp 0.7 + temp 0) were run, then **audited and found unsafe to report** — see § 2026-08-24. Fixed. Now on a 5-day plan: hard circuits → error injection → 120-run sweep. |
 | Phase 5 — Writing (Wks 17–20) | ⚪ Not started | Exposé already done |
 
-**Provider now: OpenRouter (paid).** `.env` → `LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5`, `LLM_CHEAP_MODEL=openai/gpt-4o-mini`, `LLM_TEMPERATURE=0.7` (supervisor default). A temp=0 run is produced separately via inline `LLM_TEMPERATURE=0`.
+**Provider: OpenRouter (paid).** `.env` → `LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5`, `LLM_CHEAP_MODEL=openai/gpt-4o-mini`, `LLM_TEMPERATURE=0.7`.
+
+**Scope decisions (2026-08-24, supervisor):**
+- **No VerilogEval 156 run** — not funded. A smaller, deliberately *harder* circuit set with repeats replaces it.
+- **Temperature 0.7 only.** The temp-0 arm is dropped; `results/final_temp00/` is superseded.
 
 Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not started
 
@@ -67,6 +71,62 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 
 ---
 
+## 🆕 Session 2026-08-24 — Results audit, 4 measurement fixes, `retry_only` control arm
+
+Branch: `008-control-arm-and-static-evidence`. Full suite: **88 passed, 3 skipped** (was 73/3).
+Full write-up: `specs/008-control-arm-and-static-evidence/NOTES.md`.
+
+### What the audit of the 007 results found
+
+The 8×4 sweeps were re-examined before building on them. Three problems, in order of severity:
+
+1. **The ablation rests on 3 circuits.** All 5 CMB fixtures pass in every mode at both
+   temperatures — 40 of 64 runs are constant. Every point of variance comes from `dff`,
+   `counter_4bit`, `shift_register`, and the mode ordering flips between temperatures.
+   The 100% / 88% / 75% figures in the 2026-07-15 table are not statistically meaningful.
+2. **The static layer fired one check, and it was a false positive.** Re-running the
+   analyser over all 32 saved testbenches: 3 findings, all `missing_fdisplay`, all wrong.
+   Zero findings from the other four checks. `WIDTH_MISMATCH` is in the taxonomy but
+   emitted nowhere.
+3. **The `pyverilog_only` gain is confounded.** All 5 static-triggered repairs came from
+   that false positive. The mechanism was not localisation — a spurious warning caused a
+   regeneration that happened to fix an unrelated timing bug. `pyverilog_only` was
+   effectively `baseline` + one extra sample, and no control arm separated the two.
+
+### Fixes (4 commits)
+
+| Commit | Fix |
+|---|---|
+| `8473d33` | **A — `$fdisplay` check reconciled with the standardiser.** The analyser required the output inside a `$display` argument list; the standardiser accepted an `if (q === ...)` self-check. Both now use `_output_is_observed`, de-duplicated against `UNOBSERVED_OUTPUT`. |
+| `41ef824` | **B — `retry_only` control arm.** One extra `gen_driver` sample, zero diagnostics. A mode must beat `retry_only`, not just `baseline`, to claim its feedback works. New `regenerate` node; `ALL_MODES` is five. |
+| `12cc512` | **C — static-analysis evidence persisted.** New `state.static_findings` (one entry per analysis pass) + final report written to every result JSON. RQ1/RQ2 are computed from this and it was previously discarded. |
+| `8d65a8c` | **D — Eval2 valid-mutant denominator.** Non-compiling mutants no longer count against the score (one bad mutant of five had capped it at 0.8). |
+
+### The consequence, stated plainly
+
+**After fix A the static layer reports nothing at all on the 8 original fixtures**, so
+`pyverilog_only` collapses onto `baseline` there. The checks are not weak so much as
+untestable on 8–17 line circuits with 2–4 unambiguous ports: `port_binding_mismatch` needs
+≥3 confusable names, `width_mismatch` needs differing bus widths, `undriven_input` needs
+enough inputs to forget one, `sensitivity_list_error` needs `always` blocks the testbench
+does not have. This is why the plan below leads with harder circuits and an error-injection
+study that measures the localiser directly rather than through end-to-end pass rates.
+
+### Evaluation plan (replaces the VerilogEval 156 plan)
+
+**12 circuits × 5 modes × 2 repeats = 120 runs, temp 0.7 only.** ≈1.93M tokens, ≈$11
+(≈$15 with margin), vs ≈$51 for a single-shot 156 run with no error bars.
+
+|  | Easy (existing) | Hard (new) |
+|---|---|---|
+| **CMB** | `alu_1bit`, `comparator_2bit`, `priority_encoder` | `alu_8bit`, `barrel_shifter_8bit`, `bcd_to_7seg` |
+| **SEQ** | `dff`, `counter_4bit`, `shift_register` | `fsm_sequence_detector`, `fifo_8x8`, `traffic_light_fsm` |
+
+`half_adder` and `mux2to1` leave the sweep (constant in every mode) but stay as unit-test
+fixtures. Day-by-day schedule in `TODO.md`.
+
+---
+
 ## 🆕 Session 2026-07-15 — First real sweeps, pipeline fixes, SEQ prompt
 
 Branch: `fix/static-analysis-and-eval-integrity`. Full test suite: **73 passed, 3 skipped**.
@@ -103,7 +163,12 @@ Branch: `fix/static-analysis-and-eval-integrity`. Full test suite: **73 passed, 
 | pyverilog_only | 100% | **88%** | **88%** | 0.25 |
 | hybrid | 100% | 75% | 75% | 1.12 |
 
-**Reading of the results (honest):**
+> ⚠️ **Superseded by the 2026-08-24 audit above.** The `pyverilog_only` and `hybrid` gains
+> below are confounded — every static-triggered repair came from a false-positive
+> `missing_fdisplay`, and there was no control for the extra LLM sample that repairing
+> modes receive. Kept for the record; do not cite these figures.
+
+**Reading of the results (as written on 2026-07-15):**
 - ✅ **Eval0 = 100%** everywhere (beats AutoBench's 95.7%).
 - ✅ **Static analysis robustly helps** — `pyverilog_only` beats baseline at *both* temperatures (88% vs 75%/62%). Consistent across conditions ⇒ real signal, not noise. This is the core RQ2/RQ3 win.
 - ✅ **SEQ prompt fix works** — sequential circuits went from *all-failing* (previous sweeps) to passing in most modes.
@@ -160,20 +225,24 @@ Features 003, 004 (repair), 005 (SEQ), 006 (eval harness) complete.
 
 ## ⏭️ Next Session — Start Here
 
-**Pipeline validated end-to-end on OpenRouter; first real ablation results in `results/final_temp07|00/`. Core contribution (Pyverilog static analysis) shows a real, consistent benefit.**
+**Day 1 of the 5-day plan is done** (branch `008-control-arm-and-static-evidence`, 4 commits,
+88 tests green). Remaining schedule — full detail in `TODO.md`:
 
-**The one thing that turns "promising on our 8" into a real result: the held-out VerilogEval 156 run.**
-1. **Freeze the prompts** (esp. `gen_driver.j2`) — they were tuned on the 8 fixtures, so the 156 must be treated as held-out to test generalisation / overfitting.
-2. Run: `python scripts/run_eval.py --modules verilogeval --yes --results-dir results/final_verilogeval156` (624 runs = 156 × 4 modes; ~$40–60; hours). Consider `verilogeval:30` first as a cheaper checkpoint.
-3. The `task_id` fix means the 156 no longer collapse in the aggregate — verify `n` per mode ≈ 156.
-4. Compare our Eval0/1/2 to AutoBench's published numbers (Eval0 95.7%, Eval2 total 44.8%, CMB 62.2%, SEQ 26.0%) — same HDLBits source, so this is the real head-to-head.
-
-**Other follow-ups:**
-- Pyverilog error precision/recall (FR-017) — error-injection experiment (break good TBs in known structural ways, measure catch rate). Most direct proof of the localiser; independent of the 156 run.
-- Merge `fix/static-analysis-and-eval-integrity` → `main` (5 commits: `de0eec1`, `c7f3154`, `95b8d3b`, `c0cc1e4`).
-- Add a 402 "out of credits" clean-abort to the harness (mirrors the daily-rate-limit abort).
-
----
+- **Day 2** — build the 6 hard fixtures (`alu_8bit`, `barrel_shifter_8bit`, `bcd_to_7seg`,
+  `fsm_sequence_detector`, `fifo_8x8`, `traffic_light_fsm`); verify each compiles under
+  `iverilog`; one hybrid smoke run each (~$1) to catch breakage early. Drop any circuit that
+  fights us rather than lose the day.
+- **Day 3** — **error-injection precision/recall (FR-017)**. Break passing testbenches in each
+  taxonomy class (swap two port bindings, delete an input driver, truncate a bus width, strip
+  the `$monitor`, break the sensitivity list) and measure the catch rate per class. Offline,
+  zero tokens, and the most direct evidence for RQ2 — a check that cannot catch a deliberately
+  injected fault will not be rescued by more LLM runs.
+- **Day 4** — **freeze all prompts** (tag `prompts-frozen`), then run
+  12 circuits × 5 modes × 2 repeats = 120 runs at temp 0.7 (≈$15, ~4–6 h).
+- **Day 5** — aggregate: per-node failure attribution, iterations-to-pass, token cost per
+  module per mode, Eval0/1/2 across all 5 modes with error bars, failure-mode catalogue from
+  the persisted `static_findings`, tables + figures.
+- **Aug 29 – Sep 1** — report only. No new experiments.
 
 ## 🚧 Blocked / Waiting
 

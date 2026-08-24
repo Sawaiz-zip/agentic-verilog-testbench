@@ -5,7 +5,9 @@ from pipeline.config import AblationMode, PipelineConfig
 
 def test_ablation_modes_defined():
     modes = {m.value for m in AblationMode}
-    assert modes == {"baseline", "compiler_only", "pyverilog_only", "hybrid"}
+    assert modes == {
+        "baseline", "retry_only", "compiler_only", "pyverilog_only", "hybrid",
+    }
 
 
 def test_pipeline_config_defaults():

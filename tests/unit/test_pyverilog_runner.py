@@ -1,5 +1,5 @@
 """
-Unit tests for pyverilog_runner.run().
+Unit tests for run().
 Uses hand-crafted minimal Verilog to isolate each check category.
 """
 import json
@@ -190,3 +190,62 @@ def test_seq_missing_fdisplay_flagged():
     assert ErrorType.MISSING_FDISPLAY in error_types, (
         f"Expected MISSING_FDISPLAY, got: {error_types}"
     )
+
+
+# ── Fix A: observation criterion agrees with the standardiser ─────────────────
+
+_SEQ_DUT = (
+    "module dff(input clk, input d, output reg q);\n"
+    "  always @(posedge clk) q <= d;\n"
+    "endmodule\n"
+)
+
+
+def _seq_tb(body: str) -> str:
+    return (
+        "module tb;\n"
+        "  reg clk, d; wire q;\n"
+        "  dff uut(.clk(clk), .d(d), .q(q));\n"
+        "  initial clk = 0;\n"
+        "  always #5 clk = ~clk;\n"
+        "  initial begin\n"
+        f"{body}"
+        "    $finish;\n"
+        "  end\n"
+        "endmodule\n"
+    )
+
+
+def test_self_checking_output_is_not_flagged_missing_fdisplay():
+    """A testbench that checks its output with `if (q === ...)` observes that
+    output. Flagging it was a false positive: the deterministic standardiser
+    treats the same testbench as already observed and inserts nothing, so the
+    two components contradicted each other."""
+    tb = _seq_tb(
+        '    d = 1; @(posedge clk); #1;\n'
+        '    if (q === 1) $display("PASS: capture");\n'
+        '    else $display("FAIL: capture");\n'
+    )
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    assert report.parse_ok
+    types = {e.error_type.value for e in report.all_errors()}
+    assert "missing_fdisplay" not in types
+    assert "unobserved_output" not in types
+
+
+def test_genuinely_unobserved_output_is_still_flagged():
+    """The check must still fire when the output is neither printed nor compared."""
+    tb = _seq_tb('    d = 1; @(posedge clk); #1;\n    $display("done");\n')
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    assert report.parse_ok
+    types = [e.error_type.value for e in report.all_errors()]
+    assert "missing_fdisplay" in types
+
+
+def test_unobserved_seq_output_is_reported_once_not_twice():
+    """MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation criterion,
+    so an unobserved SEQ output must not be counted twice in the taxonomy."""
+    tb = _seq_tb('    d = 1; @(posedge clk); #1;\n    $display("done");\n')
+    report = run(tb, _SEQ_DUT, module_name="dff")
+    for_q = [e for e in report.all_errors() if e.affected_signal == "q"]
+    assert len(for_q) == 1, [e.error_type.value for e in for_q]

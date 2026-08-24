@@ -23,6 +23,11 @@ class GraphState(TypedDict):
     driver_rtl: str               # generated Verilog testbench
     checker_py: str               # generated Python checker
     pyverilog_report: dict        # AST + dataflow + port-binding summary
+    # One entry per static-analysis pass (initial + each repair re-analysis).
+    # Reducer-appended so the full localisation trace survives the repair loop
+    # and lands in the result JSON — required for the error taxonomy (RQ1) and
+    # precision/recall (RQ2), which cannot be reconstructed after the fact.
+    static_findings: Annotated[list[dict], operator.add]
     error_report: list[dict]      # [{type, signal, line, suggested_fix, severity}]
     last_error_report: list[dict] # for oscillation detection
     scenario_results: list[dict]  # [{name, passed}] parsed from sim_output

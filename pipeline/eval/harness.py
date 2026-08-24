@@ -21,7 +21,8 @@ DEFAULT_MODULES = [
 _SEQ_MODULES = ["dff", "counter_4bit", "shift_register"]
 
 ALL_MODES = [
-    AblationMode.BASELINE, AblationMode.COMPILER_ONLY,
+    AblationMode.BASELINE, AblationMode.RETRY_ONLY,
+    AblationMode.COMPILER_ONLY,
     AblationMode.PYVERILOG_ONLY, AblationMode.HYBRID,
 ]
 

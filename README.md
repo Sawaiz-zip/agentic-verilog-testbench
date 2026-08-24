@@ -85,7 +85,7 @@ OUTPUT: Testbench + per-run JSON (errors, tokens, repair iterations, Eval0/1/2)
 | Failure attribution | Not available | **Per-node failure stage logged** for every run |
 | Model tested | GPT-4 only | Claude Sonnet + gpt-4o-mini (provider-agnostic) |
 | Cost analysis | Not reported | **Token cost per module per ablation mode** |
-| Ablation study | None | 4 modes: baseline / compiler-only / pyverilog-only / hybrid |
+| Ablation study | None | 5 modes incl. a no-diagnostics control: baseline / retry-only / compiler-only / pyverilog-only / hybrid |
 
 ---
 
@@ -167,14 +167,15 @@ python -m pipeline run --nl desc.txt --dut golden.v --module m  # explicit golde
 # Configurable sampling temperature (default 0.7; the pipeline is robust to >0)
 LLM_TEMPERATURE=0.9 python -m pipeline run --module half_adder --mode hybrid
 
-# Ablation over the local fixtures (8 circuits × 4 modes)
-python scripts/run_eval.py --modules alu_1bit mux2to1 half_adder comparator_2bit \
-  priority_encoder dff counter_4bit shift_register --yes --results-dir results/my_sweep
+# Ablation over the evaluation set (12 circuits × 5 modes = 60 runs per repeat)
+python scripts/run_eval.py --modules alu_1bit comparator_2bit priority_encoder \
+  alu_8bit barrel_shifter_8bit bcd_to_7seg \
+  dff counter_4bit shift_register \
+  fsm_sequence_detector fifo_8x8 traffic_light_fsm \
+  --yes --results-dir results/final_hard_r1
 
-# Full held-out VerilogEval 156 (156 × 4 modes = 624 runs)
-python scripts/run_eval.py --modules verilogeval --yes --results-dir results/vle156
-
-# temp=0 (deterministic): prefix with LLM_TEMPERATURE=0
+# VerilogEval is wired up but NOT part of this project's evaluation (not funded):
+#   python scripts/run_eval.py --modules verilogeval:10 --yes --results-dir results/vle10
 
 # Aggregate a results folder into a per-mode comparison table
 python scripts/aggregate_results.py --results-dir results/my_sweep
@@ -194,9 +195,14 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 | Mode | What triggers LLM repair |
 |---|---|
 | `baseline` | Nothing — single shot, no repair |
+| `retry_only` | **Nothing — but one extra `gen_driver` sample is drawn anyway, with zero diagnostics.** The control arm. |
 | `compiler_only` | Only `iverilog` compile errors |
 | `pyverilog_only` | Only Pyverilog static analysis errors |
 | `hybrid` | Both — Pyverilog first, then compiler |
+
+Every repairing mode receives a second LLM generation that `baseline` never gets, so a gain
+over `baseline` alone cannot distinguish "the feedback helped" from "a second sample helped".
+`retry_only` isolates that: a mode must beat **`retry_only`** to claim its feedback works.
 
 ---
 
@@ -209,7 +215,7 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 
 ---
 
-## Implementation Status (2026-07-15)
+## Implementation Status (2026-08-24)
 
 | Phase | Focus | Status |
 |---|---|---|
@@ -217,26 +223,36 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 | 1 — Generation | CMB pipeline end-to-end | ✅ Done |
 | 2 — Pyverilog | Static analysis layer | ✅ Done |
 | 3 — Repair + SEQ | Repair loop + sequential support | ✅ Done |
-| 4 — Evaluation | Ablation sweeps + analysis | 🟢 First real results (below); held-out 156 next |
+| 4 — Evaluation | Ablation sweeps + analysis | 🟡 Re-planned after an audit of the first sweeps |
 | 5 — Writing | Final report (deadline Sept 1 2026) | ⚪ Not started |
 
-**First ablation results** (8 fixtures × 4 modes, OpenRouter Sonnet + gpt-4o-mini):
+### First results, and why they are not being reported
 
-| mode | Eval1 @ temp 0.7 | Eval1 @ temp 0 |
-|---|---|---|
-| baseline | 75% | 62% |
-| compiler_only | 75% | 75% |
-| **pyverilog_only** (ours) | **88%** | **88%** |
-| hybrid | **100%** | 75% |
+An 8-fixture × 4-mode sweep was run on 2026-07-15 and appeared to show `pyverilog_only`
+beating `baseline` at both temperatures. Auditing it before building further found that
+result to be unsound:
 
-Eval0 = 100% (beats AutoBench's 95.7%). **Static analysis beats baseline at both
-temperatures** — the core contribution, demonstrated. Caveat: 8 hand-built fixtures,
-SEQ prompt tuned on them → the **held-out VerilogEval 156** run is the real head-to-head
-vs AutoBench. Full detail and honest caveats in [`PROGRESS.md`](PROGRESS.md).
+- **All 5 combinational fixtures pass in every mode at both temperatures** — 40 of the 64
+  runs are constant. Every point of variance comes from 3 sequential circuits, and the
+  mode ordering flips between temperatures.
+- **The static layer fired exactly one check, and it was a false positive.** Re-running the
+  analyser over all 32 saved testbenches produced 3 findings, all `missing_fdisplay`, all
+  spurious: the check demanded the output appear inside a `$display` argument list, while a
+  self-checking testbench observes it via `if (q === ...)`. All 5 static-triggered repairs
+  in both sweeps came from this one bug.
+- **No control for the extra sample.** `pyverilog_only` was effectively `baseline` plus one
+  regeneration, and nothing separated the feedback from the resample.
+
+All four defects are fixed (see `specs/008-control-arm-and-static-evidence/NOTES.md`). After
+the fix the static layer reports **nothing** on those 8 fixtures — the checks are not weak so
+much as untestable there: four of five cannot fire on 8–17 line circuits with 2–4 unambiguous
+ports. The evaluation is therefore being re-run on **12 circuits (6 purpose-built hard) × 5
+modes × 2 repeats at temp 0.7**, alongside an offline error-injection study that measures the
+localiser directly. Full detail in [`PROGRESS.md`](PROGRESS.md) and [`TODO.md`](TODO.md).
 
 **Active LLM provider:** OpenRouter (paid) — `claude-sonnet-4.5` (strong) + `gpt-4o-mini`
 (cheap). Provider-agnostic via the OpenAI-compatible abstraction (Groq/Anthropic/OpenAI also work).
-**Tests:** 73 passed, 3 skipped (offline).
+**Tests:** 88 passed, 3 skipped (offline).
 
 ---
 

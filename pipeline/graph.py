@@ -19,6 +19,7 @@ from pipeline.nodes import (
     standardise_node,
     pyverilog_analysis_node,
     error_reasoner_node,
+    regenerate_node,
     repair_node,
     evaluate_node,
 )
@@ -57,6 +58,7 @@ def build_graph(config: PipelineConfig) -> StateGraph:
     g.add_node("pyverilog_analysis", pyverilog_analysis_node)
     g.add_node("error_reasoner",     error_reasoner_node)
     g.add_node("repair",             repair_node)
+    g.add_node("regenerate",         regenerate_node)     # RETRY_ONLY control arm
     g.add_node("evaluate",           evaluate_node)
 
     # ── Entry point ───────────────────────────────────────────────────────────
@@ -95,7 +97,21 @@ def build_graph(config: PipelineConfig) -> StateGraph:
     g.add_conditional_edges(
         "error_reasoner",
         lambda state: should_repair(state, config.mode),
-        {"repair": "repair", "evaluate": "evaluate"},
+        {"repair": "repair", "regenerate": "regenerate", "evaluate": "evaluate"},
+    )
+
+    # (1b) RETRY_ONLY: the resampled testbench re-enters the same post-generation
+    #      path as a repaired one (SEQ re-standardises first), so the control arm
+    #      differs from the repairing modes only in the absence of diagnostics.
+    #      On re-entry repair_iter is 1, so should_repair routes it to evaluate.
+    g.add_conditional_edges(
+        "regenerate",
+        after_repair,
+        {
+            "standardise": "standardise",
+            "pyverilog_analysis": "pyverilog_analysis",
+            "evaluate": "evaluate",
+        },
     )
 
     # (2) After a repair: re-analyse the regenerated testbench (SEQ re-standardises
