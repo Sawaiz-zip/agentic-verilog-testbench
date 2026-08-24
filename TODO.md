@@ -48,13 +48,24 @@ Write-up: `specs/009-hard-circuit-fixtures/NOTES.md`.
 - [x] Hybrid smoke runs — CMB all pass (`results/day2_smoke/`); SEQ in
       `results/day2_smoke_seq/`
 
+### Day 2b — Carried gaps closed ✅ DONE
+Branch `010-width-and-clock-checks`. **153 passed / 3 skipped** (was 132/3), 21 new tests.
+
+- [x] **`WIDTH_MISMATCH` implemented** — was declared in the taxonomy and emitted nowhere.
+      Reads both ANSI and Verilog-1995 declaration styles; skips widths it cannot resolve.
+      Verified on `alu_8bit`, `barrel_shifter_8bit`, `bcd_to_7seg`, `fifo_8x8`.
+- [x] **`CLOCK_NEVER_TOGGLED` added** — a clock assigned once and never toggled was
+      invisible to every existing check. Silent on four working generator styles.
+- [x] Taxonomy guard test — a declared error type with no emitting code path now fails CI.
+- [x] Regression: zero findings across all 38 real testbenches.
+
 ### Day 3 — Error-injection precision/recall (FR-017) — **offline, zero tokens**
 - [ ] Injection harness: take passing testbenches, break them in known structural ways
       — swap two port bindings, delete an input driver, truncate a bus width, strip the
-      `$monitor`, break the sensitivity list
+      clock generator, remove an output check, break the sensitivity list
 - [ ] Measure catch rate per taxonomy class → **precision/recall table**
-- [ ] Decide `WIDTH_MISMATCH`: implement it or remove it from the taxonomy
-      (currently declared but emitted nowhere — the report must not claim a check we lack)
+- [ ] Quantify whether `sensitivity_list_error` earns its place (it fires only when a
+      testbench never synchronises to an edge, which is rare in practice)
 - [ ] Most direct evidence for RQ2, and it works regardless of how the sweep turns out
 
 ### Day 4 — Freeze prompts, run the sweep

@@ -71,6 +71,50 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 
 ---
 
+## 🆕 Day 2b (2026-08-24) — Both carried gaps closed before Day 3
+
+Branch: `010-width-and-clock-checks`. Full suite: **153 passed, 3 skipped** (was 132/3).
+Write-up: `specs/010-width-and-clock-checks/NOTES.md`.
+
+Both checks target defects **the compiler cannot see** — which is the case static analysis
+has to make.
+
+- **`WIDTH_MISMATCH` implemented.** It had been declared in the taxonomy since Phase 2 and
+  emitted nowhere; the report would have claimed a check that did not exist. It also could
+  not have been tested before: every original fixture is 1-bit or uniformly 4-bit. It reads
+  both ANSI and Verilog-1995 declaration styles and skips widths it cannot resolve
+  (parameters, concatenations, slices) rather than guessing. A width mismatch is silent at
+  simulation time — Verilog truncates or zero-extends without a warning — so the testbench
+  compiles, runs, and reports wrong results.
+- **`CLOCK_NEVER_TOGGLED` added.** Deleting the clock generator from a correct testbench
+  previously left the analyser clean: `initial clk = 0;` satisfies `_signal_is_driven`, so
+  the undriven-input check cannot see it. The simulation then runs but never advances, and
+  every scenario reads back the reset value — the failure looks like a logic error rather
+  than a missing clock. The clock is identified from edge expressions in the DUT source,
+  not by name convention, and toggle detection is deliberately generous after three false
+  positives in this module.
+- **Guard added.** `test_every_declared_error_type_is_actually_emitted_somewhere` fails if
+  any taxonomy member has no emitting code path, so an unbacked entry cannot reappear.
+
+**Regression: zero findings across all 38 real testbenches** (32 from the July sweep, 6
+from the Day-2 smoke runs), and none on four working clock-generator styles.
+
+### Check inventory going into Day 3
+
+| Check | Status |
+|---|---|
+| `port_binding_mismatch` | ✅ injection-verified |
+| `undriven_input` | ✅ injection-verified |
+| `unobserved_output` | ✅ injection-verified |
+| `missing_fdisplay` (SEQ) | ✅ injection-verified |
+| `width_mismatch` | ✅ **now implemented**, verified on 4 circuits |
+| `clock_never_toggled` (SEQ) | ✅ **new**, verified on 2 circuits |
+| `sensitivity_list_error` | ⚠️ fires only when a testbench never synchronises to an edge — rare. Day 3 quantifies whether it earns its place. |
+
+Six of seven injection-verified. Day 3 turns this spot check into precision/recall figures.
+
+---
+
 ## 🆕 Day 2 (2026-08-24) — Six hard fixtures + a second false positive
 
 Branch: `009-hard-circuit-fixtures`. Full suite: **126 passed, 3 skipped** (was 88/3).
