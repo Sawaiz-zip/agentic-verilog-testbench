@@ -14,7 +14,7 @@
 | **Title** | LLM-Driven Verilog Testbench Generation with Pyverilog-Based Early Error Localization |
 | **Student** | Muhammad Sawaiz Naveed |
 | **Student email** | muhammad-sawaiz.naveed@tu-ilmenau.de |
-| **Supervisor** | Bing Wen — wen.bing@tu-ilmenau.de |
+| **Supervisor** | Bing Wen |
 | **University** | Technische Universität Ilmenau |
 | **Final report deadline** | September 1, 2026 |
 | **Working directory** | `/Users/sawaiznaveed/Ilmenau Uni/ResearchProject` |

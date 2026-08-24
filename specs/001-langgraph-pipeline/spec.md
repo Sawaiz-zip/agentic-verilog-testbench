@@ -7,7 +7,7 @@
 **Status**: Phase 1 + Phase 2 Complete — US1 (CMB generation) and US2 (Pyverilog static analysis) both verified 2026-06-24. Phase 3 (repair loop) is next.
 
 **Research context**: S6.ReKI.1 — LLM-Driven Verilog Testbench Generation with Pyverilog-Based Early Error Localization  
-**Supervisor**: Bing Wen (wen.bing@tu-ilmenau.de) | **Deadline**: 2026-09-01
+**Supervisor**: Bing Wen | **Deadline**: 2026-09-01
 
 ---
 

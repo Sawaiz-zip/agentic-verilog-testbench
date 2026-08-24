@@ -7,7 +7,7 @@
 ## Project
 - **Topic ID:** S6.ReKI.1
 - **Title:** Early Error Localization in LLM-Generated Verilog Using Pyverilog/LLM
-- **Supervisor:** wen.bing@tu-ilmenau.de
+- **Supervisor:** Bing Wen
 - **University:** TU Ilmenau
 - **Final Report Deadline:** September 1, 2026
 
