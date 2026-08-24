@@ -184,6 +184,8 @@ def mock_icarus(monkeypatch):
                        lambda path, timeout_s=30: (True, "PASS: zero\nPASS: both\n"))
     monkeypatch.setattr(icarus, "eval2",
                        lambda drv, muts, timeout_s=30: 1.0)
+    monkeypatch.setattr(icarus, "eval2_detailed",
+                       lambda drv, muts, timeout_s=30: (1.0, len(muts), len(muts), len(muts)))
     # evaluate_node imports these names into its own module namespace too
     import pipeline.nodes.evaluate as ev
     monkeypatch.setattr(ev.icarus, "compile_tb",
@@ -192,6 +194,8 @@ def mock_icarus(monkeypatch):
                        lambda path, timeout_s=30: (True, "PASS: zero\nPASS: both\n"))
     monkeypatch.setattr(ev.icarus, "eval2",
                        lambda drv, muts, timeout_s=30: 1.0)
+    monkeypatch.setattr(ev.icarus, "eval2_detailed",
+                       lambda drv, muts, timeout_s=30: (1.0, len(muts), len(muts), len(muts)))
     # The fake compiled path ("/tmp/fake.out") won't exist, so evaluate's cleanup
     # (os.path.exists → unlink) is naturally a no-op — no global os patch needed.
 
@@ -221,4 +225,8 @@ def mock_icarus_flaky(monkeypatch):
     monkeypatch.setattr(ev.icarus, "compile_tb", _compile)
     monkeypatch.setattr(ev.icarus, "simulate_tb", _sim)
     monkeypatch.setattr(ev.icarus, "eval2", lambda drv, muts, timeout_s=30: 1.0)
+    monkeypatch.setattr(
+        ev.icarus, "eval2_detailed",
+        lambda drv, muts, timeout_s=30: (1.0, len(muts), len(muts), len(muts)),
+    )
     return ctl

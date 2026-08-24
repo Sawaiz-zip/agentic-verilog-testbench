@@ -145,10 +145,15 @@ def evaluate_node(state: GraphState) -> dict:
         updates["llm_calls"] = mutant_logs
 
     if mutant_duts:
-        pass_rate = icarus.eval2(
+        pass_rate, caught, valid, total = icarus.eval2_detailed(
             driver_rtl, mutant_duts, timeout_s=cfg.simulation_timeout_s
         )
         updates["eval2_pass_rate"] = pass_rate
+        # Mutant validity is reported so an Eval2 score can never be silently
+        # depressed by mutants the LLM generated badly (they no longer count).
+        updates["eval2_caught"] = caught
+        updates["eval2_valid_mutants"] = valid
+        updates["eval2_total_mutants"] = total
         if pass_rate == 0.0:
             updates["final_status"] = "failed_eval2"
             updates["failure_stage"] = "evaluate"
@@ -189,6 +194,9 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
         "eval0_pass": updates.get("eval0_pass", False),
         "eval1_pass": updates.get("eval1_pass", False),
         "eval2_pass_rate": updates.get("eval2_pass_rate", 0.0),
+        "eval2_caught": updates.get("eval2_caught", 0),
+        "eval2_valid_mutants": updates.get("eval2_valid_mutants", 0),
+        "eval2_total_mutants": updates.get("eval2_total_mutants", 0),
         "scenario_results": scenario_results,
         "scenarios_passed": scenarios_passed,
         "scenarios_total": len(scenario_results),
@@ -227,10 +235,19 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
         "eval0_pass": best["eval0_pass"],
         "eval1_pass": best["eval1_pass"],
         "eval2_pass_rate": best["eval2_pass_rate"],
+        "eval2_caught": best.get("eval2_caught", 0),
+        "eval2_valid_mutants": best.get("eval2_valid_mutants", 0),
+        "eval2_total_mutants": best.get("eval2_total_mutants", 0),
         "eval_dut_source": best["eval_dut_source"],
         "scenario_results": best["scenario_results"],
         "scenarios_passed": best["scenarios_passed"],
         "scenarios_total": best["scenarios_total"],
+        # ── Static-analysis evidence (RQ1 taxonomy, RQ2 precision/recall) ──
+        # `static_findings` is the per-pass trace; `pyverilog_report` is the
+        # final pass. Both are persisted because the repair loop overwrites the
+        # report, and neither can be reconstructed from the artifacts later.
+        "static_findings": list(state.get("static_findings") or []),
+        "pyverilog_report": state.get("pyverilog_report") or {},
         "tokens_in_total": tokens_in_total,
         "tokens_out_total": tokens_out_total,
         "llm_calls": all_llm_calls,
