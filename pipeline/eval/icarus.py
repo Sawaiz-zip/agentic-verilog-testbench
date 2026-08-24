@@ -86,24 +86,32 @@ def simulate_tb(compiled_path: str, timeout_s: int = 30) -> tuple[bool, str]:
         return False, f"vvp timed out after {timeout_s}s"
 
 
-def eval2(driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30) -> float:
+def eval2_detailed(
+    driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30
+) -> tuple[float, int, int, int]:
     """
     Eval2: run TB against each mutant DUT.
-    Returns the fraction of mutants where the TB correctly detects the bug
-    (i.e. simulation FAILS on the mutant).
+    Returns (pass_rate, caught, valid, total).
+
+    A mutant that does not compile is an INVALID mutant — the LLM produced a
+    broken mutation, not a bug the testbench failed to catch. Such mutants are
+    excluded from BOTH numerator and denominator. (They were previously skipped
+    in the numerator but still counted in the denominator, which silently capped
+    the score: one bad mutant out of five pinned the maximum at 0.8.)
     """
-    if not mutant_duts:
-        return 0.0
+    total = len(mutant_duts)
+    if total == 0:
+        return 0.0, 0, 0, 0
 
     caught = 0
+    valid = 0
     for mutant_verilog in mutant_duts:
         success, _compiler_out, compiled_path = compile_tb(
             driver_rtl, mutant_verilog, timeout_s=timeout_s
         )
         if not success:
-            # If the mutant doesn't even compile, skip it — it's an invalid mutant,
-            # not a caught bug (the TB didn't discriminate; the mutation was bad).
             continue
+        valid += 1
         try:
             passed, _sim_out = simulate_tb(compiled_path, timeout_s=timeout_s)
             if not passed:
@@ -116,4 +124,11 @@ def eval2(driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30) -> float
                 except OSError:
                     pass
 
-    return caught / len(mutant_duts)
+    rate = (caught / valid) if valid else 0.0
+    return rate, caught, valid, total
+
+
+def eval2(driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30) -> float:
+    """Fraction of *valid* mutants the testbench detects. See eval2_detailed."""
+    rate, _caught, _valid, _total = eval2_detailed(driver_rtl, mutant_duts, timeout_s)
+    return rate
