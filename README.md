@@ -190,6 +190,26 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 
 ---
 
+## Static Checks (the error taxonomy)
+
+All are deterministic, run before any simulation, and cost zero tokens.
+
+| Check | Catches | Compiler can see it? |
+|---|---|---|
+| `port_binding_mismatch` | port name absent from the DUT, or a DUT port left unconnected | partly |
+| `width_mismatch` | testbench signal width differs from the DUT port width | **no** — Verilog truncates or zero-extends silently |
+| `undriven_input` | a DUT input the testbench never assigns | no |
+| `unobserved_output` | a DUT output the testbench never checks or prints | no |
+| `missing_fdisplay` (SEQ) | a sequential output never made observable | no |
+| `clock_never_toggled` (SEQ) | clock assigned once, never toggled — the simulation runs but never advances | **no** |
+| `sensitivity_list_error` (SEQ) | testbench never synchronises to a clock edge | no |
+
+Six of the seven are verified by fault injection: a correct testbench produces no
+findings, and a deliberately broken one is caught. See
+`specs/010-width-and-clock-checks/NOTES.md`.
+
+---
+
 ## Ablation Modes
 
 | Mode | What triggers LLM repair |
@@ -252,7 +272,7 @@ localiser directly. Full detail in [`PROGRESS.md`](PROGRESS.md) and [`TODO.md`](
 
 **Active LLM provider:** OpenRouter (paid) — `claude-sonnet-4.5` (strong) + `gpt-4o-mini`
 (cheap). Provider-agnostic via the OpenAI-compatible abstraction (Groq/Anthropic/OpenAI also work).
-**Tests:** 88 passed, 3 skipped (offline).
+**Tests:** 153 passed, 3 skipped (offline).
 
 ---
 
