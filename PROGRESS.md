@@ -71,6 +71,70 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 
 ---
 
+## 🆕 Day 2 (2026-08-24) — Six hard fixtures + a second false positive
+
+Branch: `009-hard-circuit-fixtures`. Full suite: **126 passed, 3 skipped** (was 88/3).
+Write-up: `specs/009-hard-circuit-fixtures/NOTES.md`.
+
+### Six circuits, chosen for the checks they can exercise
+
+| Fixture | Type | Ports | Exercises |
+|---|---|---|---|
+| `alu_8bit` | CMB | 7 | port bindings, mixed widths (8/3/1), undriven inputs |
+| `barrel_shifter_8bit` | CMB | 5 | mixed widths, mode-dependent behaviour |
+| `bcd_to_7seg` | CMB | 2 | differing in/out widths (4 → 7) |
+| `fsm_sequence_detector` | SEQ | 5 | multi-state tracking, exposed `state` |
+| `fifo_8x8` | SEQ | 9 | port bindings, undriven inputs, registered read |
+| `traffic_light_fsm` | SEQ | 4 | timed multi-state, exposed `timer` |
+
+Every golden DUT was validated **behaviourally against its own prompt**, not merely
+compiled — a golden that contradicts its description would make every generated testbench
+fail Eval1 for a specification reason rather than a quality one, silently corrupting the
+ablation. All six parse under Pyverilog; the Verible fallback was not needed.
+
+### Fix E — a second false positive, same family as fix A
+
+`sensitivity_list_error` fired on **all three** correct SEQ testbenches. Two ordinary
+correct constructions were being flagged: a clock generator (`always #5 clk = ~clk;`) has
+no sensitivity list by design, and a self-checking testbench synchronises with
+`@(posedge clk)` from an `initial` block rather than an edge-triggered `always`. Fixed;
+a testbench that never synchronises to an edge is still flagged.
+
+### The checks finally fire
+
+| Injected fault | Detected as |
+|---|---|
+| `alu_8bit`: `.op` → `.opcode` | `port_binding_mismatch` ×2 |
+| `alu_8bit`: `.overflow` binding removed | `port_binding_mismatch` |
+| `alu_8bit`: `op` never assigned | `undriven_input` |
+| `alu_8bit`: `carry` never compared | `unobserved_output` |
+| `fifo_8x8`: `.rd_en` → `.read_en` | `port_binding_mismatch` ×2 |
+| `fifo_8x8`: `data_in` never assigned | `undriven_input` |
+| `fifo_8x8`: `data_out` never checked | `missing_fdisplay` |
+| **correct testbench, all six circuits** | **no findings** |
+
+Four of the five checks now have a circuit that can trip them, with no false positives.
+Regression on the 32 July testbenches: still 0 findings, 29/32 parses.
+
+### Gaps carried into Day 3
+
+- **`WIDTH_MISMATCH` is still never emitted** — implement it against the new mixed-width
+  circuits or remove it from the taxonomy. The report must not claim a check we lack.
+- **A clock initialised but never toggled is not caught** — `initial clk = 0;` satisfies
+  `_signal_is_driven`, so deleting the clock generator leaves the analyser clean. The
+  standardiser repairs this case but the analyser does not report it. A
+  `CLOCK_NEVER_TOGGLED` check is cheap; quantify it in the injection study first.
+
+### Smoke runs (hybrid, one per circuit)
+
+All three hard CMB circuits pass: `alu_8bit` 10/10 scenarios, `barrel_shifter_8bit` 8/8,
+`bcd_to_7seg` 16/16; Eval2 = 1.00 with 5/5 valid mutants in each case. `alu_8bit` and
+`barrel_shifter_8bit` each needed one simulation-feedback repair — the first-shot failures
+were the genuinely hard scenarios (arithmetic right shift of a negative value; signed
+comparison), which is exactly the difficulty level the set was built for.
+
+---
+
 ## 🆕 Session 2026-08-24 — Results audit, 4 measurement fixes, `retry_only` control arm
 
 Branch: `008-control-arm-and-static-evidence`. Full suite: **88 passed, 3 skipped** (was 73/3).

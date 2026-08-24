@@ -26,18 +26,27 @@ Branch `008-control-arm-and-static-evidence`, 4 commits, **88 passed / 3 skipped
       (`12cc512`). RQ1/RQ2 evidence was previously discarded.
 - [x] **Fix D** — Eval2 scores against valid mutants only (`8d65a8c`).
 
-### Day 2 — Hard-circuit fixtures
-- [ ] Write `_prompt.txt` + `_ref.v` for 6 new circuits:
-  - CMB: `alu_8bit` (8-bit A/B, 3-bit opcode, zero/carry/overflow flags),
-    `barrel_shifter_8bit` (8-bit data, 3-bit amount, direction, arith mode),
-    `bcd_to_7seg` (4-bit in, 7-bit out)
-  - SEQ: `fsm_sequence_detector` ("1011" overlapping, Moore),
-    `fifo_8x8` (`wr_en`/`rd_en`/`full`/`empty`/`data_in`/`data_out`),
-    `traffic_light_fsm` (multi-state, timed transitions)
-- [ ] Verify each compiles under `iverilog -g2012`
-- [ ] One `hybrid` smoke run each (~$1) — catch prompt/parse breakage before the real sweep
-- [ ] Expect Pyverilog parse failures on the FSMs; confirm the Verible fallback engages
-- [ ] **Drop any circuit that fights us** rather than lose the day
+### Day 2 — Hard-circuit fixtures ✅ DONE
+Branch `009-hard-circuit-fixtures`. **126 passed / 3 skipped** (was 88/3), 38 new tests.
+Write-up: `specs/009-hard-circuit-fixtures/NOTES.md`.
+
+- [x] Six fixtures written — CMB: `alu_8bit`, `barrel_shifter_8bit`, `bcd_to_7seg`;
+      SEQ: `fsm_sequence_detector`, `fifo_8x8`, `traffic_light_fsm`
+- [x] All six compile under `iverilog -g2012`
+- [x] **Each golden DUT checked behaviourally against its own prompt** — not just compiled.
+      A golden that contradicts its description would make every generated testbench fail
+      Eval1 for a specification reason rather than a quality one.
+- [x] All six parse under Pyverilog — the Verible fallback was not needed
+- [x] **Fix E — sensitivity-list false positive.** `sensitivity_list_error` fired on all
+      three correct SEQ testbenches: a clock generator (`always #5 clk = ~clk;`) has no
+      sensitivity list by design, and `@(posedge clk)` inside an `initial` block is edge
+      synchronisation that simply is not in a sensitivity list. Same family as the
+      `$fdisplay` false positive in 008.
+- [x] **Fault injection confirms the checks fire** — `port_binding_mismatch`,
+      `undriven_input`, `unobserved_output` and `missing_fdisplay` all caught on
+      `alu_8bit` / `fifo_8x8`, with **no findings on the correct testbenches**
+- [x] Hybrid smoke runs — CMB all pass (`results/day2_smoke/`); SEQ in
+      `results/day2_smoke_seq/`
 
 ### Day 3 — Error-injection precision/recall (FR-017) — **offline, zero tokens**
 - [ ] Injection harness: take passing testbenches, break them in known structural ways
