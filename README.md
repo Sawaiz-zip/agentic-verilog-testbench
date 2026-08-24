@@ -192,21 +192,47 @@ pytest -m live       # small live-API smoke test; auto-skips without an API key
 
 ## Static Checks (the error taxonomy)
 
-All are deterministic, run before any simulation, and cost zero tokens.
+All deterministic, run before any simulation, zero tokens. Detection rates are measured,
+not asserted — see the error-injection study below.
 
-| Check | Catches | Compiler can see it? |
-|---|---|---|
-| `port_binding_mismatch` | port name absent from the DUT, or a DUT port left unconnected | partly |
-| `width_mismatch` | testbench signal width differs from the DUT port width | **no** — Verilog truncates or zero-extends silently |
-| `undriven_input` | a DUT input the testbench never assigns | no |
-| `unobserved_output` | a DUT output the testbench never checks or prints | no |
-| `missing_fdisplay` (SEQ) | a sequential output never made observable | no |
-| `clock_never_toggled` (SEQ) | clock assigned once, never toggled — the simulation runs but never advances | **no** |
-| `sensitivity_list_error` (SEQ) | testbench never synchronises to a clock edge | no |
+| Check | Catches | Compiler finds it? | Simulator finds it? | Static detection |
+|---|---|---|---|---|
+| `unobserved_output` | an output the testbench never checks | no | **no** | **100%** |
+| `clock_never_toggled` | clock set once, never toggled — sim runs but never advances | no | 17% | **100%** |
+| `width_mismatch` | testbench signal width ≠ DUT port width | **no** (warning only) | 82% | **100%** |
+| `undriven_input` | a DUT input never assigned | no | 97% | **100%** |
+| `port_binding_mismatch` | port unconnected, or bound under a name the DUT lacks | partly | 98% | **100%** |
+| `missing_fdisplay` (SEQ) | a sequential output never made observable | no | no | **100%** |
 
-Six of the seven are verified by fault injection: a correct testbench produces no
-findings, and a deliberately broken one is caught. See
-`specs/010-width-and-clock-checks/NOTES.md`.
+**`unobserved_output` is the case for the whole layer:** a testbench that stops checking an
+output does not fail, it *passes* — it is no longer looking. The simulator cannot see that
+by construction and the compiler sees legal Verilog. Static analysis is the only layer that
+finds it.
+
+A seventh check, `sensitivity_list_error`, was **removed** after the study measured it at
+0/5 recall with a false positive on a passing testbench. See
+`specs/011-error-injection-study/NOTES.md`.
+
+---
+
+## Error-Injection Study (RQ2)
+
+`python scripts/run_injection_study.py` — offline, zero tokens.
+
+Takes 14 testbenches known to pass, injects 215 known faults one at a time, and asks
+whether the static analyser, the compiler, and the simulator each notice.
+
+| | result |
+|---|---|
+| Static detection | **93%** |
+| Localisation (right class **and** right signal) | **93%** |
+| False positives on 14 clean testbenches | **0** |
+| Faults missed by compiler **and** simulator | 33/215 (15%) |
+| ...of those, caught by static analysis | **30/33 (91%)** |
+
+Honest limits: `port_rename` is caught by the compiler too (we add only speed), and the
+`swap_bindings` control — two same-width inputs bound to each other's signals — is
+invisible to static analysis by design, marking the boundary of the approach.
 
 ---
 
@@ -272,7 +298,7 @@ localiser directly. Full detail in [`PROGRESS.md`](PROGRESS.md) and [`TODO.md`](
 
 **Active LLM provider:** OpenRouter (paid) — `claude-sonnet-4.5` (strong) + `gpt-4o-mini`
 (cheap). Provider-agnostic via the OpenAI-compatible abstraction (Groq/Anthropic/OpenAI also work).
-**Tests:** 153 passed, 3 skipped (offline).
+**Tests:** 182 passed, 3 skipped (offline).
 
 ---
 

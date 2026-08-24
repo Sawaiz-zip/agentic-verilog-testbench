@@ -1,0 +1,4368 @@
+{
+  "baseline": [
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "findings": [],
+      "false_positive": false,
+      "parse_ok": true
+    }
+  ],
+  "cases": [
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a renamed to .a_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b renamed to .b_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "sum",
+      "description": "port .sum renamed to .sum_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "sum_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "sum"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "cout",
+      "description": "port .cout renamed to .cout_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "cout_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "cout"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "sum",
+      "description": "port .sum left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "sum"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "cout",
+      "description": "port .cout left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "cout"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "a",
+      "description": "DUT input .a is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "b",
+      "description": "DUT input .b is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "sum",
+      "description": "DUT output .sum is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "sum"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "cout",
+      "description": "DUT output .cout is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "cout"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "half_adder",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "a/b",
+      "description": "inputs .a and .b bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "d",
+      "description": "port .d renamed to .d_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "d_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "d"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "q",
+      "description": "port .q renamed to .q_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "q_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "q"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "d",
+      "description": "port .d left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "d"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "q",
+      "description": "port .q left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "q"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "d",
+      "description": "DUT input .d is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "d"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "dff",
+      "circuit_type": "SEQ",
+      "kind": "break_edge_sync",
+      "expected_type": "sensitivity_list_error",
+      "signal": "(clock)",
+      "description": "all 15 clock-edge waits replaced with bare #10 delays",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst renamed to .rst_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out renamed to .out_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "out",
+      "description": "testbench signal 'out' narrowed from [3:0] to [2:0] while port .out stays 4 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rst",
+      "description": "DUT input .rst is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "counter_4bit",
+      "circuit_type": "SEQ",
+      "kind": "break_edge_sync",
+      "expected_type": "sensitivity_list_error",
+      "signal": "(clock)",
+      "description": "all 47 clock-edge waits replaced with bare #10 delays",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a renamed to .a_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b renamed to .b_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "eq",
+      "description": "port .eq renamed to .eq_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "eq_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "eq"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "lt",
+      "description": "port .lt renamed to .lt_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "lt_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "lt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "gt",
+      "description": "port .gt renamed to .gt_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "gt_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "gt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "eq",
+      "description": "port .eq left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "eq"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "lt",
+      "description": "port .lt left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "lt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "gt",
+      "description": "port .gt left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "gt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "a",
+      "description": "testbench signal 'a' narrowed from [1:0] to [0:0] while port .a stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "b",
+      "description": "testbench signal 'b' narrowed from [1:0] to [0:0] while port .b stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "a",
+      "description": "DUT input .a is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "b",
+      "description": "DUT input .b is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "eq",
+      "description": "DUT output .eq is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "eq"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "lt",
+      "description": "DUT output .lt is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "lt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "gt",
+      "description": "DUT output .gt is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "gt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "comparator_2bit",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "a/b",
+      "description": "inputs .a and .b bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a renamed to .a_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b renamed to .b_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "op",
+      "description": "port .op renamed to .op_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "op_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "result",
+      "description": "port .result renamed to .result_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "result_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "op",
+      "description": "port .op left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "result",
+      "description": "port .result left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "op",
+      "description": "testbench signal 'op' narrowed from [1:0] to [0:0] while port .op stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "a",
+      "description": "DUT input .a is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "b",
+      "description": "DUT input .b is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "op",
+      "description": "DUT input .op is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_1bit",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "a/b",
+      "description": "inputs .a and .b bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "in",
+      "description": "port .in renamed to .in_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "in_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "pos",
+      "description": "port .pos renamed to .pos_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "pos_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "pos"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "valid",
+      "description": "port .valid renamed to .valid_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "valid_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "valid"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "in",
+      "description": "port .in left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "pos",
+      "description": "port .pos left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "pos"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "valid",
+      "description": "port .valid left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "valid"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "in",
+      "description": "testbench signal 'in' narrowed from [3:0] to [2:0] while port .in stays 4 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "pos",
+      "description": "testbench signal 'pos' narrowed from [1:0] to [0:0] while port .pos stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "pos"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "in",
+      "description": "DUT input .in is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "pos",
+      "description": "DUT output .pos is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "pos"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "priority_encoder",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "valid",
+      "description": "DUT output .valid is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "valid"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a renamed to .a_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b renamed to .b_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "sel",
+      "description": "port .sel renamed to .sel_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "sel_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "sel"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out renamed to .out_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "sel",
+      "description": "port .sel left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "sel"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "a",
+      "description": "DUT input .a is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "b",
+      "description": "DUT input .b is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "sel",
+      "description": "DUT input .sel is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "sel"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "mux2to1",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "a/b",
+      "description": "inputs .a and .b bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst renamed to .rst_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "in",
+      "description": "port .in renamed to .in_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "in_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out renamed to .out_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "in",
+      "description": "port .in left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "out",
+      "description": "port .out left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "out",
+      "description": "testbench signal 'out' narrowed from [3:0] to [2:0] while port .out stays 4 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rst",
+      "description": "DUT input .rst is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "in",
+      "description": "DUT input .in is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "shift_register",
+      "circuit_type": "SEQ",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "rst/in",
+      "description": "inputs .rst and .in bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "bcd",
+      "description": "port .bcd renamed to .bcd_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "bcd_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "bcd"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "seg",
+      "description": "port .seg renamed to .seg_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "seg_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "seg"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "bcd",
+      "description": "port .bcd left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "bcd"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "seg",
+      "description": "port .seg left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "seg"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "bcd",
+      "description": "testbench signal 'bcd' narrowed from [3:0] to [2:0] while port .bcd stays 4 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "bcd"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "seg",
+      "description": "testbench signal 'seg' narrowed from [6:0] to [5:0] while port .seg stays 7 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "seg"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "bcd_to_7seg",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "bcd",
+      "description": "DUT input .bcd is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "bcd"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_in",
+      "description": "port .data_in renamed to .data_in_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_in_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "shamt",
+      "description": "port .shamt renamed to .shamt_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "shamt_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "shamt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "dir",
+      "description": "port .dir renamed to .dir_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "dir_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "dir"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "arith",
+      "description": "port .arith renamed to .arith_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "arith_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "arith"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_out",
+      "description": "port .data_out renamed to .data_out_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_out_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_in",
+      "description": "port .data_in left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "shamt",
+      "description": "port .shamt left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "shamt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "dir",
+      "description": "port .dir left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "dir"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "arith",
+      "description": "port .arith left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "arith"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_out",
+      "description": "port .data_out left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "data_in",
+      "description": "testbench signal 'data_in' narrowed from [7:0] to [6:0] while port .data_in stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "shamt",
+      "description": "testbench signal 'shamt' narrowed from [2:0] to [1:0] while port .shamt stays 3 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "shamt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "data_out",
+      "description": "testbench signal 'data_out' narrowed from [7:0] to [6:0] while port .data_out stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "data_in",
+      "description": "DUT input .data_in is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "shamt",
+      "description": "DUT input .shamt is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "shamt"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "dir",
+      "description": "DUT input .dir is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "dir"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "arith",
+      "description": "DUT input .arith is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "arith"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "barrel_shifter_8bit",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "dir/arith",
+      "description": "inputs .dir and .arith bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a renamed to .a_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b renamed to .b_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "op",
+      "description": "port .op renamed to .op_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "op_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "result",
+      "description": "port .result renamed to .result_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "result_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "zero",
+      "description": "port .zero renamed to .zero_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "zero_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "zero"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "carry",
+      "description": "port .carry renamed to .carry_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "carry_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "carry"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "overflow",
+      "description": "port .overflow renamed to .overflow_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "overflow_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "overflow"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "a",
+      "description": "port .a left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "b",
+      "description": "port .b left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "op",
+      "description": "port .op left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "result",
+      "description": "port .result left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "zero",
+      "description": "port .zero left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "zero"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "carry",
+      "description": "port .carry left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "carry"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "overflow",
+      "description": "port .overflow left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "overflow"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "a",
+      "description": "testbench signal 'a' narrowed from [7:0] to [6:0] while port .a stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "b",
+      "description": "testbench signal 'b' narrowed from [7:0] to [6:0] while port .b stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "op",
+      "description": "testbench signal 'op' narrowed from [2:0] to [1:0] while port .op stays 3 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "result",
+      "description": "testbench signal 'result' narrowed from [7:0] to [6:0] while port .result stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "a",
+      "description": "DUT input .a is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "a"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "b",
+      "description": "DUT input .b is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "b"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "op",
+      "description": "DUT input .op is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "op"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "result",
+      "description": "DUT output .result is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "result"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "zero",
+      "description": "DUT output .zero is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "zero"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "carry",
+      "description": "DUT output .carry is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "carry"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "unobserved_output",
+      "expected_type": "unobserved_output",
+      "signal": "overflow",
+      "description": "DUT output .overflow is never compared or printed",
+      "static_findings": [
+        [
+          "unobserved_output",
+          "overflow"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "alu_8bit",
+      "circuit_type": "CMB",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "a/b",
+      "description": "inputs .a and .b bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst renamed to .rst_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "wr_en",
+      "description": "port .wr_en renamed to .wr_en_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "wr_en_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "wr_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rd_en",
+      "description": "port .rd_en renamed to .rd_en_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rd_en_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rd_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_in",
+      "description": "port .data_in renamed to .data_in_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_in_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_out",
+      "description": "port .data_out renamed to .data_out_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_out_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "full",
+      "description": "port .full renamed to .full_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "full_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "full"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "empty",
+      "description": "port .empty renamed to .empty_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "empty_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "empty"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "count",
+      "description": "port .count renamed to .count_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "count_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "count"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "wr_en",
+      "description": "port .wr_en left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "wr_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rd_en",
+      "description": "port .rd_en left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rd_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_in",
+      "description": "port .data_in left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "data_out",
+      "description": "port .data_out left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "full",
+      "description": "port .full left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "full"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "empty",
+      "description": "port .empty left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "empty"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "count",
+      "description": "port .count left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "count"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "data_in",
+      "description": "testbench signal 'data_in' narrowed from [7:0] to [6:0] while port .data_in stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "data_out",
+      "description": "testbench signal 'data_out' narrowed from [7:0] to [6:0] while port .data_out stays 8 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "count",
+      "description": "testbench signal 'count' narrowed from [3:0] to [2:0] while port .count stays 4 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "count"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rst",
+      "description": "DUT input .rst is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "wr_en",
+      "description": "DUT input .wr_en is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "wr_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rd_en",
+      "description": "DUT input .rd_en is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rd_en"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "data_in",
+      "description": "DUT input .data_in is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "data_in"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "data_out",
+      "description": "DUT output .data_out is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "data_out"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "full",
+      "description": "DUT output .full is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "full"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "empty",
+      "description": "DUT output .empty is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "empty"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "count",
+      "description": "DUT output .count is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "count"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "break_edge_sync",
+      "expected_type": "sensitivity_list_error",
+      "signal": "(clock)",
+      "description": "all 25 clock-edge waits replaced with bare #10 delays",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fifo_8x8",
+      "circuit_type": "SEQ",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "rst/wr_en",
+      "description": "inputs .rst and .wr_en bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst renamed to .rst_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "light",
+      "description": "port .light renamed to .light_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "light_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "light"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "timer",
+      "description": "port .timer renamed to .timer_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "timer_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "timer"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "light",
+      "description": "port .light left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "light"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "timer",
+      "description": "port .timer left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "timer"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "light",
+      "description": "testbench signal 'light' narrowed from [1:0] to [0:0] while port .light stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "light"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "timer",
+      "description": "testbench signal 'timer' narrowed from [1:0] to [0:0] while port .timer stays 2 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "timer"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rst",
+      "description": "DUT input .rst is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "light",
+      "description": "DUT output .light is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "light"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "timer",
+      "description": "DUT output .timer is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "timer"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "traffic_light_fsm",
+      "circuit_type": "SEQ",
+      "kind": "break_edge_sync",
+      "expected_type": "sensitivity_list_error",
+      "signal": "(clock)",
+      "description": "all 42 clock-edge waits replaced with bare #10 delays",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk renamed to .clk_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst renamed to .rst_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "din",
+      "description": "port .din renamed to .din_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "din_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "din"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "detected",
+      "description": "port .detected renamed to .detected_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "detected_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "detected"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_rename",
+      "expected_type": "port_binding_mismatch",
+      "signal": "state",
+      "description": "port .state renamed to .state_x in the instantiation",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "state_x"
+        ],
+        [
+          "port_binding_mismatch",
+          "state"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": true,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "clk",
+      "description": "port .clk left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "rst",
+      "description": "port .rst left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "din",
+      "description": "port .din left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "din"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "detected",
+      "description": "port .detected left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "detected"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "port_drop",
+      "expected_type": "port_binding_mismatch",
+      "signal": "state",
+      "description": "port .state left unconnected",
+      "static_findings": [
+        [
+          "port_binding_mismatch",
+          "state"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "width_change",
+      "expected_type": "width_mismatch",
+      "signal": "state",
+      "description": "testbench signal 'state' narrowed from [2:0] to [1:0] while port .state stays 3 bits",
+      "static_findings": [
+        [
+          "width_mismatch",
+          "state"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "rst",
+      "description": "DUT input .rst is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "rst"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "undriven_input",
+      "expected_type": "undriven_input",
+      "signal": "din",
+      "description": "DUT input .din is declared and bound but never assigned",
+      "static_findings": [
+        [
+          "undriven_input",
+          "din"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "detected",
+      "description": "DUT output .detected is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "detected"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "unobserved_output",
+      "expected_type": "missing_fdisplay",
+      "signal": "state",
+      "description": "DUT output .state is never compared or printed",
+      "static_findings": [
+        [
+          "missing_fdisplay",
+          "state"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "remove_clock_generator",
+      "expected_type": "clock_never_toggled",
+      "signal": "clk",
+      "description": "clock generator for 'clk' deleted; no edge ever occurs",
+      "static_findings": [
+        [
+          "clock_never_toggled",
+          "clk"
+        ]
+      ],
+      "static_detected": true,
+      "static_any": true,
+      "static_localised": true,
+      "compiler_detected": false,
+      "simulation_detected": false
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "break_edge_sync",
+      "expected_type": "sensitivity_list_error",
+      "signal": "(clock)",
+      "description": "all 59 clock-edge waits replaced with bare #10 delays",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    },
+    {
+      "module_name": "fsm_sequence_detector",
+      "circuit_type": "SEQ",
+      "kind": "swap_bindings",
+      "expected_type": null,
+      "signal": "rst/din",
+      "description": "inputs .rst and .din bound to each other's signals (semantic fault, structurally legal)",
+      "static_findings": [],
+      "static_detected": false,
+      "static_any": false,
+      "static_localised": false,
+      "compiler_detected": false,
+      "simulation_detected": true
+    }
+  ],
+  "excluded": []
+}

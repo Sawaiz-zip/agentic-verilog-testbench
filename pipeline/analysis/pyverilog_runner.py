@@ -1,7 +1,14 @@
 """
 Pyverilog-based static analysis of generated testbench vs golden DUT.
-Checks: port bindings, undriven inputs, unobserved outputs, sensitivity lists,
-$fdisplay presence.
+Checks: port bindings, port widths, undriven inputs, unobserved outputs,
+$fdisplay presence, clock toggling.
+
+The sensitivity-list check was removed after the error-injection study measured
+it: 0/5 recall on the fault it existed to catch, plus a false positive on a
+passing testbench. It inspected `always` blocks inside the testbench, but
+LLM-generated testbenches drive from `initial` blocks and synchronise with
+`@(posedge clk)`, so it was looking where the evidence never is. The concern it
+aimed at is covered by CLOCK_NEVER_TOGGLED, which scored 6/6.
 RQ1 + RQ2.
 
 Smoke-test findings (Phase 0, 2026-06-23):
@@ -24,6 +31,7 @@ import tempfile
 import pyverilog.vparser.ast as vast
 import pyverilog.vparser.parser as vparser
 
+from pipeline.analysis.verilog_text import strip_noise
 from pipeline.analysis.error_taxonomy import (
     ErrorReportItem,
     ErrorType,
@@ -342,26 +350,76 @@ def _dut_clock_ports(dut_verilog: str, dut_ports: list[tuple[str, str]]) -> list
     return sorted(edged & inputs)
 
 
+def _block_body(text: str, pos: int) -> str:
+    """Source of the single statement or begin/end block starting at `pos`.
+
+    Used instead of a fixed character window: a window overruns the end of a
+    short block and picks up whatever follows, so an `always @(*)` block was
+    credited with a `clk = 0;` that belonged to a separate initial block further
+    down — making a dead clock look like it was toggling.
+    """
+    i = pos
+    n = len(text)
+    while i < n and text[i].isspace():
+        i += 1
+    # Skip an event control `@(...)` or a delay `#5` before the statement.
+    while i < n and text[i] in "@#":
+        if text[i] == "@":
+            depth = 0
+            while i < n:
+                if text[i] == "(":
+                    depth += 1
+                elif text[i] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        i += 1
+                        break
+                i += 1
+        else:
+            i += 1
+            while i < n and (text[i].isdigit() or text[i].isspace()):
+                i += 1
+        while i < n and text[i].isspace():
+            i += 1
+
+    if text.startswith("begin", i):
+        depth = 0
+        for m in re.finditer(r"\b(begin|end)\b", text[i:]):
+            depth += 1 if m.group(1) == "begin" else -1
+            if depth == 0:
+                return text[i:i + m.end()]
+        return text[i:]
+    end = text.find(";", i)
+    return text[i:end + 1] if end != -1 else text[i:]
+
+
 def _clock_is_toggled(tb_verilog: str, signal: str) -> bool:
     """Whether the testbench ever makes this signal change value repeatedly.
 
     Deliberately generous: any inversion, any assignment inside a repeating
-    block, or more than one assignment anywhere counts as toggling. A clock that
-    is assigned exactly once and never inverted is the only shape reported, so a
+    block, or more than one assignment counts as toggling. A clock assigned
+    exactly once and never inverted is the only shape reported, so a
     correct-but-unusual clock generator is never flagged.
     """
     word = re.escape(signal)
+    assign = rf"\b{word}\s*<?=(?!=)"
     if re.search(rf"~\s*{word}\b", tb_verilog):
         return True
     if re.search(rf"\b{word}\s*<?=\s*~", tb_verilog):
         return True
-    # An assignment inside an always/forever/repeat block re-runs by definition.
+    # An assignment inside an always/forever/repeat block re-runs by definition —
+    # but only if it is inside *that block*, not merely nearby in the file.
     for block in re.finditer(r"\b(?:always|forever|repeat)\b", tb_verilog):
-        tail = tb_verilog[block.end():block.end() + 400]
-        if re.search(rf"\b{word}\s*<?=", tail):
+        if re.search(assign, _block_body(tb_verilog, block.end())):
             return True
-    assignments = re.findall(rf"\b{word}\s*<?=", tb_verilog)
-    return len(assignments) > 1
+    # Several assignments only toggle if they set different values. A testbench
+    # that writes `clk = 0;` in two places has a dead clock, not a running one —
+    # counting bare assignments credited it with toggling.
+    values = {
+        m.group(1).strip()
+        for m in re.finditer(rf"\b{word}\s*<?=(?!=)([^;]*);", tb_verilog)
+    }
+    return len(values) > 1
 
 
 def _check_clock_toggle(
@@ -481,70 +539,6 @@ def _check_driven_observed(
 
 
 # ── Sensitivity list check (SEQ) ─────────────────────────────────────────────
-
-def _check_sensitivity_lists(tb_module, tb_verilog: str) -> list[ErrorReportItem]:
-    """
-    For sequential circuits: verify the testbench synchronises to a clock edge
-    somewhere.
-
-    Two things this must NOT flag, both of which are ordinary correct style:
-
-    1. A clock generator (`always #5 clk = ~clk;`) has no sensitivity list by
-       design. Counting it as "an always-block with no edge trigger" flagged
-       every testbench that generates its own clock — which is all of them.
-    2. A self-checking testbench usually drives from an `initial` block and
-       synchronises with `@(posedge clk)` event controls rather than with an
-       edge-triggered `always`. That is edge synchronisation; it simply is not
-       in a sensitivity list.
-
-    So: ignore always-blocks that carry no sensitivity list at all, and accept
-    an edge event control anywhere in the source as satisfying the check.
-    """
-    if _EDGE_CONTROL_RE.search(tb_verilog):
-        return []
-
-    always_blocks = [
-        item for item in (tb_module.items or [])
-        if isinstance(item, vast.Always)
-    ]
-
-    def _sens_entries(always_block) -> list:
-        sens_list = getattr(always_block, "sens_list", None)
-        if sens_list is None:
-            return []
-        return list(sens_list.list or [])
-
-    # A delay-driven always (clock generator) has nothing to be sensitive to.
-    triggered = [ab for ab in always_blocks if _sens_entries(ab)]
-    if not triggered:
-        return []
-
-    def _has_edge_trigger(always_block) -> bool:
-        for sens in _sens_entries(always_block):
-            if getattr(sens, "type", None) in ("posedge", "negedge"):
-                return True
-        return False
-
-    if any(_has_edge_trigger(ab) for ab in triggered):
-        return []
-
-    # Sensitised always-blocks exist, none is clock-triggered, and there is no
-    # edge event control anywhere — the testbench really is not clock-synchronous.
-    first_line = getattr(triggered[0], "lineno", None)
-    return [
-        ErrorReportItem(
-            error_type=ErrorType.SENSITIVITY_LIST_ERROR,
-            affected_signal="clk",
-            line=first_line,
-            suggested_fix=(
-                "Testbench has always-blocks but none use posedge/negedge clock "
-                "sensitivity. For a sequential DUT add: always @(posedge clk) begin "
-                "... end"
-            ),
-            severity=Severity.WARNING,
-        )
-    ]
-
 
 # ── $fdisplay check (SEQ) ─────────────────────────────────────────────────────
 
@@ -707,13 +701,21 @@ def run(
     instances = _find_dut_instances(tb_module, module_name)
     is_seq = _has_posedge(dut_verilog)
 
+    # Source-level heuristics ask questions of the text ("is this signal ever
+    # assigned / compared / printed / toggled"). Comments and string literals can
+    # answer those questions with text that is not code — a scenario named
+    # `addition_boundary_overflow` made the `overflow` output look observed, and a
+    # `"clk=%b"` format string made a dead clock look like it was toggling. Both
+    # are false negatives, hiding real defects. Blank them once, up front.
+    tb_text = strip_noise(tb_verilog)
+
     # ── Run checks ────────────────────────────────────────────────────────────
     port_errors = _check_port_bindings(instances, dut_ports, module_name)
 
     # Only run the signal-level checks if port bindings look okay (avoid noise:
     # a mis-bound instance makes every downstream signal look wrong).
     if not port_errors:
-        dataflow_errors = _check_driven_observed(instances, dut_ports, tb_verilog)
+        dataflow_errors = _check_driven_observed(instances, dut_ports, tb_text)
         port_errors = port_errors + _check_port_widths(
             instances,
             _extract_port_widths(dut_module),
@@ -723,13 +725,12 @@ def run(
     else:
         dataflow_errors = []
 
-    sensitivity_errors: list[ErrorReportItem] = []
+    clock_errors: list[ErrorReportItem] = []
     fdisplay_missing: list[ErrorReportItem] = []
     if is_seq:
-        sensitivity_errors = _check_sensitivity_lists(tb_module, tb_verilog)
-        fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_verilog)
-        sensitivity_errors = sensitivity_errors + _check_clock_toggle(
-            instances, dut_ports, dut_verilog, tb_verilog
+        fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_text)
+        clock_errors = _check_clock_toggle(
+            instances, dut_ports, dut_verilog, tb_text
         )
         # MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation
         # criterion, so an unobserved SEQ output would otherwise be reported
@@ -747,7 +748,7 @@ def run(
         parse_ok=True,
         parser_used="pyverilog",
         port_errors=port_errors,
-        sensitivity_errors=sensitivity_errors,
+        clock_errors=clock_errors,
         dataflow_errors=dataflow_errors,
         fdisplay_missing=fdisplay_missing,
         raw_warnings=[],

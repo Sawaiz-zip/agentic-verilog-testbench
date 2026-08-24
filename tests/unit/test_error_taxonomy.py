@@ -10,7 +10,6 @@ def test_all_error_types_defined():
         "undriven_input",
         "unobserved_output",
         "width_mismatch",
-        "sensitivity_list_error",
         "missing_fdisplay",
         "clock_never_toggled",
         "parse_failed",

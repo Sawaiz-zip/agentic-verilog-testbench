@@ -21,7 +21,7 @@ def error_reasoner_node(state: GraphState) -> dict:
     # Skip LLM call if analysis found nothing to reason about
     all_error_lists = (
         pyverilog_report.get("port_errors", [])
-        + pyverilog_report.get("sensitivity_errors", [])
+        + pyverilog_report.get("clock_errors", [])
         + pyverilog_report.get("dataflow_errors", [])
         + pyverilog_report.get("fdisplay_missing", [])
     )

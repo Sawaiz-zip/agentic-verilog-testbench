@@ -140,3 +140,112 @@ def test_combinational_dut_is_not_checked_for_a_clock():
           "endmodule\n")
     report = run(tb, comb, module_name="and2")
     assert _types(report) == []
+
+
+# ── Source-level heuristics must ignore comments and string literals ──────────
+# Every text heuristic in the analyser can be answered by text that is not code.
+# Each case below was observed as a real false negative — the check believed a
+# signal was observed, driven, or toggled when it was not, hiding a real defect.
+
+def test_scenario_name_containing_the_signal_does_not_count_as_observation():
+    """`$display("PASS: addition_boundary_overflow")` made the `overflow` output
+    look observed, so a testbench that had stopped checking it was reported clean."""
+    dut = ("module m(input [7:0] a, output [7:0] result, output overflow);\n"
+           "  assign result = a; assign overflow = a[7];\nendmodule\n")
+    tb = ("module tb;\n"
+          "  reg [7:0] a; wire [7:0] result; wire overflow;\n"
+          "  m uut(.a(a), .result(result), .overflow(overflow));\n"
+          "  initial begin a = 8'd1; #5;\n"
+          "    if (result === 8'd1) $display(\"PASS: addition_boundary_overflow\");\n"
+          "    else $display(\"FAIL: addition_boundary_overflow\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="m")
+    assert ("unobserved_output", "overflow") in [
+        (e.error_type.value, e.affected_signal) for e in report.all_errors()
+    ]
+
+
+def test_format_string_does_not_count_as_a_clock_assignment():
+    """`$fdisplay(f, "clk=%b", clk)` looked like a second assignment to clk, so a
+    clock that was set once and never toggled read as toggling."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q; integer f;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  initial clk = 1'b0;\n"
+          "  initial begin rst = 1'b0; d = 1'b1; #10;\n"
+          "    $fdisplay(f, \"clk=%b d=%b q=%b\", clk, d, q);\n"
+          "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" in {e.error_type.value for e in report.all_errors()}
+
+
+def test_comment_mentioning_the_signal_does_not_count_as_observation():
+    dut = ("module m(input a, output y, output flag);\n"
+           "  assign y = a; assign flag = ~a;\nendmodule\n")
+    tb = ("module tb;\n"
+          "  reg a; wire y; wire flag;\n"
+          "  m uut(.a(a), .y(y), .flag(flag));\n"
+          "  // TODO: check flag as well\n"
+          "  initial begin a = 1'b1; #5;\n"
+          "    if (y === 1'b1) $display(\"PASS: y\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="m")
+    assert ("unobserved_output", "flag") in [
+        (e.error_type.value, e.affected_signal) for e in report.all_errors()
+    ]
+
+
+def test_assignment_in_a_different_block_is_not_credited_to_an_always_block():
+    """The toggle search used a fixed character window, which overran the end of a
+    short always-block and picked up an assignment from a separate initial block."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  always @(*) begin\n"
+          "    if (q === 1'b1) $display(\"PASS: seen\");\n"
+          "  end\n"
+          "  initial begin clk = 1'b0; rst = 1'b0; d = 1'b0; #20; $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" in {e.error_type.value for e in report.all_errors()}
+
+
+def test_two_assignments_of_the_same_value_are_not_a_toggle():
+    """`clk = 0;` written in two places is a dead clock, not a running one.
+    Counting bare assignments credited it with toggling and hid the defect."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  initial clk = 1'b0;\n"
+          "  initial begin\n"
+          "    clk = 1'b0; rst = 1'b0; d = 1'b1; #20;\n"
+          "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" in {e.error_type.value for e in report.all_errors()}
+
+
+def test_manual_toggling_with_distinct_values_is_not_flagged():
+    """A generator written without `~` — assigning 1 then 0 by hand — is a
+    working clock and must not be reported."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  initial clk = 1'b0;\n"
+          "  always begin #5 clk = 1'b1; #5 clk = 1'b0; end\n"
+          "  initial begin rst = 1'b0; d = 1'b1;\n"
+          "    @(posedge clk); #1;\n"
+          "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" not in {e.error_type.value for e in report.all_errors()}
