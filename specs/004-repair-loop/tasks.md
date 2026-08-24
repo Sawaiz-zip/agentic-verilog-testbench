@@ -88,7 +88,7 @@ Legend: `[P]` = parallelizable · `[USn]` = maps to spec user story.
 ## Phase 7: Polish
 
 - [x] T019 Run full `pytest -q` offline; fix failures; confirm feature-003 tests still pass.
-- [x] T020 Update `PROGRESS.md`: mark Phase 3 repair loop done; note the 4-mode matrix, oscillation/exhaustion, repair_history.
+- [x] T020 Update `docs/research-log.md`: mark Phase 3 repair loop done; note the 4-mode matrix, oscillation/exhaustion, repair_history.
 
 ---
 

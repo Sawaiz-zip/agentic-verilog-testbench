@@ -109,7 +109,7 @@ Legend: `[P]` = parallelizable (different file, no incomplete deps) · `[USn]` =
 ## Phase 8: Polish
 
 - [x] T028 Run full `pytest -q` offline; fix failures.
-- [x] T029 Update `PROGRESS.md`: mark this feature done, note Constitution v1.1.0, DUT-generation flow, results summary.
+- [x] T029 Update `docs/research-log.md`: mark this feature done, note Constitution v1.1.0, DUT-generation flow, results summary.
 - [x] T030 [P] Update `README.md` / `demo_commands.md` usage: description-only runs, `LLM_TEMPERATURE`, benchmark-with-golden-DUT.
 
 ---

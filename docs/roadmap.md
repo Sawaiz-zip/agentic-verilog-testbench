@@ -1,6 +1,6 @@
 # TODO — S6.ReKI.1
 
-Living task list. Full context in `CLAUDE.md`; status/results in `PROGRESS.md`;
+Living task list. Full context in `CLAUDE.md`; status/results in `research-log.md`;
 this session's write-up in `specs/008-control-arm-and-static-evidence/NOTES.md`.
 Last updated: 2026-08-24.
 

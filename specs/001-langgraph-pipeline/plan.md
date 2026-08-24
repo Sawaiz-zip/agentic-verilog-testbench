@@ -104,7 +104,7 @@ ResearchProject/
 ├── pyproject.toml
 ├── .env.example                  # ANTHROPIC_API_KEY placeholder
 ├── CLAUDE.md                     # Project context (existing)
-├── PROGRESS.md                   # Progress tracker (existing)
+├── docs/research-log.md                   # Progress tracker (existing)
 └── specs/
     └── 001-langgraph-pipeline/
         ├── spec.md               # This feature spec

@@ -1,320 +1,215 @@
-# S6.ReKI.1 — LLM-Driven Verilog Testbench Generation with Pyverilog-Based Early Error Localization
+# Agentic Verilog Testbench Generation
 
-**Student:** Muhammad Sawaiz Naveed | **Supervisor:** Bing Wen | **University:** TU Ilmenau | **Deadline:** Sept 1, 2026
+**A multi-agent pipeline that writes Verilog testbenches from natural language, finds structural faults *before* simulation, and repairs them from structured feedback.**
 
----
+Built on LangGraph (orchestration), Pyverilog (static analysis) and Icarus Verilog (evaluation).
 
-## What This Project Does
-
-Writing testbenches — the code that checks whether a hardware circuit is correct — is slow and tedious. This project builds a pipeline that does it automatically using an AI (Claude), but with a key twist:
-
-Instead of the usual approach of *generate → simulate → hope for the best*, we add a **smart pre-simulation checker** (Pyverilog) that reads the generated testbench and spots structural errors immediately — wrong port connections, undriven inputs, missing output observers — before wasting time on a full simulation. The AI then gets precise, actionable feedback and repairs its own output. Only after the testbench passes static analysis does it go to the simulator.
-
-The whole pipeline is built as a **LangGraph graph**: every step is a named node, every routing decision is a visible edge. Nothing is hidden.
+[![tests](https://img.shields.io/badge/tests-195%20passed-brightgreen)]()
+[![fault detection](https://img.shields.io/badge/fault%20detection-93%25-blue)]()
+[![false positives](https://img.shields.io/badge/false%20positives-0%2F14-blue)]()
+[![python](https://img.shields.io/badge/python-3.11%2B-blue)]()
 
 ---
 
-## The Problem (in plain English)
+## The problem
 
-LLMs can write Verilog testbenches from a description, but the output is often *syntactically valid but functionally wrong* — the simulator compiles it, but the testbench fails to test the circuit correctly because:
+Hardware verification consumes roughly 60% of chip design effort, and writing testbenches is a large part of it. LLMs can draft one in seconds — but the failure mode is nasty: **the output is usually syntactically valid and functionally wrong**. It compiles, it runs, it reports success, and it never actually tested the thing.
 
-- Ports are wired to the wrong signals
-- Some inputs are never driven
-- Some outputs are never checked
-- The clock sensitivity list is wrong
-- Print statements (`$fdisplay`) are missing so simulation output is empty
+The worst case is a testbench that stops checking one of the outputs. It doesn't fail. It **passes** — because it is no longer looking.
 
-The standard fix is to run the simulator, read the error, and try again. This is slow and the errors are vague. **We instead detect these errors in milliseconds using static analysis, before any simulation runs.**
+The usual remedy is to run a full simulation and read the output. That is slow, and it cannot catch the case above at all: the simulator has nothing to observe.
 
----
+## The approach
 
-## How It Works
+Analyse the generated testbench statically, before any simulation, and hand the model a precise defect report instead of a wall of simulator output.
 
 ```
-INPUT: Plain-English description (golden DUT optional, for evaluation only)
-         │
-         ▼
-[1] CLASSIFY — combinational (CMB) or sequential (SEQ)?           [cheap model]
-         │
-         ▼
-[2] GEN DUT — synthesise the design-under-test from the description   [strong]
-         │
-         ▼
-[3] EXTRACT SPEC — ports, behaviour, timing (structured JSON)         [strong]
-         │
-         ▼
-[4] GENERATE SCENARIOS — the test cases to cover                  [cheap model]
-         │
-         ├──────────────────────────┐
-         ▼                          ▼
-[5a] GENERATE DRIVER          [5b] GENERATE CHECKER
-     (Verilog testbench) [strong]   (Python checker) [strong]
-         │                          │
-         └────────── MERGE ─────────┘   (fan-in barrier)
-         │
-         ▼  (SEQ only)
-[6] STANDARDISE — insert missing $monitor / clock toggle   [Python, no LLM]
-         │
-         ▼
-[7] PYVERILOG ANALYSIS — port bindings, sensitivity, dataflow  [Pyverilog / Verible]
-         │
-         ▼
-[8] ERROR REASONER — turn findings into actionable fixes (skipped if clean)  [strong]
-         │
-         ├── errors + iterations left ──▶ [9] REPAIR (regenerate, best-so-far) ──▶ re-analyse
-         │
-         ▼
-[10] EVALUATE — Eval0 compile → Eval1 vs correct DUT → Eval2 vs mutants  [Icarus Verilog]
-         │
-         ▼
-OUTPUT: Testbench + per-run JSON (errors, tokens, repair iterations, Eval0/1/2)
+natural language  ──▶  classify ──▶ generate DUT ──▶ extract spec ──▶ scenarios
+                                                                        │
+                                            ┌───────────────────────────┴──────────┐
+                                            ▼                                      ▼
+                                    generate driver                        generate checker
+                                            └───────────────┬──────────────────────┘
+                                                            ▼
+                                              standardise (sequential only)
+                                                            ▼
+                                            ┌──▶  Pyverilog static analysis
+                                            │               ▼
+                                            │       LLM error reasoner
+                                            │               ▼
+                                            └───────────  repair  ◀──┐
+                                                            ▼        │
+                                                   Icarus evaluation │
+                                                   Eval0 / 1 / 2 ────┘
 ```
 
-> Model routing: a **cheap** model (e.g. `gpt-4o-mini`) for classify/scenarios/mutants;
-> a **strong** model (e.g. `claude-sonnet-4.5`) for DUT/spec/driver/checker/reasoning/repair.
-> Deterministic nodes (standardise, pyverilog_analysis, merge, evaluate) use no LLM.
+Every step is an explicit LangGraph node with explicit conditional edges — no hidden control flow. Repair is bounded, with oscillation detection and best-so-far retention so more repair can never produce a worse artifact.
 
----
+## Results
 
-## What Makes This Different from Prior Work
+### Static analysis vs the existing tooling
 
-| | AutoBench (baseline) | This project |
-|---|---|---|
-| Error detection | Simulator errors only (vague) | **Pyverilog static analysis** (precise, pre-simulation) |
-| `$fdisplay` insertion | LLM-based (fragile) | **Deterministic Python AST pass** (100% reliable) |
-| Failure attribution | Not available | **Per-node failure stage logged** for every run |
-| Model tested | GPT-4 only | Claude Sonnet + gpt-4o-mini (provider-agnostic) |
-| Cost analysis | Not reported | **Token cost per module per ablation mode** |
-| Ablation study | None | 5 modes incl. a no-diagnostics control: baseline / retry-only / compiler-only / pyverilog-only / hybrid |
+Measured by **fault injection**: take 14 testbenches already known to pass, break each in one known way (215 faults total), and ask three layers whether they notice.
 
----
+| Fault class | n | static | compiler | simulator | **only static** |
+|---|---|---|---|---|---|
+| Output never checked | 19 | **100%** | 0% | **0%** | **100%** |
+| Clock never toggled | 6 | **100%** | 0% | 17% | **83%** |
+| Wrong signal width | 22 | **100%** | 0% | 82% | **18%** |
+| Input never driven | 30 | **100%** | 0% | 97% | 3% |
+| Port left unconnected | 62 | **100%** | 0% | 98% | 2% |
+| Port bound under a wrong name | 62 | **100%** | 100% | 0% | 0% |
+| *Edge sync removed* (control) | 5 | 0% | 0% | 80% | 0% |
+| *Two inputs swapped* (control) | 9 | 0% | 0% | 78% | 0% |
+| **Total** | **215** | **93%** | **29%** | **56%** | **14%** |
 
-## Project Structure
+- **93% detection, 93% localisation** — localisation means naming the correct fault class *and* the correct signal, which is what gives a repair prompt somewhere to act.
+- **0 false positives** across all 14 clean testbenches.
+- **33 of 215 faults (15%) are invisible to both the compiler and the simulator. Static analysis catches 30 of them (91%).**
 
-```
-pipeline/          Main package
-  config.py        AblationMode enum + PipelineConfig
-  state.py         GraphState TypedDict (all pipeline data)
-  llm.py           Shared LLM wrapper (logging, backoff, configurable temperature, LangSmith tracing)
-  graph.py         LangGraph graph definition
-  nodes/           One file per pipeline node
-  analysis/        Pyverilog runner + Verible fallback + error taxonomy
-  standardiser/    Deterministic $fdisplay inserter (no LLM)
-  eval/            Icarus Verilog wrapper + mutant generator
+The decisive row is the first. An unchecked output is a real, common defect that no amount of simulation can surface.
 
-prompts/           Jinja2 prompt templates (one per LLM node)
-tests/             pytest unit + integration tests + fixtures
-scripts/           run_eval.py (ablation runner), aggregate_results.py, aggregate_repeats.py
-specs/             Spec-kit planning documents (constitution, spec, plan, tasks)
-data/verilog_eval/ VerilogEval dataset (download separately)
-results/           Per-run JSON output (git-ignored)
-```
+Reproduce with `python scripts/run_injection_study.py` — fully offline, no API calls.
 
----
+### Stated limits
 
-## Setup
+Good results are only useful if the boundaries are stated too:
 
-```bash
-# 1. Clone the repo
-git clone <repo-url>
-cd ResearchProject
+- **Binding a port under a wrong name** (62 of 215 faults) is caught by the compiler as well. Static analysis adds speed there, not capability.
+- **Swapping two same-width inputs** is invisible to static analysis *by design* — it is a semantic error, not a structural one. Included deliberately as a negative control; the simulator caught 78%.
+- One check, `sensitivity_list_error`, was **removed** after measuring 0/5 recall and one false positive. Details in [`docs/research-log.md`](docs/research-log.md).
+- 14 circuits and 8 self-chosen fault classes is real evidence, not a public benchmark result.
 
-# 2. Install dependencies (requires uv or pip)
-uv sync --extra dev
-# or: pip install -e ".[dev]"
+## Static checks
 
-# 3. Configure your LLM provider (any OpenAI-compatible provider works)
-cp .env.example .env
-# Option A — OpenRouter (current, paid — best model quality):
-#   LLM_API_KEY=sk-or-...   (get from openrouter.ai/keys)
-#   LLM_BASE_URL=https://openrouter.ai/api/v1
-#   LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5
-#   LLM_CHEAP_MODEL=openai/gpt-4o-mini
-#   LLM_TEMPERATURE=0.7
-# Option B — Groq free tier (no credit card):
-#   LLM_API_KEY=gsk_...   LLM_BASE_URL=https://api.groq.com/openai/v1
-#   LLM_CHEAP_MODEL=LLM_STRONG_MODEL=llama-3.3-70b-versatile
-# Option C — Anthropic direct:  ANTHROPIC_API_KEY=sk-ant-...
-# Optional observability:  LANGSMITH_TRACING=true  LANGSMITH_PROJECT=S6-ReKI-1
+All deterministic, pre-simulation, zero LLM cost.
 
-# 4. Verify tools are available
-iverilog --version   # Icarus Verilog (brew install icarus-verilog)
-python -c "import pyverilog; print('pyverilog ok')"
-python -m pipeline --help
-```
+| Check | Catches | Compiler sees it? | Simulator sees it? |
+|---|---|---|---|
+| `unobserved_output` | an output the testbench never checks | no | **no** |
+| `clock_never_toggled` | clock set once, never toggled — sim runs but never advances | no | rarely |
+| `width_mismatch` | testbench signal width ≠ DUT port width | **no** (warning only) | sometimes |
+| `undriven_input` | a DUT input never assigned | no | usually |
+| `port_binding_mismatch` | port unconnected, or bound under a name the DUT lacks | partly | usually |
+| `missing_fdisplay` | a sequential output never made observable | no | no |
 
----
+Verilog **silently** truncates or zero-extends a width mismatch — `iverilog` exits 0 with a warning. That is why the compiler column reads "no".
 
-## Running
+## Ablation design
 
-The pipeline runs from a **natural-language description alone** — it generates
-its own DUT (Design Under Test) from the description, then generates and
-evaluates a testbench for it. A golden DUT is optional and used only for
-benchmark evaluation.
+Five arms, so a gain can be attributed to a cause rather than assumed:
 
-```bash
-# Description only (user flow): DUT is generated from the description
-python -m pipeline run --module half_adder --mode hybrid
-python -m pipeline run --nl my_circuit.txt --module my_circuit --mode hybrid
-
-# Benchmark mode: golden DUT supplied → used for evaluation only
-python -m pipeline run --module Prob005_notgate --mode hybrid   # from VerilogEval
-python -m pipeline run --nl desc.txt --dut golden.v --module m  # explicit golden DUT
-
-# Every run prints a human-readable summary (scenarios passed, Eval0/1/2,
-# tokens, wall time, status) and writes results/<run_id>.json.
-
-# Configurable sampling temperature (default 0.7; the pipeline is robust to >0)
-LLM_TEMPERATURE=0.9 python -m pipeline run --module half_adder --mode hybrid
-
-# Ablation over the evaluation set (12 circuits × 5 modes = 60 runs per repeat)
-python scripts/run_eval.py --modules alu_1bit comparator_2bit priority_encoder \
-  alu_8bit barrel_shifter_8bit bcd_to_7seg \
-  dff counter_4bit shift_register \
-  fsm_sequence_detector fifo_8x8 traffic_light_fsm \
-  --yes --results-dir results/final_hard_r1
-
-# VerilogEval is wired up but NOT part of this project's evaluation (not funded):
-#   python scripts/run_eval.py --modules verilogeval:10 --yes --results-dir results/vle10
-
-# Aggregate a results folder into a per-mode comparison table
-python scripts/aggregate_results.py --results-dir results/my_sweep
-```
-
-### Testing
-
-```bash
-pytest -q            # full suite, fully mocked — spends ZERO API tokens
-pytest -m live       # small live-API smoke test; auto-skips without an API key
-```
-
----
-
-## Static Checks (the error taxonomy)
-
-All deterministic, run before any simulation, zero tokens. Detection rates are measured,
-not asserted — see the error-injection study below.
-
-| Check | Catches | Compiler finds it? | Simulator finds it? | Static detection |
-|---|---|---|---|---|
-| `unobserved_output` | an output the testbench never checks | no | **no** | **100%** |
-| `clock_never_toggled` | clock set once, never toggled — sim runs but never advances | no | 17% | **100%** |
-| `width_mismatch` | testbench signal width ≠ DUT port width | **no** (warning only) | 82% | **100%** |
-| `undriven_input` | a DUT input never assigned | no | 97% | **100%** |
-| `port_binding_mismatch` | port unconnected, or bound under a name the DUT lacks | partly | 98% | **100%** |
-| `missing_fdisplay` (SEQ) | a sequential output never made observable | no | no | **100%** |
-
-**`unobserved_output` is the case for the whole layer:** a testbench that stops checking an
-output does not fail, it *passes* — it is no longer looking. The simulator cannot see that
-by construction and the compiler sees legal Verilog. Static analysis is the only layer that
-finds it.
-
-A seventh check, `sensitivity_list_error`, was **removed** after the study measured it at
-0/5 recall with a false positive on a passing testbench. See
-`specs/011-error-injection-study/NOTES.md`.
-
----
-
-## Error-Injection Study (RQ2)
-
-`python scripts/run_injection_study.py` — offline, zero tokens.
-
-Takes 14 testbenches known to pass, injects 215 known faults one at a time, and asks
-whether the static analyser, the compiler, and the simulator each notice.
-
-| | result |
+| Mode | What triggers repair |
 |---|---|
-| Static detection | **93%** |
-| Localisation (right class **and** right signal) | **93%** |
-| False positives on 14 clean testbenches | **0** |
-| Faults missed by compiler **and** simulator | 33/215 (15%) |
-| ...of those, caught by static analysis | **30/33 (91%)** |
+| `baseline` | nothing — single shot |
+| `retry_only` | nothing, but one extra generation is drawn anyway, **with zero diagnostics** |
+| `compiler_only` | `iverilog` compile errors |
+| `pyverilog_only` | static analysis findings |
+| `hybrid` | static analysis, compiler, and simulation |
 
-Honest limits: `port_rename` is caught by the compiler too (we add only speed), and the
-`swap_bindings` control — two same-width inputs bound to each other's signals — is
-invisible to static analysis by design, marking the boundary of the approach.
+`retry_only` is the control that makes the comparison honest. Every repairing mode gets a second LLM sample that `baseline` never gets, so a gain over `baseline` alone cannot distinguish *"the feedback helped"* from *"a second attempt helped"*. **A mode must beat `retry_only` to claim its feedback works.**
 
----
+## Quick start
 
-## Ablation Modes
+```bash
+git clone git@github.com:Sawaiz-zip/agentic-verilog-testbench.git
+cd agentic-verilog-testbench
+pip install -e ".[dev]"          # or: uv sync
 
-| Mode | What triggers LLM repair |
+# Icarus Verilog is required for evaluation
+brew install icarus-verilog      # macOS;  apt install iverilog on Debian/Ubuntu
+
+cp .env.example .env             # then add an API key (see below)
+```
+
+Any OpenAI-compatible provider works:
+
+```bash
+LLM_API_KEY=sk-or-...                          # OpenRouter
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5   # code generation, reasoning, repair
+LLM_CHEAP_MODEL=openai/gpt-4o-mini             # classification, scenarios, mutants
+LLM_TEMPERATURE=0.7
+```
+
+Generate a testbench from a description:
+
+```bash
+python -m pipeline run --module alu_8bit --mode hybrid
+```
+
+Run the ablation over the evaluation set:
+
+```bash
+python scripts/run_eval.py --yes --results-dir results/sweep --modules \
+  alu_1bit comparator_2bit priority_encoder alu_8bit barrel_shifter_8bit bcd_to_7seg \
+  dff counter_4bit shift_register fsm_sequence_detector fifo_8x8 traffic_light_fsm
+```
+
+Measure the static analyser directly (offline, free):
+
+```bash
+python scripts/run_injection_study.py
+```
+
+## Testing
+
+```bash
+pytest -q          # 195 tests, fully mocked — spends ZERO API tokens
+pytest -m live     # small live-API smoke test; auto-skips without a key
+```
+
+The default suite never calls an API. Live tests are marked and skipped unless a key is present, so CI and local runs stay free.
+
+## Project layout
+
+```
+pipeline/
+  graph.py              LangGraph state machine — nodes and conditional edges
+  state.py              typed graph state
+  nodes/                one module per pipeline stage
+  analysis/
+    pyverilog_runner.py the static checks
+    fault_injection.py  fault injectors for measuring the analyser
+    verilog_text.py     source preparation (strips comments/strings)
+    error_taxonomy.py   error classes and report structures
+  standardiser/         deterministic $monitor/clock insertion (no LLM)
+  eval/
+    icarus.py           Eval0 compile / Eval1 simulate / Eval2 mutants
+    harness.py          batch runner with budget guard and abort handling
+    aggregate.py        per-mode summary tables
+prompts/                Jinja templates — no inline prompt strings
+scripts/                evaluation, injection study, aggregation CLIs
+tests/                  195 tests; fixtures in tests/fixtures/{cmb,seq}
+specs/                  design notes, one per feature increment
+docs/                   architecture, walkthroughs, research log
+```
+
+## Engineering notes
+
+A few decisions that shaped the implementation:
+
+- **Deterministic standardisation over LLM standardisation.** Inserting `$monitor` and clock generation for sequential testbenches is a mechanical task. It is done by a Python AST pass that is idempotent and fail-safe, not by a model.
+- **Prompts are templates, not strings.** Every prompt lives in `prompts/` as Jinja, so it can be diffed, reviewed and frozen before an evaluation run.
+- **Every LLM call is logged** — node, model, tokens, latency, temperature — which is what makes the cost analysis possible.
+- **Evidence is persisted, not recomputed.** Static findings are recorded per analysis pass, because the repair loop overwrites the report and the taxonomy cannot be reconstructed afterwards.
+- **The measurement harness is tested like production code.** Building the fault-injection study surfaced eight defects in already-passing code, five of them in the analyser itself. That history is in the research log.
+
+## Documentation
+
+| Document | Contents |
 |---|---|
-| `baseline` | Nothing — single shot, no repair |
-| `retry_only` | **Nothing — but one extra `gen_driver` sample is drawn anyway, with zero diagnostics.** The control arm. |
-| `compiler_only` | Only `iverilog` compile errors |
-| `pyverilog_only` | Only Pyverilog static analysis errors |
-| `hybrid` | Both — Pyverilog first, then compiler |
+| [`docs/architecture_decisions.md`](docs/architecture_decisions.md) | why LangGraph, why Pyverilog, trade-offs considered |
+| [`docs/pipeline_walkthrough.md`](docs/pipeline_walkthrough.md) | node-by-node explanation |
+| [`docs/results_walkthrough.md`](docs/results_walkthrough.md) | how to read the evaluation output |
+| [`docs/research-log.md`](docs/research-log.md) | dated engineering log, including defects found and corrections made |
+| [`docs/roadmap.md`](docs/roadmap.md) | current status and remaining work |
+| [`specs/`](specs) | design notes per feature increment |
 
-Every repairing mode receives a second LLM generation that `baseline` never gets, so a gain
-over `baseline` alone cannot distinguish "the feedback helped" from "a second sample helped".
-`retry_only` isolates that: a mode must beat **`retry_only`** to claim its feedback works.
+## Context
 
----
+Research project **S6.ReKI.1** at Technische Universität Ilmenau, supervised by Bing Wen. It builds on AutoBench (Qiu et al., MLCAD 2024, [arXiv:2407.03891](https://arxiv.org/abs/2407.03891)) and departs from it in three ways: a graph-based pipeline with explicit per-node failure attribution, a pre-simulation static localiser measured by fault injection, and a deterministic standardiser replacing a fragile LLM-based one.
 
-## Research Questions
+## Licence
 
-- **RQ1** — What error categories appear most often in LLM-generated testbenches, and which are detectable without simulation?
-- **RQ2** — How well does Pyverilog's AST/dataflow analysis localize testbench errors before simulation?
-- **RQ3** — Can an LLM guided by Pyverilog output effectively repair testbench errors? How does this compare to compiler-only feedback?
-- **RQ4** — What is the cost–quality tradeoff of Pyverilog-guided repair vs compiler-only repair?
-
----
-
-## Implementation Status (2026-08-24)
-
-| Phase | Focus | Status |
-|---|---|---|
-| 0 — Setup | Env, deps, Pyverilog smoke test | ✅ Done |
-| 1 — Generation | CMB pipeline end-to-end | ✅ Done |
-| 2 — Pyverilog | Static analysis layer | ✅ Done |
-| 3 — Repair + SEQ | Repair loop + sequential support | ✅ Done |
-| 4 — Evaluation | Ablation sweeps + analysis | 🟡 Re-planned after an audit of the first sweeps |
-| 5 — Writing | Final report (deadline Sept 1 2026) | ⚪ Not started |
-
-### First results, and why they are not being reported
-
-An 8-fixture × 4-mode sweep was run on 2026-07-15 and appeared to show `pyverilog_only`
-beating `baseline` at both temperatures. Auditing it before building further found that
-result to be unsound:
-
-- **All 5 combinational fixtures pass in every mode at both temperatures** — 40 of the 64
-  runs are constant. Every point of variance comes from 3 sequential circuits, and the
-  mode ordering flips between temperatures.
-- **The static layer fired exactly one check, and it was a false positive.** Re-running the
-  analyser over all 32 saved testbenches produced 3 findings, all `missing_fdisplay`, all
-  spurious: the check demanded the output appear inside a `$display` argument list, while a
-  self-checking testbench observes it via `if (q === ...)`. All 5 static-triggered repairs
-  in both sweeps came from this one bug.
-- **No control for the extra sample.** `pyverilog_only` was effectively `baseline` plus one
-  regeneration, and nothing separated the feedback from the resample.
-
-All four defects are fixed (see `specs/008-control-arm-and-static-evidence/NOTES.md`). After
-the fix the static layer reports **nothing** on those 8 fixtures — the checks are not weak so
-much as untestable there: four of five cannot fire on 8–17 line circuits with 2–4 unambiguous
-ports. The evaluation is therefore being re-run on **12 circuits (6 purpose-built hard) × 5
-modes × 2 repeats at temp 0.7**, alongside an offline error-injection study that measures the
-localiser directly. Full detail in [`PROGRESS.md`](PROGRESS.md) and [`TODO.md`](TODO.md).
-
-**Active LLM provider:** OpenRouter (paid) — `claude-sonnet-4.5` (strong) + `gpt-4o-mini`
-(cheap). Provider-agnostic via the OpenAI-compatible abstraction (Groq/Anthropic/OpenAI also work).
-**Tests:** 182 passed, 3 skipped (offline).
-
----
-
-## Dependencies
-
-- [LangGraph](https://github.com/langchain-ai/langgraph) — graph-based pipeline orchestration
-- [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) — Claude API
-- [Pyverilog](https://github.com/PyHDI/Pyverilog) — Verilog AST + dataflow analysis
-- [Icarus Verilog](http://iverilog.icarus.com/) — Verilog simulator (install separately)
-- [Jinja2](https://jinja.palletsprojects.com/) — prompt templating
-- [pytest](https://pytest.org/) — testing
-
----
-
-## References
-
-- Qiu et al. 2024 — AutoBench: LLM testbench generation (arXiv:2407.03891) — the seed paper
-- Liu et al. 2023 — VerilogEval: 156-problem benchmark (arXiv:2309.07544) — evaluation dataset
-- Takamaeda 2015 — Pyverilog: Python toolkit for Verilog analysis — core static analysis tool
+MIT — see [LICENSE](LICENSE).

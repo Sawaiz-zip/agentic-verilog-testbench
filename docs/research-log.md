@@ -322,7 +322,7 @@ study that measures the localiser directly rather than through end-to-end pass r
 | **SEQ** | `dff`, `counter_4bit`, `shift_register` | `fsm_sequence_detector`, `fifo_8x8`, `traffic_light_fsm` |
 
 `half_adder` and `mux2to1` leave the sweep (constant in every mode) but stay as unit-test
-fixtures. Day-by-day schedule in `TODO.md`.
+fixtures. Day-by-day schedule in `roadmap.md`.
 
 ---
 
@@ -425,7 +425,7 @@ Features 003, 004 (repair), 005 (SEQ), 006 (eval harness) complete.
 ## ⏭️ Next Session — Start Here
 
 **Day 1 of the 5-day plan is done** (branch `008-control-arm-and-static-evidence`, 4 commits,
-88 tests green). Remaining schedule — full detail in `TODO.md`:
+88 tests green). Remaining schedule — full detail in `roadmap.md`:
 
 - **Day 2** — build the 6 hard fixtures (`alu_8bit`, `barrel_shifter_8bit`, `bcd_to_7seg`,
   `fsm_sequence_detector`, `fifo_8x8`, `traffic_light_fsm`); verify each compiles under

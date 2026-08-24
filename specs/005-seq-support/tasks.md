@@ -95,7 +95,7 @@ Legend: `[P]` = parallelizable · `[USn]` = maps to spec user story.
 ## Phase 5: Polish
 
 - [x] T015 Run full `pytest -q` offline; fix failures; confirm CMB flow + repair tests still pass (regression).
-- [x] T016 Update `PROGRESS.md`: mark SEQ support done; note the standardiser, `merge_generation`
+- [x] T016 Update `docs/research-log.md`: mark SEQ support done; note the standardiser, `merge_generation`
   barrier, SEQ routing, and fixtures.
 
 ---

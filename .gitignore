@@ -29,3 +29,10 @@ dist/
 
 # Spec-kit agent context (may contain local paths / tokens)
 .claude/
+
+# Supervisor- and meeting-facing notes stay local; the rest of docs/ is published.
+docs/meeting_prep.md
+docs/supervisor_update.md
+docs/archive/
+docs/studio_input.json
+docs/Screenshot*.png

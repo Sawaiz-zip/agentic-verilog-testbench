@@ -3,7 +3,7 @@
 **Date:** 2026-07-15 · **Branch:** `fix/static-analysis-and-eval-integrity`
 
 This is a cross-cutting session (touches features 001/002/004/006 + a prompt change),
-recorded here rather than editing the frozen per-feature specs. See `PROGRESS.md` for
+recorded here rather than editing the frozen per-feature specs. See `docs/research-log.md` for
 the living status and result tables.
 
 ## Context
@@ -42,7 +42,7 @@ defensible first result.
 3. **8 fixtures only** — top-two mode ordering (hybrid vs pyverilog_only) flips between temps;
    within noise at this N. Not comparable to AutoBench until the 156 run.
 
-## Follow-ups (see `TODO.md`)
+## Follow-ups (see `docs/roadmap.md`)
 
 - Held-out VerilogEval 156 run (real head-to-head vs AutoBench).
 - Pyverilog precision/recall via error-injection (FR-017).

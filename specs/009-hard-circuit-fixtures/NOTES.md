@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-24 · **Branch:** `009-hard-circuit-fixtures`
 
-Day 2 of the 5-day plan in `TODO.md`. Builds the six circuits the evaluation set was
+Day 2 of the 5-day plan in `docs/roadmap.md`. Builds the six circuits the evaluation set was
 missing, and fixes a second false positive that only became visible once there were
 sequential testbenches worth analysing.
 

@@ -1,7 +1,7 @@
 # Project Context — S6.ReKI.1
 
 > **For future Claude sessions:** This file is the single source of truth for this research project.
-> Read it first. Then check `PROGRESS.md` for current status.
+> Read it first. Then check `docs/research-log.md` for current status.
 > Do not re-derive anything from `paper.pdf` unless explicitly asked — the summary below is authoritative.
 
 ---
@@ -267,7 +267,7 @@ All 9 references verified correct as of session creation.
 | File | Purpose |
 |---|---|
 | `CLAUDE.md` | **This file** — project context for Claude sessions |
-| `PROGRESS.md` | Running progress tracker — update as work proceeds |
+| `docs/research-log.md` | Running progress tracker — update as work proceeds |
 | `expose.tex` | Final LaTeX exposé (uses scrreprt template, ready to compile) |
 | `LaTeX_expose_template_simple (1).tex` | Professor's original template |
 | `project_info.md` | Project metadata (duplicate of section 1 here) |

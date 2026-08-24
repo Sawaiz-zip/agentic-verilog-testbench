@@ -100,7 +100,7 @@ Legend: `[P]` = parallelizable · `[USn]` = maps to spec user story.
 ## Phase 6: Polish
 
 - [x] T015 Run full `pytest -q` offline; fix failures; confirm prior features still pass.
-- [x] T016 Update `PROGRESS.md`: mark the evaluation harness done; note the budget guard, the
+- [x] T016 Update `docs/research-log.md`: mark the evaluation harness done; note the budget guard, the
   summary schema, and how to run a sweep. Mention precision/recall (FR-017) as a follow-up.
 
 ---

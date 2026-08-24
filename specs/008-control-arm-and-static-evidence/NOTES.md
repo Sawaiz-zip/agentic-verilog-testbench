@@ -4,7 +4,7 @@
 
 Cross-cutting session (touches features 002/004/006), recorded here rather than
 editing the frozen per-feature specs — same convention as `007`. Living status is in
-`PROGRESS.md`; the day-by-day plan is in `TODO.md`.
+`docs/research-log.md`; the day-by-day plan is in `docs/roadmap.md`.
 
 ## Context
 

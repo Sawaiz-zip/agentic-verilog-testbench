@@ -3,9 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "verilog-tb-pipeline"
+name = "agentic-verilog-testbench"
 version = "0.1.0"
-description = "LangGraph pipeline for LLM-driven Verilog testbench generation with Pyverilog-based early error localization"
+description = "Agentic Verilog testbench generation: a LangGraph pipeline that writes HDL testbenches from natural language, localises structural faults with Pyverilog before simulation, and repairs them from structured feedback"
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
     "langgraph>=0.2.0",

@@ -161,7 +161,7 @@ description: "Task list for the LangGraph Verilog testbench pipeline"
 
 - [x] T054 [P] Add `__main__.py` CLI entry point: `python -m pipeline run --module <name> --mode hybrid` (supports VerilogEval exact/partial match + fixture fallback)
 - [x] T055 [P] Write `scripts/run_smoke.sh` for fast 5-module CMB validation
-- [ ] T056 Add `PROGRESS.md` updates at each phase checkpoint
+- [ ] T056 Add `docs/research-log.md` updates at each phase checkpoint
 - [ ] T057 [P] Run `pytest` full suite and fix all failures
 - [ ] T058 Add `results/` to `.gitignore`
 - [ ] T059 Final LaTeX report: pipeline diagram, ablation table, failure attribution figure, error taxonomy table
