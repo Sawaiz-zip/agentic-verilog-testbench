@@ -316,16 +316,24 @@ def _check_fdisplay(
         if direction not in ("Output", "Inout"):
             continue
         connected = port_to_signal.get(port_name, port_name)
-        if not _has_display_for_signal(tb_verilog, connected):
+        # Observation criterion must match the deterministic standardiser's
+        # `_is_observed` (standardiser/fdisplay_inserter.py). Previously this
+        # check demanded the signal appear *inside* a $display argument list,
+        # while the standardiser accepted an `if (q === ...)` self-check — so a
+        # testbench that correctly checks its outputs was flagged by one
+        # component and left alone by the other. That disagreement produced a
+        # false positive on every self-checking SEQ testbench.
+        if not _output_is_observed(tb_verilog, connected):
             errors.append(
                 ErrorReportItem(
                     error_type=ErrorType.MISSING_FDISPLAY,
                     affected_signal=port_name,
                     line=None,
                     suggested_fix=(
-                        f"No $fdisplay/$display/$monitor found for DUT output "
-                        f"'{port_name}' (TB signal '{connected}'). "
-                        "For sequential circuits the output must be printed to a file."
+                        f"DUT output '{port_name}' (TB signal '{connected}') is "
+                        "never printed or compared. For a sequential circuit the "
+                        "output must be observable every cycle — add a $monitor "
+                        "or a per-cycle comparison."
                     ),
                     severity=Severity.WARNING,
                 )
@@ -460,6 +468,17 @@ def run(
     if is_seq:
         sensitivity_errors = _check_sensitivity_lists(tb_module)
         fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_verilog)
+        # MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation
+        # criterion, so an unobserved SEQ output would otherwise be reported
+        # twice and double-counted in the taxonomy. Keep the SEQ-specific class.
+        _seq_reported = {e.affected_signal for e in fdisplay_missing}
+        dataflow_errors = [
+            e for e in dataflow_errors
+            if not (
+                e.error_type == ErrorType.UNOBSERVED_OUTPUT
+                and e.affected_signal in _seq_reported
+            )
+        ]
 
     return PyverilogReport(
         parse_ok=True,
