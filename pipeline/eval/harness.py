@@ -27,6 +27,34 @@ ALL_MODES = [
 ]
 
 
+def _is_out_of_credits(exc: Exception) -> bool:
+    """True if the account has no credit left (HTTP 402 or an equivalent message).
+
+    Distinct from a rate limit: waiting does not help and no later run in the
+    sweep can succeed either. Without this, an exhausted balance fails every
+    remaining run one at a time, each with its own retries and backoff — hours
+    of wall time spent writing records that say nothing.
+    """
+    status = getattr(exc, "status_code", None) or getattr(
+        getattr(exc, "response", None), "status_code", None
+    )
+    if status == 402:
+        return True
+    msg = str(exc).lower()
+    if "402" in msg and "payment" in msg:
+        return True
+    return any(
+        phrase in msg
+        for phrase in (
+            "insufficient credit",
+            "insufficient_quota",
+            "out of credit",
+            "payment required",
+            "exceeded your current quota",
+        )
+    )
+
+
 def _is_daily_rate_limit(exc: Exception) -> bool:
     """True if the exception is a rate-limit that names a *daily* token quota
     (e.g. Groq's 'tokens per day (TPD)'). These don't reset in seconds, so the
@@ -183,7 +211,20 @@ def run_sweep(
                     # A daily token-quota rate limit will not clear during the
                     # sweep — abort the whole run instead of failing every remaining
                     # (module, mode) pair.
-                    if _is_daily_rate_limit(exc):
+                    if _is_out_of_credits(exc):
+                        # No later call can succeed either. Continuing would fail
+                        # every remaining run one at a time, each with its own
+                        # retries and backoff — hours spent writing junk records.
+                        reason = "out_of_credits"
+                        aborted = True
+                        print(
+                            "[harness] ABORTED: the account is out of credit. "
+                            f"{ran} run(s) completed and are aggregated below; "
+                            "top up and re-run the remainder into the same "
+                            "--results-dir."
+                        )
+                        break
+                    elif _is_daily_rate_limit(exc):
                         reason = "daily_rate_limit"
                         aborted = True
                         print(
