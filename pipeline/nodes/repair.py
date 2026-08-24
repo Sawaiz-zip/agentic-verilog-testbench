@@ -97,14 +97,50 @@ def repair_node(state: GraphState) -> dict:
     }
 
 
+def regenerate_node(state: GraphState) -> dict:
+    """RETRY_ONLY control arm — draw one more sample from gen_driver.
+
+    Deliberately receives NO error report, no static findings and no simulator
+    output: it is the same prompt gen_driver already used, sampled again. That
+    makes it the control for "an extra LLM generation", which every repairing
+    mode also gets. Counted as a repair iteration so the cost comparison in RQ4
+    stays like-for-like.
+    """
+    # Imported here to avoid a circular import at module load (gen_driver imports
+    # nothing from repair, but the nodes package wires both).
+    from pipeline.nodes.gen_driver import gen_driver_node
+
+    out = dict(gen_driver_node(state))
+    repair_iter = state.get("repair_iter", 0)
+    log = (out.get("llm_calls") or [{}])[0]
+    out["repair_iter"] = repair_iter + 1
+    out["feedback_source"] = "none"
+    out["repair_history"] = [{
+        "iteration": repair_iter + 1,
+        "feedback_source": "none",
+        "tokens_in": log.get("tokens_in", 0),
+        "tokens_out": log.get("tokens_out", 0),
+        "error_signature": "",
+    }]
+    return out
+
+
 # ── Routing (conditional edges) ───────────────────────────────────────────────
 
 def should_repair(state: GraphState, mode: AblationMode) -> str:
-    """Post static-analysis routing: "repair" or "evaluate".
+    """Post static-analysis routing: "repair", "regenerate" or "evaluate".
 
     Only PYVERILOG_ONLY and HYBRID repair on static-analysis errors. BASELINE
-    and COMPILER_ONLY defer to the post-evaluate check.
+    and COMPILER_ONLY defer to the post-evaluate check. RETRY_ONLY regenerates
+    exactly once, unconditionally — it never looks at the error report.
     """
+    if mode is AblationMode.RETRY_ONLY:
+        # Unconditional single resample: independent of whether anything was
+        # flagged, which is precisely what makes it a control.
+        if state.get("repair_iter", 0) == 0:
+            return "regenerate"
+        return "evaluate"
+
     if mode in (AblationMode.BASELINE, AblationMode.COMPILER_ONLY):
         return "evaluate"
 
@@ -126,7 +162,11 @@ def should_repair_after_eval(state: GraphState, mode: AblationMode) -> str:
     COMPILER_ONLY repairs on compile failures; HYBRID repairs on compile OR
     simulation failures. BASELINE and PYVERILOG_ONLY never repair from here.
     """
-    if mode in (AblationMode.BASELINE, AblationMode.PYVERILOG_ONLY):
+    if mode in (
+        AblationMode.BASELINE,
+        AblationMode.PYVERILOG_ONLY,
+        AblationMode.RETRY_ONLY,
+    ):
         return "END"
 
     # Already good → done.

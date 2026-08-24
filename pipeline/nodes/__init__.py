@@ -8,7 +8,7 @@ from pipeline.nodes.merge_generation import merge_generation_node
 from pipeline.nodes.standardise import standardise_node
 from pipeline.nodes.pyverilog_analysis import pyverilog_analysis_node
 from pipeline.nodes.error_reasoner import error_reasoner_node
-from pipeline.nodes.repair import repair_node
+from pipeline.nodes.repair import regenerate_node, repair_node
 from pipeline.nodes.evaluate import evaluate_node
 
 __all__ = [
@@ -22,6 +22,7 @@ __all__ = [
     "standardise_node",
     "pyverilog_analysis_node",
     "error_reasoner_node",
+    "regenerate_node",
     "repair_node",
     "evaluate_node",
 ]

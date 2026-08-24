@@ -2,9 +2,9 @@
 Ablation-study batch runner CLI.
 
 Examples:
-  python scripts/run_eval.py                          # 5 CMB fixtures × 4 modes = 20 runs
-  python scripts/run_eval.py --modules seq-fixtures   # SEQ fixtures × 4 modes
-  python scripts/run_eval.py --modules verilogeval:10 --yes   # 10 problems × 4 modes (opt-in)
+  python scripts/run_eval.py                          # 5 CMB fixtures × 5 modes = 25 runs
+  python scripts/run_eval.py --modules seq-fixtures   # SEQ fixtures × 5 modes
+  python scripts/run_eval.py --modules verilogeval:10 --yes   # 10 problems × 5 modes (opt-in)
   python scripts/run_eval.py --modes hybrid --modules half_adder
 """
 
@@ -28,7 +28,7 @@ def main() -> None:
                    help="preset (cmb-fixtures|smoke|seq-fixtures|verilogeval[:N]) or names")
     p.add_argument("--modes", nargs="+",
                    choices=[m.value for m in ALL_MODES], default=None,
-                   help="ablation modes (default: all four)")
+                   help="ablation modes (default: all five)")
     p.add_argument("--limit", type=int, default=None, help="cap number of modules")
     p.add_argument("--yes", action="store_true", help="opt in to a large sweep")
     p.add_argument("--results-dir", default="results")

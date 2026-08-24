@@ -5,6 +5,12 @@ from dataclasses import dataclass, field
 
 class AblationMode(str, Enum):
     BASELINE = "baseline"          # no repair loop
+    # Control arm: one extra generation with NO diagnostic information.
+    # Every repairing mode gets a second sample from the LLM that BASELINE never
+    # gets, so a gain over BASELINE could come from the extra sample rather than
+    # from the feedback. RETRY_ONLY isolates that: same extra sample, zero
+    # diagnostics. Any mode must beat RETRY_ONLY to claim its feedback works.
+    RETRY_ONLY = "retry_only"
     COMPILER_ONLY = "compiler_only"  # repair on iverilog errors only
     PYVERILOG_ONLY = "pyverilog_only"  # repair on static analysis errors only
     HYBRID = "hybrid"              # both sources trigger repair
