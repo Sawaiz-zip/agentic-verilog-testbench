@@ -144,7 +144,7 @@ burned three repair calls each time.
 | `bcd_to_7seg` | ✅ | ✅ | 1.00 (5/5 valid) | 0 | 16/16 |
 | `fifo_8x8` | ✅ | ✅ | 1.00 (**3/3 valid of 5**) | 0 | 8/8 |
 | `traffic_light_fsm` | ✅ | ✅ | 0.80 (4/5 valid) | 3 (sim) | 7/7 |
-| `fsm_sequence_detector` | ✅ | ✗ → fixed by F | — | 3 (wasted) | 8/8 |
+| `fsm_sequence_detector` | ✅ | ✗ → **✅ after F** | 1.00 (5/5 valid) | 3 wasted → 1 (sim) | 8/8 → 9/9 |
 
 - **The difficulty level is right.** `alu_8bit` and `barrel_shifter_8bit` failed first-shot
   on exactly the hard cases — arithmetic right shift of a negative value, signed

@@ -117,7 +117,7 @@ One `hybrid` run per hard circuit, before committing to the paid sweep.
 | `bcd_to_7seg` | ✅ | ✅ | 1.00 (5/5 valid) | 0 | 16/16 |
 | `fifo_8x8` | ✅ | ✅ | 1.00 (**3/3 valid of 5**) | 0 | 8/8 |
 | `traffic_light_fsm` | ✅ | ✅ | 0.80 (4/5 valid) | 3 (sim) | 7/7 |
-| `fsm_sequence_detector` | ✅ | ✗ → fixed by F | — | 3 (wasted) | 8/8 |
+| `fsm_sequence_detector` | ✅ | ✗ → **✅ after F** | 1.00 (5/5 valid) | 3 wasted → 1 (sim) | 8/8 → 9/9 |
 
 Results in `results/day2_smoke/` and `results/day2_smoke_seq/`.
 
