@@ -174,13 +174,68 @@ def test_seq_correct_tb_no_errors():
     )
 
 
-def test_seq_wrong_sensitivity_flagged():
+def test_seq_dead_clock_flagged():
+    """This fixture's real defect is a clock that is set once and never toggled,
+    not a sensitivity list. It was previously reported as SENSITIVITY_LIST_ERROR
+    because `always @(*)` counted as a sensitised block with no edge — but
+    `always @(*)` is ordinary combinational style, and the testbench's actual
+    problem is that the DUT never sees a clock edge."""
     report = run(SEQ_WRONG_SENSITIVITY_TB, DFF_DUT, module_name="dff")
     assert report.parse_ok
-    error_types = [e.error_type for e in report.sensitivity_errors]
+    error_types = [e.error_type for e in report.all_errors()]
+    assert ErrorType.CLOCK_NEVER_TOGGLED in error_types, (
+        f"Expected CLOCK_NEVER_TOGGLED, got: {error_types}"
+    )
+
+
+def test_seq_level_sensitive_only_is_flagged():
+    """A genuine sensitivity-list defect: the clock runs, but the testbench's own
+    always-block is level-sensitive and nothing ever waits for an edge."""
+    tb = """\
+module tb_dff;
+    reg clk, d;
+    wire q;
+    dff dut(.clk(clk), .d(d), .q(q));
+    initial clk = 0;
+    always #5 clk = ~clk;
+    always @(d) begin
+        if (q === 1'b1) $display("PASS: seen");
+    end
+    initial begin
+        d = 0; #20; d = 1; #20; $finish;
+    end
+endmodule
+"""
+    report = run(tb, DFF_DUT, module_name="dff")
+    assert report.parse_ok
+    error_types = [e.error_type for e in report.all_errors()]
     assert ErrorType.SENSITIVITY_LIST_ERROR in error_types, (
         f"Expected SENSITIVITY_LIST_ERROR, got: {error_types}"
     )
+
+
+def test_delay_driven_clock_generator_is_not_a_sensitivity_error():
+    """`always #5 clk = ~clk;` is given a Sens of type "all" with no signal by
+    Pyverilog, not an empty list — so the clock generator itself read as a
+    sensitised block with no edge trigger and was flagged on a passing
+    testbench."""
+    tb = """\
+module tb_dff;
+    reg clk, d;
+    wire q;
+    dff dut(.clk(clk), .d(d), .q(q));
+    initial clk = 0;
+    always #5 clk = ~clk;
+    initial begin
+        d = 1; #10;
+        if (q === 1'b1) $display("PASS: capture");
+        #10; $finish;
+    end
+endmodule
+"""
+    report = run(tb, DFF_DUT, module_name="dff")
+    types = [e.error_type for e in report.all_errors()]
+    assert ErrorType.SENSITIVITY_LIST_ERROR not in types, types
 
 
 def test_seq_missing_fdisplay_flagged():

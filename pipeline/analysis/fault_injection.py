@@ -33,6 +33,7 @@ import re
 from dataclasses import dataclass
 
 from pipeline.analysis.error_taxonomy import ErrorType
+from pipeline.analysis.verilog_text import strip_noise
 
 
 @dataclass
@@ -236,7 +237,12 @@ def inject_undriven_input(tb: str, dut: str, module_name: str) -> list[Fault]:
         if directions.get(port) != "input" or port in clocks:
             continue
         assign_re = re.compile(rf"\b{re.escape(sig)}\s*(<=|=)(?!=)")
-        if not assign_re.search(tb):
+        # Match against text with comments and string literals blanked, then edit
+        # the original at those offsets. A format string like "out=%b" otherwise
+        # looks like an assignment, and rewriting it would corrupt the output.
+        code = strip_noise(tb)
+        spans = [(m.start(), m.end(), m.group(1)) for m in assign_re.finditer(code)]
+        if not spans:
             continue
         sink = f"{sig}_sink"
         width = _declared_width(tb, sig)
@@ -244,7 +250,9 @@ def inject_undriven_input(tb: str, dut: str, module_name: str) -> list[Fault]:
             f"  reg [{width[0]}:{width[1]}] {sink};\n" if width
             else f"  reg {sink};\n"
         )
-        mutated = assign_re.sub(lambda m: f"{sink} {m.group(1)}", tb)
+        mutated = tb
+        for start, end, op in reversed(spans):
+            mutated = mutated[:start] + f"{sink} {op}" + mutated[end:]
         # Declare the sink immediately after the module header.
         header = re.search(r"\bmodule\b[^;]*;", mutated)
         if header is None or mutated == tb:
@@ -320,7 +328,7 @@ def inject_remove_clock_generator(tb: str, dut: str, module_name: str) -> list[F
         if mutated == tb:
             continue
         # A surviving toggle means the fault was not actually injected.
-        if re.search(rf"~\s*{w}\b", mutated):
+        if re.search(rf"~\s*{w}\b", strip_noise(mutated)):
             continue
         faults.append(Fault(
             kind="remove_clock_generator",
