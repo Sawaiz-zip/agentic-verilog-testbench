@@ -19,7 +19,7 @@ def pyverilog_analysis_node(state: GraphState) -> dict:
             "parse_ok": False,
             "parser_used": "none",
             "port_errors": [],
-            "sensitivity_errors": [],
+            "clock_errors": [],
             "dataflow_errors": [],
             "fdisplay_missing": [],
             "raw_warnings": ["driver_rtl or dut is empty — skipping analysis"],
@@ -52,7 +52,7 @@ def _finding(state: GraphState, report: dict) -> dict:
     """
     errors = (
         report.get("port_errors", [])
-        + report.get("sensitivity_errors", [])
+        + report.get("clock_errors", [])
         + report.get("dataflow_errors", [])
         + report.get("fdisplay_missing", [])
     )

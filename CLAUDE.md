@@ -206,7 +206,7 @@ class GraphState(TypedDict):
 1. **LangGraph testbench-generation pipeline** — open-source, modular, graph-based workflow with explicit nodes for classification, spec extraction, scenario generation, driver/checker generation, static analysis, error reasoning, standardisation, repair, and evaluation. This is the primary contribution and matches the project description's focus on graph-based LLM workflows.
 2. **Pyverilog-based pre-simulation error localiser** — reusable Python module converting Pyverilog AST/dataflow output into structured, LLM-readable summaries focused on testbench-DUT interaction errors.
 3. **Deterministic `$fdisplay` standardiser** — Python AST pass that replaces AutoBench's fragile LLM-based standardisation step.
-4. **Testbench-error taxonomy** — categorised catalogue of testbench error types with frequency and Pyverilog detectability, bootstrapped on a hand-labelled dev subset.
+4. **Testbench-error taxonomy with measured detectability** — six error classes, each verified by fault injection: 215 injected faults across 14 testbenches, scored against static analysis, the compiler, and the simulator. Includes a negative result (one check removed for zero recall) and an explicit boundary (semantic faults such as swapped same-width bindings are undetectable statically).
 5. **Per-node failure attribution** — empirical breakdown of where failures originate in the 6-stage pipeline, enabled for free by LangGraph logging (AutoBench does not provide this).
 6. **Empirical comparison of feedback strategies** — baseline, retry-only (control), compiler-only, Pyverilog-only, and hybrid, across CMB and SEQ benchmarks. The `retry_only` arm is what makes the comparison sound: every repairing mode gets an extra LLM sample that baseline does not, so without it a gain cannot be attributed to the feedback.
 
@@ -219,8 +219,8 @@ class GraphState(TypedDict):
 | **Eval0** | Testbench compilation pass rate (Icarus Verilog) |
 | **Eval1** | Testbench passes against golden DUT |
 | **Eval2** | Testbench distinguishes golden DUT from LLM-generated mutants |
-| **Error precision** | Pyverilog-flagged errors that are real |
-| **Error recall** | Real errors that Pyverilog catches |
+| **Error precision** | Pyverilog-flagged errors that are real — **measured 2026-08-24: 0 false positives on 14 clean testbenches (100%)** |
+| **Error recall** | Real errors that Pyverilog catches — **measured: 93% over 215 injected faults; 93% localised to the right class *and* signal** |
 | **Per-node failure attribution** | Distribution of failures over the 6 pipeline stages |
 | **Iterations to pass** | Distribution of repair iterations needed |
 | **Tokens per module** | LLM cost per generated testbench |
@@ -308,6 +308,8 @@ All 9 references verified correct as of session creation.
 - ✅ **SEQ standardisation** — done deterministically in Python (`fdisplay_inserter.py`), no LLM.
 - **Overfitting / generalisation** — the SEQ prompt was tuned on the 8 local fixtures. Without the 156 held-out run this cannot be fully resolved; mitigate by freezing prompts before the sweep and by adding 6 circuits the prompt was never tuned on.
 - ✅ **Static checks now testable** (2026-08-24) — the original fixtures could not exercise them: four of five checks cannot fire on 8–17 line circuits with 2–4 unambiguous ports (`port_binding_mismatch` needs ≥3 confusable names, `width_mismatch` needs differing bus widths, `undriven_input` needs enough inputs to forget one, `sensitivity_list_error` needs `always` blocks the testbench does not have). Six purpose-built hard fixtures fixed this; **six of seven checks are now injection-verified**. Day 3 turns the spot check into precision/recall figures.
+- ✅ **RQ2 answered empirically** (2026-08-24) — error-injection study over 14 testbenches and 215 injected faults: static analysis 93% detection / 93% localisation / 0 false positives. **33 of 215 faults (15%) are invisible to both the compiler and the simulator; static analysis catches 30 of them (91%).** The decisive class is `unobserved_output` (19 faults, static 100%, compiler 0%, simulator 0%): a testbench that stops checking an output *passes*, because it is no longer looking. Raw data `results/injection_study_final.json`, write-up `specs/011-error-injection-study/NOTES.md`.
+- ⛔ **`SENSITIVITY_LIST_ERROR` removed** (2026-08-24) — negative result: 0/5 recall on the fault it existed to catch, plus a false positive on a passing testbench. It inspected `always` blocks inside the testbench, but LLM testbenches drive from `initial` blocks. `CLOCK_NEVER_TOGGLED` covers the concern at 6/6. **Six checks remain, all injection-verified.**
 - ✅ **`WIDTH_MISMATCH` implemented** (2026-08-24) — was declared in the taxonomy and emitted nowhere; now compares DUT port widths against the bound testbench signals. A guard test fails if any taxonomy member has no emitting code path. `CLOCK_NEVER_TOGGLED` added alongside it: a clock assigned once and never toggled was invisible to every existing check.
 
 <!-- SPECKIT START -->

@@ -1,7 +1,14 @@
 """
 Pyverilog-based static analysis of generated testbench vs golden DUT.
-Checks: port bindings, undriven inputs, unobserved outputs, sensitivity lists,
-$fdisplay presence.
+Checks: port bindings, port widths, undriven inputs, unobserved outputs,
+$fdisplay presence, clock toggling.
+
+The sensitivity-list check was removed after the error-injection study measured
+it: 0/5 recall on the fault it existed to catch, plus a false positive on a
+passing testbench. It inspected `always` blocks inside the testbench, but
+LLM-generated testbenches drive from `initial` blocks and synchronise with
+`@(posedge clk)`, so it was looking where the evidence never is. The concern it
+aimed at is covered by CLOCK_NEVER_TOGGLED, which scored 6/6.
 RQ1 + RQ2.
 
 Smoke-test findings (Phase 0, 2026-06-23):
@@ -533,81 +540,6 @@ def _check_driven_observed(
 
 # ── Sensitivity list check (SEQ) ─────────────────────────────────────────────
 
-def _check_sensitivity_lists(tb_module, tb_verilog: str) -> list[ErrorReportItem]:
-    """
-    For sequential circuits: verify the testbench synchronises to a clock edge
-    somewhere.
-
-    Two things this must NOT flag, both of which are ordinary correct style:
-
-    1. A clock generator (`always #5 clk = ~clk;`) has no sensitivity list by
-       design. Counting it as "an always-block with no edge trigger" flagged
-       every testbench that generates its own clock — which is all of them.
-    2. A self-checking testbench usually drives from an `initial` block and
-       synchronises with `@(posedge clk)` event controls rather than with an
-       edge-triggered `always`. That is edge synchronisation; it simply is not
-       in a sensitivity list.
-
-    So: ignore always-blocks that carry no sensitivity list at all, and accept
-    an edge event control anywhere in the source as satisfying the check.
-    """
-    if _EDGE_CONTROL_RE.search(tb_verilog):
-        return []
-
-    always_blocks = [
-        item for item in (tb_module.items or [])
-        if isinstance(item, vast.Always)
-    ]
-
-    def _sens_entries(always_block) -> list:
-        """Sensitivity entries that actually name a signal.
-
-        Pyverilog gives `always #5 clk = ~clk;` a single Sens of type "all" with
-        no signal, not an empty list — so a clock generator looked like a
-        sensitised block with no edge trigger and was flagged. `always @(*)`
-        produces the same shape and is equally not an edge. Both are excluded by
-        requiring a named signal.
-        """
-        sens_list = getattr(always_block, "sens_list", None)
-        if sens_list is None:
-            return []
-        return [
-            sens for sens in (sens_list.list or [])
-            if getattr(getattr(sens, "sig", None), "name", None)
-        ]
-
-    # A delay-driven always (clock generator) has nothing to be sensitive to.
-    triggered = [ab for ab in always_blocks if _sens_entries(ab)]
-    if not triggered:
-        return []
-
-    def _has_edge_trigger(always_block) -> bool:
-        for sens in _sens_entries(always_block):
-            if getattr(sens, "type", None) in ("posedge", "negedge"):
-                return True
-        return False
-
-    if any(_has_edge_trigger(ab) for ab in triggered):
-        return []
-
-    # Sensitised always-blocks exist, none is clock-triggered, and there is no
-    # edge event control anywhere — the testbench really is not clock-synchronous.
-    first_line = getattr(triggered[0], "lineno", None)
-    return [
-        ErrorReportItem(
-            error_type=ErrorType.SENSITIVITY_LIST_ERROR,
-            affected_signal="clk",
-            line=first_line,
-            suggested_fix=(
-                "Testbench has always-blocks but none use posedge/negedge clock "
-                "sensitivity. For a sequential DUT add: always @(posedge clk) begin "
-                "... end"
-            ),
-            severity=Severity.WARNING,
-        )
-    ]
-
-
 # ── $fdisplay check (SEQ) ─────────────────────────────────────────────────────
 
 def _check_fdisplay(
@@ -793,12 +725,11 @@ def run(
     else:
         dataflow_errors = []
 
-    sensitivity_errors: list[ErrorReportItem] = []
+    clock_errors: list[ErrorReportItem] = []
     fdisplay_missing: list[ErrorReportItem] = []
     if is_seq:
-        sensitivity_errors = _check_sensitivity_lists(tb_module, tb_text)
         fdisplay_missing = _check_fdisplay(instances, dut_ports, tb_text)
-        sensitivity_errors = sensitivity_errors + _check_clock_toggle(
+        clock_errors = _check_clock_toggle(
             instances, dut_ports, dut_verilog, tb_text
         )
         # MISSING_FDISPLAY and UNOBSERVED_OUTPUT now share an observation
@@ -817,7 +748,7 @@ def run(
         parse_ok=True,
         parser_used="pyverilog",
         port_errors=port_errors,
-        sensitivity_errors=sensitivity_errors,
+        clock_errors=clock_errors,
         dataflow_errors=dataflow_errors,
         fdisplay_missing=fdisplay_missing,
         raw_warnings=[],

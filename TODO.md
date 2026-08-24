@@ -59,14 +59,18 @@ Branch `010-width-and-clock-checks`. **153 passed / 3 skipped** (was 132/3), 21 
 - [x] Taxonomy guard test — a declared error type with no emitting code path now fails CI.
 - [x] Regression: zero findings across all 38 real testbenches.
 
-### Day 3 — Error-injection precision/recall (FR-017) — **offline, zero tokens**
-- [ ] Injection harness: take passing testbenches, break them in known structural ways
-      — swap two port bindings, delete an input driver, truncate a bus width, strip the
-      clock generator, remove an output check, break the sensitivity list
-- [ ] Measure catch rate per taxonomy class → **precision/recall table**
-- [ ] Quantify whether `sensitivity_list_error` earns its place (it fires only when a
-      testbench never synchronises to an edge, which is rare in practice)
-- [ ] Most direct evidence for RQ2, and it works regardless of how the sweep turns out
+### Day 3 — Error-injection precision/recall (FR-017) ✅ DONE
+Branch `011-error-injection-study`. **182 passed / 3 skipped**. Zero tokens.
+Results: `results/injection_study_final.json`; write-up `specs/011-error-injection-study/NOTES.md`.
+
+- [x] Injection harness — 8 injectors, all taxonomy classes + 2 negative controls
+- [x] Three-way comparison: static vs compiler vs simulator
+- [x] **93% detection, 93% localisation, 0 false positives on 14 clean testbenches**
+- [x] **33/215 faults missed by compiler AND simulator; static caught 30 (91%)**
+- [x] `unobserved_output`: 19 faults, static 100%, compiler 0%, simulator 0% — the RQ2 result
+- [x] **`sensitivity_list_error` dropped** — 0/5 recall plus a false positive; blind spot
+      now recorded by a test. Six checks remain, all injection-verified.
+- [x] Eight defects found and fixed in already-tested code (see write-up)
 
 ### Day 4 — Freeze prompts, run the sweep
 - [ ] **Freeze all prompts**, tag the commit `prompts-frozen`

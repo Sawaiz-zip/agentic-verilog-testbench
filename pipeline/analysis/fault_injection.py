@@ -359,7 +359,7 @@ def inject_break_edge_sync(tb: str, dut: str, module_name: str) -> list[Fault]:
         return []
     return [Fault(
         kind="break_edge_sync",
-        expected_type=ErrorType.SENSITIVITY_LIST_ERROR.value,
+        expected_type=None,   # no static check covers this
         signal="(clock)",
         description=f"all {n} clock-edge waits replaced with bare #10 delays",
         testbench=mutated,

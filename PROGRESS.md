@@ -71,6 +71,76 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 
 ---
 
+## 🆕 Day 3 (2026-08-24) — Error-injection study: the localiser, measured
+
+Branch: `011-error-injection-study`. Suite: **182 passed, 3 skipped** (was 153).
+Raw data: `results/injection_study_final.json`. Write-up:
+`specs/011-error-injection-study/NOTES.md`. **Cost: zero tokens.**
+
+First direct measurement of the static localiser, answering RQ2 with numbers instead of
+inference from end-to-end pass rates. 14 known-good testbenches, 215 injected faults,
+three layers asked the same question: does static analysis flag it, does the compiler
+refuse it, does the simulation fail?
+
+**Baseline: 14/14 parsed, 0 false positives → 100% precision on clean input.**
+
+| fault class | n | static | compiler | sim | only static |
+|---|---|---|---|---|---|
+| `unobserved_output` | 19 | **100%** | 0% | 0% | **100%** |
+| `remove_clock_generator` | 6 | **100%** | 0% | 17% | **83%** |
+| `width_change` | 22 | **100%** | 0% | 82% | **18%** |
+| `undriven_input` | 30 | **100%** | 0% | 97% | 3% |
+| `port_drop` | 62 | **100%** | 0% | 98% | 2% |
+| `port_rename` | 62 | **100%** | 100% | 0% | 0% |
+| `break_edge_sync` *(control)* | 5 | 0% | 0% | 80% | 0% |
+| `swap_bindings` *(control)* | 9 | 0% | 0% | 78% | 0% |
+| **TOTAL** | **215** | **93%** | **29%** | **56%** | **14%** |
+
+- **Localisation (right class AND right signal): 93%** — exact signal match, not substring.
+- **33/215 faults (15%) are missed by the compiler and simulator together; static catches
+  30 of those 33 (91%).**
+
+**The headline.** `unobserved_output`: 19 faults, static 100%, compiler 0%, simulator 0%.
+A testbench that stops checking an output does not fail — it **passes**, because it is no
+longer looking. The simulator cannot see this by construction; the compiler sees legal
+Verilog. That is RQ2 demonstrated. `clock_never_toggled` is the second such class: five of
+six testbenches with a dead clock still passed their own checks.
+
+**Honest limits.** `port_rename` (62 faults) is caught by the compiler too — we add only
+speed. The `swap_bindings` control is invisible to static analysis by design, marking the
+boundary of the approach. 14 circuits and 8 self-chosen fault classes is real evidence,
+not a benchmark.
+
+### Negative result: `sensitivity_list_error` removed
+
+It caught **0 of 5** injected `break_edge_sync` faults — the exact defect it existed for —
+and produced the study's only baseline false positive, on a passing testbench. The cause is
+structural: it inspected `always` blocks *inside the testbench*, but LLM testbenches drive
+from `initial` blocks and synchronise with `@(posedge clk)`, so it was looking where the
+evidence never is. `CLOCK_NEVER_TOGGLED` covers the same concern at 6/6.
+`PyverilogReport.sensitivity_errors` → `clock_errors`; the resulting blind spot is recorded
+by a test rather than left to be rediscovered. **Six checks remain, all injection-verified.**
+
+### Eight defects found in already-tested code
+
+Three in the harness, which would have **inflated** the numbers: the corpus used the
+pipeline's generated DUT instead of the golden one (a malformed generated DUT's compile
+error scored as a detection); there was no baseline gate; and `_dut_port_directions`
+mis-parsed shared declarations, silently dropping ports.
+
+Five in the analyser, which were **deflating** them and hiding real defects: string
+literals and comments were read as code (`$display("PASS: addition_boundary_overflow")`
+made the `overflow` output look observed — `unobserved_output` went **47% → 100%** once
+fixed); the 009 sensitivity fix was incomplete; the clock-toggle search used a fixed
+character window that overran short blocks; "more than one assignment" counted as toggling;
+and the clock injector matched one generator style, measuring that class on a sample of
+**one** (0% → 100% after the fix).
+
+**The Day-2 figures were therefore produced by a partly broken localiser.** The injection
+study is what surfaced that — which is the argument for having run it.
+
+---
+
 ## 🆕 Day 2b (2026-08-24) — Both carried gaps closed before Day 3
 
 Branch: `010-width-and-clock-checks`. Full suite: **153 passed, 3 skipped** (was 132/3).

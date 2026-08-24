@@ -115,6 +115,18 @@ def static_findings(tb: str, dut: str, module_name: str) -> list[tuple[str, str]
     return [(e.error_type.value, e.affected_signal) for e in report.all_errors()]
 
 
+def _localised(findings, expected_type, signal) -> bool:
+    """Did the analyser name the right class AND the right signal?
+
+    Exact signal match, not a substring: `a` must not count as having localised
+    a fault in `data`. Localisation is the RQ2 claim — flagging that something is
+    wrong is worth less than saying which signal is wrong, because only the
+    latter gives the repair prompt somewhere to act.
+    """
+    wanted = {part for part in str(signal).split("/") if part}
+    return any(t == expected_type and (s or "") in wanted for t, s in findings)
+
+
 def evaluate(tb: str, dut: str) -> tuple[bool, bool]:
     """(compiles, simulation_passes). A testbench that fails to compile cannot run."""
     ok, _out, path = icarus.compile_tb(tb, dut, timeout_s=30)
@@ -190,10 +202,7 @@ def main() -> None:
                 "static_detected": fault.expected_type in types,
                 # ...or flagged at all (still useful: the repair loop gets a hint).
                 "static_any": bool(types - {"parse_failed"}),
-                "static_localised": any(
-                    t == fault.expected_type and fault.signal.split("/")[0] in (s or "")
-                    for t, s in found
-                ),
+                "static_localised": _localised(found, fault.expected_type, fault.signal),
                 "compiler_detected": not compiles,
                 "simulation_detected": compiles and not sim_passes,
             })
@@ -266,7 +275,10 @@ def report(baseline: list[dict], cases: list[dict]) -> None:
           f"/{n - caught_by_existing} "
           f"({pct(total_only, n - caught_by_existing)})")
 
-    localised = sum(1 for c in cases if c["static_localised"])
+    localised = sum(
+        1 for c in cases
+        if _localised(c["static_findings"], c["expected_type"], c["signal"])
+    )
     print(f"\nLocalisation (right class AND right signal): {localised}/{n} "
           f"({pct(localised, n)})")
 
