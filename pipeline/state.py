@@ -5,6 +5,10 @@ from typing import Annotated, Literal, TypedDict
 class GraphState(TypedDict):
     # ── Inputs ──────────────────────────────────────────────────────────────
     nl_description: str
+    # task_id: logical circuit identity (the requested selector). Distinct from
+    # module_name — VerilogEval tasks all share module_name "RefModule", so
+    # task_id is what keeps runs distinguishable for aggregation/de-dup.
+    task_id: str
     module_name: str
     # golden_dut is OPTIONAL (may be "") — used ONLY at evaluation time as a
     # benchmark reference. Generation never depends on it; it reads dut_rtl.
@@ -47,6 +51,11 @@ class GraphState(TypedDict):
         "exhausted_iters",
         "invalid_dut",
     ]
+
+    # Best-so-far testbench across repair iterations (Issue A). The repair loop
+    # regenerates the whole TB, so a later iteration can be worse than an earlier
+    # one; we report the highest-quality evaluated TB, not the last.
+    best_snapshot: dict
 
     # ── Telemetry ────────────────────────────────────────────────────────────
     run_id: str

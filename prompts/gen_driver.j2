@@ -22,10 +22,21 @@ IMPORTANT — Previous version had these errors. Fix all of them:
 Requirements:
 - Instantiate the DUT with the exact port names from the specification
 - Drive every input port; observe every output port
-- For each scenario: apply inputs, wait #10, check outputs
 - Print "PASS: <scenario_name>" on success, "FAIL: <scenario_name>" on failure — use EXACTLY these words
 - End with $finish
-- For sequential circuits: use posedge clock; apply inputs after posedge; sample outputs before next posedge
+- For COMBINATIONAL circuits: apply inputs, wait #10, then check outputs.
+- For SEQUENTIAL circuits (any DUT with a clock), follow this protocol STRICTLY — most testbench
+  bugs come from getting it wrong:
+  * Clock: generate a free-running clock in its own initial block:
+      `initial begin clk = 0; forever #5 clk = ~clk; end`
+  * RESET: assert reset, wait for a posedge so it takes effect, then DE-ASSERT it (drive it to its
+    INACTIVE value, e.g. `rst = 0;`) BEFORE testing normal operation. NEVER leave reset asserted while
+    expecting the circuit to count/shift/capture — a held reset keeps the output pinned and every such
+    check will (correctly) fail.
+  * Timing: drive the inputs, then `@(posedge clk);` to let that edge sample them, then `#1;` for the
+    output to settle, THEN check the output. Check AFTER the sampling edge, never before.
+  * Expected values: keep a running model of state. After each posedge the output reflects the inputs
+    present AT that edge. Work the expected value out cycle-by-cycle — do not guess.
 - Do NOT include the DUT module definition — only the testbench
 - Do NOT test invalid or out-of-range input values; only apply values that fit within each port's declared width
 - Do NOT use 'x or 'z in expected output comparisons for a combinational DUT

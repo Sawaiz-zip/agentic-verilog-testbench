@@ -1,0 +1,213 @@
+@startuml sequence_diagram
+title S6.ReKI.1 — LLM-Driven Verilog Testbench Generation\nSequence Diagram
+
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 8
+skinparam maxmessagesize 70
+skinparam sequenceGroupBorderThickness 2
+skinparam sequenceLifeLineBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #F0F8FF
+skinparam sequenceActorBackgroundColor #FFEFD5
+skinparam noteBorderColor #999999
+skinparam noteBackgroundColor #FFFACD
+
+actor       "User / Caller"             as User
+participant "LangGraph\nOrchestrator"   as LG    #E8F4FD
+participant "ClassifyNode\n(cheap model)"   as CL    #D6EAF8
+participant "GenDutNode\n(strong model)"    as GD0   #D6EAF8
+participant "SpecExtractNode\n(strong)" as SE    #D6EAF8
+participant "ScenarioGenNode\n(cheap)"  as SG    #D6EAF8
+participant "DriverGenNode\n(Sonnet)"   as DG    #D5F5E3
+participant "CheckerGenNode\n(Sonnet)"  as CK    #D5F5E3
+participant "PyverilogNode\n(AST+Dataflow)" as PV #FEF9E7
+participant "Verible\n(fallback)"       as VB    #FDEBD0
+participant "ErrorReasonNode\n(Sonnet)" as ER    #D6EAF8
+participant "StandardizerNode\n(Python AST)" as ST #FEF9E7
+participant "EvalNode\n(Icarus Verilog)" as IV   #FADBD8
+
+' ─────────────────────────────────────────────────────────────
+User -> LG : {nl_description, module_name, golden_dut, mutant_duts}
+activate LG
+
+note right of LG
+  LangGraph initialises GraphState
+  repair_iter = 0
+  max_repair_iter = 3
+  oscillation_detected = false
+end note
+
+' ─── STAGE 1a ────────────────────────────────────────────────
+== Stage 1a — Classification ==
+
+LG -> CL : nl_description
+activate CL
+note right of CL : cheap model\n(e.g. gpt-4o-mini)
+CL --> LG : circuit_type ∈ {CMB, SEQ}
+deactivate CL
+
+' ─── STAGE 1a' ───────────────────────────────────────────────
+== Stage 1a' — DUT Generation ==
+
+LG -> GD0 : nl_description + circuit_type
+activate GD0
+note right of GD0 : Synthesise the design-under-test\nfrom the description (strong model).\nGolden DUT, if supplied, is eval-only.
+GD0 --> LG : dut_rtl (Verilog design)
+deactivate GD0
+
+' ─── STAGE 1b ────────────────────────────────────────────────
+== Stage 1b — Structured Spec Extraction ==
+
+LG -> SE : nl_description + dut_rtl + circuit_type
+activate SE
+note right of SE : Renders Jinja2 prompt\ntemplate per node
+SE --> LG : spec: {ports, behaviour, timing, clk_edge}
+deactivate SE
+
+' ─── STAGE 1c ────────────────────────────────────────────────
+== Stage 1c — Test Scenario Generation ==
+
+LG -> SG : nl_description + spec
+activate SG
+SG --> LG : scenarios: [{name, stimulus_inputs, expected_outputs}]
+deactivate SG
+
+note over LG
+  Scenario checking:
+  Python verifies all scenarios present in spec
+  (max 3 retries if missing)
+end note
+
+' ─── REPAIR LOOP ─────────────────────────────────────────────
+loop Repair Loop  [repair_iter < max_repair_iter  AND  NOT oscillation_detected]
+
+  == Stages 1d + 1e — Parallel Driver & Checker Generation ==
+
+  par Driver Track
+    LG -> DG : spec + scenarios + error_report (from prior iter, if any)
+    activate DG
+    note right of DG : Configurable temperature\n(default 0.7; SEQ protocol\nin gen_driver.j2)
+    DG --> LG : driver_rtl  (Verilog testbench .v)
+    deactivate DG
+  else Checker Track
+    LG -> CK : spec + scenarios + error_report (from prior iter, if any)
+    activate CK
+    CK --> LG : checker_py  (Python pass/fail checker)
+    deactivate CK
+  end
+
+  note over LG
+    merge_generation: fan-in barrier — waits for BOTH
+    driver + checker before routing (SEQ → standardise,
+    CMB → straight to Pyverilog).
+  end note
+
+  ' ─── STAGE 2 ───────────────────────────────────────────────
+  == Stage 2 — Pyverilog Static Analysis ==
+
+  LG -> PV : driver_rtl + golden_dut
+  activate PV
+
+  alt Pyverilog parse succeeds
+    PV -> PV : AST parse (port bindings, sensitivity lists)
+    PV -> PV : Dataflow analysis (undriven inputs, width mismatches)
+    PV -> PV : Presence check ($fdisplay for SEQ outputs)
+    PV --> LG : pyverilog_report: {port_errors, sensitivity_errors,\n  dataflow_errors, fdisplay_missing}
+  else Pyverilog rejects LLM output (syntax it cannot handle)
+    PV --> LG : parse_failed
+    deactivate PV
+    LG -> VB : driver_rtl + golden_dut
+    activate VB
+    note right of VB : Verible is the fallback\nparser for edge cases
+    VB --> LG : pyverilog_report (from Verible lint)
+    deactivate VB
+  end
+  deactivate PV
+
+  ' ─── STAGE 3 ───────────────────────────────────────────────
+  == Stage 3 — LLM Error Reasoner ==
+
+  LG -> ER : pyverilog_report + spec + scenarios
+  activate ER
+  note right of ER : Translates raw Pyverilog output\ninto structured LLM-readable errors
+  ER --> LG : error_report: [{error_type, affected_signal,\n  line, suggested_fix, severity}]
+  deactivate ER
+
+  ' ─── STAGE 4 ───────────────────────────────────────────────
+  == Stage 4 — Deterministic Standardizer ==
+
+  alt circuit_type == SEQ
+    LG -> ST : driver_rtl + error_report
+    activate ST
+    note right of ST : Pure Python AST pass\nNo LLM involved\n(AutoBench used LLM here — fragile)
+    ST -> ST : insert missing $fdisplay statements
+    ST -> ST : normalise clock sensitivity lists
+    ST --> LG : driver_rtl  (standardized)
+    deactivate ST
+  else circuit_type == CMB
+    LG -> LG : skip standardizer (no clock/fdisplay needed)
+  end
+
+  ' ─── CONDITIONAL EDGE ──────────────────────────────────────
+  == Conditional Edge — Repair or Proceed? ==
+
+  LG -> LG : save last_error_report = error_report[i-1]
+
+  alt error_report is empty (no errors found)
+    LG -> LG : EXIT loop → proceed to evaluation
+  else error_report == last_error_report (oscillation detected)
+    LG -> LG : oscillation_detected = true\nfailure_stage = "repair_loop"\nEXIT loop
+    note right of LG : Same errors appeared twice in a row\nLLM is stuck — break to avoid infinite loop
+  else repair_iter >= max_repair_iter
+    LG -> LG : final_status = "exhausted_iters"\nEXIT loop
+  else errors found AND repair_iter < max_repair_iter
+    LG -> LG : repair_iter += 1\nCONTINUE loop with error_report as context
+  end
+
+end
+
+' ─── STAGE 6 ─────────────────────────────────────────────────
+== Stage 6 — Icarus Verilog Evaluation ==
+
+LG -> IV : driver_rtl + golden_dut  [compile]
+activate IV
+IV --> LG : eval0_pass: bool  (does it compile?)
+deactivate IV
+
+alt eval0_pass == true
+  LG -> IV : driver_rtl + golden_dut  [simulate]
+  activate IV
+  IV --> LG : eval1_pass: bool  (passes against correct DUT?)
+  deactivate IV
+
+  alt eval1_pass == true
+    LG -> IV : driver_rtl + mutant_duts  [mutant simulation loop]
+    activate IV
+    note right of IV : Run TB against each LLM-generated\nbuggy DUT; count how many it catches
+    IV --> LG : eval2_pass_rate: float  (fraction of mutants caught)
+    deactivate IV
+    LG -> LG : final_status = "success"
+  else eval1_pass == false
+    LG -> LG : final_status = "failed_eval1"\nfailure_stage = "eval_node"
+  end
+else eval0_pass == false
+  LG -> LG : final_status = "failed_compile"\nfailure_stage = "eval_node"
+end
+
+' ─── OUTPUT ──────────────────────────────────────────────────
+== Output ==
+
+LG --> User : GraphState {\n  driver_rtl, checker_py,\n  eval0_pass, eval1_pass, eval2_pass_rate,\n  error_report, pyverilog_report,\n  failure_stage, final_status,\n  llm_calls [{node, model, tokens_in, tokens_out, latency_ms}]\n}
+deactivate LG
+
+note over User
+  Telemetry enables:
+  • Per-node failure attribution
+  • Token cost per module
+  • Iterations-to-pass distribution
+  • Ablation studies (baseline vs compiler-only vs Pyverilog-only vs hybrid)
+  Best-so-far: the repair loop reports the highest-scoring
+  evaluated testbench, not the last one (Issue A fix).
+  All LLM calls also traced to LangSmith (project S6-ReKI-1).
+end note
+
+@enduml

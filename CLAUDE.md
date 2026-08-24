@@ -277,7 +277,7 @@ All 9 references verified correct as of session creation.
 ## 14. Tech Stack
 
 - **Language:** Python 3.11+
-- **LLM:** Claude API (Anthropic) — Sonnet for code/reasoning, Haiku for classification
+- **LLM:** provider-agnostic (OpenAI-compatible). Current: OpenRouter — `claude-sonnet-4.5` (strong: code/reasoning) + `gpt-4o-mini` (cheap: classify/scenarios). Groq/Anthropic/OpenAI also supported.
 - **Pipeline:** LangGraph (graph-based state machine)
 - **Static analysis:** Pyverilog
 - **Simulator:** Icarus Verilog (`iverilog`, `vvp`) — IEEE 1800-2012
@@ -291,7 +291,7 @@ All 9 references verified correct as of session creation.
 - **Pipeline must be graph-based** — every step a LangGraph node; no hidden control flow
 - **Prompts go in `prompts/` directory** as Jinja templates, not inline strings
 - **All LLM calls logged** — node, model, tokens, latency
-- **Temperature = 0** for code-generation nodes; reproducibility matters
+- **Temperature configurable** via `LLM_TEMPERATURE` (default 0.7, supervisor's choice; Constitution v1.1.0). Run a temp=0 sweep separately for the controlled/deterministic ablation.
 - **CMB before SEQ** — never start sequential work until combinational pipeline is solid
 - **Don't re-read `paper.pdf`** unless I ask — section 4 above is the canonical summary
 - **Don't run any code or install dependencies** until Phase 1 begins (after dataset arrives)
@@ -300,10 +300,11 @@ All 9 references verified correct as of session creation.
 
 ## 16. Open Questions / Unknowns
 
-- **Supervisor confirmation of scope pivot** — testbench gen + Pyverilog localisation (vs original RTL-localisation framing); pending email reply
-- **Supervisor dataset** — VerilogEval is the default; will replace/augment if Bing provides an internal dataset
-- **Pyverilog robustness on LLM-generated code** — Verible fallback planned; quantify failure rate in Phase 0 smoke test
-- **SEQ standardisation complexity** — Verilog parsing for `$fdisplay` insertion may need more than regex (Python AST pass)
+- ✅ **Scope pivot confirmed** — supervisor email 2026-05-26 confirmed testbench gen + Pyverilog localisation.
+- ✅ **Dataset confirmed** — VerilogEval (156 HDLBits problems); golden models used for eval.
+- **Pyverilog robustness on LLM-generated code** — *quantified* (2026-07-15): Pyverilog parses **7/8** LLM testbenches after fixing a concat/newline bug; Verible fallback (now installed) covers the rest. Failure was structural (parse), not semantic.
+- ✅ **SEQ standardisation** — done deterministically in Python (`fdisplay_inserter.py`), no LLM.
+- **Overfitting / generalisation** (new, 2026-07-15) — the SEQ prompt was tuned on the 8 local fixtures; the VerilogEval 156 must be treated as **held-out** to test generalisation and compare to AutoBench.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,

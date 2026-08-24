@@ -29,6 +29,17 @@ def _resolve_status(state: GraphState, updates: dict, base_failure: str) -> str:
     return base_failure
 
 
+def _quality_score(snap: dict) -> tuple:
+    """Rank an evaluated testbench for best-so-far selection (higher = better):
+    passes Eval1 > catches more mutants > more scenarios pass > compiles."""
+    return (
+        int(bool(snap.get("eval1_pass"))),
+        float(snap.get("eval2_pass_rate", 0.0)),
+        int(snap.get("scenarios_passed", 0)),
+        int(bool(snap.get("eval0_pass"))),
+    )
+
+
 def evaluate_node(state: GraphState) -> dict:
     cfg = PipelineConfig()
     t_start = time.monotonic()
@@ -169,6 +180,32 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
     scenario_results = updates.get("scenario_results") or []
     scenarios_passed = sum(1 for s in scenario_results if s.get("passed"))
 
+    # ── Best-so-far retention (Issue A) ──────────────────────────────────────
+    # The repair loop regenerates the whole testbench, so a later iteration can be
+    # WORSE than an earlier one. Track the highest-quality evaluated TB and report
+    # THAT — so more repair can never yield a worse final artifact. Routing still
+    # uses the *current* eval (in `updates`); only the written result uses `best`.
+    current = {
+        "eval0_pass": updates.get("eval0_pass", False),
+        "eval1_pass": updates.get("eval1_pass", False),
+        "eval2_pass_rate": updates.get("eval2_pass_rate", 0.0),
+        "scenario_results": scenario_results,
+        "scenarios_passed": scenarios_passed,
+        "scenarios_total": len(scenario_results),
+        "eval_dut_source": updates.get("eval_dut_source", "generated"),
+        "driver_rtl": updates.get("driver_rtl") or state.get("driver_rtl", ""),
+        "compiler_output": updates.get("compiler_output", ""),
+        "sim_output": updates.get("sim_output", ""),
+    }
+    prev_best = state.get("best_snapshot")
+    best = (
+        current
+        if not prev_best or _quality_score(current) > _quality_score(prev_best)
+        else prev_best
+    )
+    # Persist for the next iteration (returned to the graph via `updates`).
+    updates["best_snapshot"] = best
+
     # End-to-end wall time: from run entry (classify) to now, covering all repair
     # iterations. Falls back to this node's local start if the stamp is absent.
     run_started = state.get("run_started_at") or t_start
@@ -176,6 +213,7 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
 
     result = {
         "run_id": run_id,
+        "task_id": state.get("task_id") or state.get("module_name", ""),
         "module_name": state.get("module_name", ""),
         "mode": state.get("mode", ""),
         "circuit_type": state.get("circuit_type", ""),
@@ -185,23 +223,24 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
         "feedback_source": updates.get("feedback_source", state.get("feedback_source", "")),
         "final_status": updates.get("final_status", ""),
         "failure_stage": updates.get("failure_stage"),
-        "eval0_pass": updates.get("eval0_pass", False),
-        "eval1_pass": updates.get("eval1_pass", False),
-        "eval2_pass_rate": updates.get("eval2_pass_rate", 0.0),
-        "eval_dut_source": updates.get("eval_dut_source", "generated"),
-        "scenario_results": scenario_results,
-        "scenarios_passed": scenarios_passed,
-        "scenarios_total": len(scenario_results),
+        # Quality fields report the best-so-far testbench (Issue A).
+        "eval0_pass": best["eval0_pass"],
+        "eval1_pass": best["eval1_pass"],
+        "eval2_pass_rate": best["eval2_pass_rate"],
+        "eval_dut_source": best["eval_dut_source"],
+        "scenario_results": best["scenario_results"],
+        "scenarios_passed": best["scenarios_passed"],
+        "scenarios_total": best["scenarios_total"],
         "tokens_in_total": tokens_in_total,
         "tokens_out_total": tokens_out_total,
         "llm_calls": all_llm_calls,
         "wall_clock_ms": wall_clock_ms,
         # Generated DUT (the artifact produced from the description)
         "dut_rtl": state.get("dut_rtl", ""),
-        # Debug fields — present when Eval0/Eval1 fails
-        "driver_rtl": updates.get("driver_rtl") or state.get("driver_rtl", ""),
-        "compiler_output": updates.get("compiler_output", ""),
-        "sim_output": updates.get("sim_output", ""),
+        # Debug fields — the best-so-far testbench and its outputs
+        "driver_rtl": best["driver_rtl"],
+        "compiler_output": best["compiler_output"],
+        "sim_output": best["sim_output"],
     }
 
     out_path = results_dir / f"{run_id}.json"

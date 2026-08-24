@@ -26,20 +26,28 @@ def load_module(
     dut_override: str | None,
 ) -> dict:
     """
-    Return {"module_name", "nl_description", "golden_dut"}.
+    Return {"task_id", "module_name", "nl_description", "golden_dut"}.
+
+    `task_id` is the logical circuit identity (the requested selector). It is
+    distinct from `module_name`, which is the *Verilog* module name the DUT/TB
+    must use (VerilogEval golden refs are all named "RefModule", so every
+    VerilogEval task shares that module_name — task_id keeps them distinguishable
+    for de-duplication and aggregation).
 
     golden_dut may be "" — the pipeline generates its own DUT from the
     description. A golden DUT, when present, is used at evaluation time only.
 
-    Search order:
+    Search order (explicit fixtures take precedence over fuzzy dataset matches):
       1. --nl override (description-only user flow); --dut optional (eval-only)
-      2. data/verilog_eval/problems/<module_name>_prompt.txt + _ref.sv
-         (also matches partial names like "notgate" → Prob005_notgate)
+      2. data/verilog_eval/problems/<module_name>_prompt.txt + _ref.sv (exact)
       3. tests/fixtures/cmb/<module_name>_prompt.txt + _ref.v
       4. tests/fixtures/seq/<module_name>_prompt.txt + _ref.v
+      5. partial VerilogEval match (e.g. "notgate" → Prob005_notgate) — last, so
+         a fuzzy dataset hit never shadows an explicitly named fixture.
     """
     if nl_override:
         return {
+            "task_id": module_name,
             "module_name": module_name,
             "nl_description": pathlib.Path(nl_override).read_text(),
             "golden_dut": (
@@ -52,10 +60,24 @@ def load_module(
     ref_path = _VERILOG_EVAL_DIR / f"{module_name}_ref.sv"
     if prompt_path.exists() and ref_path.exists():
         return {
+            "task_id": module_name,
             "module_name": "RefModule",
             "nl_description": prompt_path.read_text(),
             "golden_dut": ref_path.read_text(),
         }
+
+    # CMB / SEQ fixtures (before the fuzzy VerilogEval glob, so an explicit
+    # fixture name like "mux2to1"/"dff" is never shadowed by a substring match)
+    for fixture_dir in [_FIXTURES_CMB, _FIXTURES_SEQ]:
+        p = fixture_dir / f"{module_name}_prompt.txt"
+        r = fixture_dir / f"{module_name}_ref.v"
+        if p.exists() and r.exists():
+            return {
+                "task_id": module_name,
+                "module_name": module_name,
+                "nl_description": p.read_text(),
+                "golden_dut": r.read_text(),
+            }
 
     # Partial VerilogEval match (e.g. "notgate" → Prob005_notgate_prompt.txt)
     for candidate in sorted(_VERILOG_EVAL_DIR.glob(f"*{module_name}*_prompt.txt")):
@@ -63,20 +85,10 @@ def load_module(
         ref = candidate.parent / f"{stem}_ref.sv"
         if ref.exists():
             return {
+                "task_id": stem,
                 "module_name": "RefModule",
                 "nl_description": candidate.read_text(),
                 "golden_dut": ref.read_text(),
-            }
-
-    # CMB / SEQ fixtures
-    for fixture_dir in [_FIXTURES_CMB, _FIXTURES_SEQ]:
-        p = fixture_dir / f"{module_name}_prompt.txt"
-        r = fixture_dir / f"{module_name}_ref.v"
-        if p.exists() and r.exists():
-            return {
-                "module_name": module_name,
-                "nl_description": p.read_text(),
-                "golden_dut": r.read_text(),
             }
 
     raise FileNotFoundError(

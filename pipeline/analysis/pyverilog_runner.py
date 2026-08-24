@@ -353,10 +353,14 @@ def run(
         os.close(tb_fd); tb_fd = -1
         os.close(dut_fd); dut_fd = -1
 
+        # Ensure a trailing newline. Pyverilog concatenates the two files; without
+        # it, a TB ending in "endmodule" (no newline) glues onto the DUT's
+        # "module ..." as one token ("endmodulemodule"), which breaks the parse
+        # at the DUT — silently disabling all static analysis.
         with open(tb_path, "w") as f:
-            f.write(tb_verilog)
+            f.write(tb_verilog if tb_verilog.endswith("\n") else tb_verilog + "\n")
         with open(dut_path, "w") as f:
-            f.write(dut_verilog)
+            f.write(dut_verilog if dut_verilog.endswith("\n") else dut_verilog + "\n")
 
         # Suppress pyverilog's verbose LALR warnings
         _null = open(os.devnull, "w")

@@ -94,6 +94,20 @@ def _resolve_model(model: str) -> str:
     return _OPENAI_MODEL_MAP.get(model, "gpt-4o-mini")
 
 
+def _maybe_wrap(client, kind: str):
+    """Wrap an SDK client with LangSmith tracing when LANGSMITH_TRACING is on, so
+    each LLM call appears in the trace (prompt, response, tokens) nested under its
+    node. Returns the raw client unchanged if tracing is off or langsmith is
+    unavailable — never raises. `kind` is 'anthropic' or 'openai'."""
+    if os.environ.get("LANGSMITH_TRACING", "").strip().lower() not in ("1", "true", "yes"):
+        return client
+    try:
+        from langsmith.wrappers import wrap_anthropic, wrap_openai
+        return wrap_anthropic(client) if kind == "anthropic" else wrap_openai(client)
+    except Exception:
+        return client
+
+
 def _is_daily_rate_limit(exc: Exception) -> bool:
     """A rate limit that names a *daily* token quota (e.g. 'tokens per day (TPD)').
     Retrying within a run is futile — surface it immediately."""
@@ -210,7 +224,9 @@ def _call_anthropic(
 ) -> tuple[str, dict]:
     import anthropic
 
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = _maybe_wrap(
+        anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"]), "anthropic"
+    )
     for attempt in range(max_retries):
         t0 = time.monotonic()
         try:
@@ -254,7 +270,7 @@ def _call_openai_compat(
     if base_url:
         kwargs["base_url"] = base_url
 
-    client = OpenAI(**kwargs)
+    client = _maybe_wrap(OpenAI(**kwargs), "openai")
 
     for attempt in range(max_retries):
         t0 = time.monotonic()
