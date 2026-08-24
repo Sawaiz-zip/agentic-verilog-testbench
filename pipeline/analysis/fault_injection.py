@@ -318,11 +318,17 @@ def inject_remove_clock_generator(tb: str, dut: str, module_name: str) -> list[F
     for clock in _dut_clock_ports(dut):
         sig = _bindings(tb, module_name).get(clock, clock)
         w = re.escape(sig)
+        # Cover the generator styles LLM testbenches actually use. Five of six
+        # sequential testbenches in the corpus write `forever #5 clk = ~clk;`
+        # inside an initial block rather than as a standalone `always` line, so a
+        # pattern set that only matched the latter left this fault class with a
+        # sample of one.
         mutated = tb
         for pat in (
             rf"^[ \t]*always\s*#\d+\s*{w}\s*<?=\s*~\s*{w}\s*;[ \t]*\n",
             rf"^[ \t]*initial\s+forever\s*#\d+\s*{w}\s*<?=\s*~\s*{w}\s*;[ \t]*\n",
-            rf"^[ \t]*always\s+#\d+\s+{w}\s*<?=\s*~{w}\s*;[ \t]*\n",
+            rf"[ \t]*forever\s*#\d+\s*{w}\s*<?=\s*~\s*{w}\s*;[ \t]*\n?",
+            rf"[ \t]*always\s*#\d+\s*{w}\s*<?=\s*~\s*{w}\s*;[ \t]*\n?",
         ):
             mutated = re.sub(pat, "", mutated, flags=re.MULTILINE)
         if mutated == tb:

@@ -214,3 +214,38 @@ def test_assignment_in_a_different_block_is_not_credited_to_an_always_block():
           "endmodule\n")
     report = run(tb, dut, module_name="dff")
     assert "clock_never_toggled" in {e.error_type.value for e in report.all_errors()}
+
+
+def test_two_assignments_of_the_same_value_are_not_a_toggle():
+    """`clk = 0;` written in two places is a dead clock, not a running one.
+    Counting bare assignments credited it with toggling and hid the defect."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  initial clk = 1'b0;\n"
+          "  initial begin\n"
+          "    clk = 1'b0; rst = 1'b0; d = 1'b1; #20;\n"
+          "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" in {e.error_type.value for e in report.all_errors()}
+
+
+def test_manual_toggling_with_distinct_values_is_not_flagged():
+    """A generator written without `~` — assigning 1 then 0 by hand — is a
+    working clock and must not be reported."""
+    dut = _DFF
+    tb = ("module tb;\n"
+          "  reg clk, rst, d; wire q;\n"
+          "  dff uut(.clk(clk), .rst(rst), .d(d), .q(q));\n"
+          "  initial clk = 1'b0;\n"
+          "  always begin #5 clk = 1'b1; #5 clk = 1'b0; end\n"
+          "  initial begin rst = 1'b0; d = 1'b1;\n"
+          "    @(posedge clk); #1;\n"
+          "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+          "    $finish; end\n"
+          "endmodule\n")
+    report = run(tb, dut, module_name="dff")
+    assert "clock_never_toggled" not in {e.error_type.value for e in report.all_errors()}

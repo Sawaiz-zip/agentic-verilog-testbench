@@ -194,3 +194,32 @@ def test_port_directions_ignore_comments():
     dut = ("module m(input a, // output b is commented out\n"
            "         output y);\nendmodule\n")
     assert fi._dut_port_directions(dut) == {"a": "input", "y": "output"}
+
+
+@pytest.mark.parametrize("generator", [
+    "  always #5 clk = ~clk;\n",
+    "  initial forever #5 clk = ~clk;\n",
+    "  initial begin\n    clk = 0;\n    forever #5 clk = ~clk;\n  end\n",
+])
+def test_clock_generator_injector_covers_the_styles_in_use(generator):
+    """Five of the six sequential testbenches in the corpus write the generator
+    as `forever #5 clk = ~clk;` inside an initial block. A pattern set that only
+    matched a standalone `always` line left this fault class with a sample of
+    one, which is not a measurement."""
+    tb = (
+        "module tb;\n"
+        "  reg clk;\n  reg rst;\n  reg d;\n  wire q;\n"
+        "  dff dut (.clk(clk), .rst(rst), .d(d), .q(q));\n"
+        f"{generator}"
+        "  initial begin\n"
+        "    rst = 1'b1; d = 1'b0;\n"
+        "    @(posedge clk); #1; rst = 1'b0;\n"
+        "    d = 1'b1; @(posedge clk); #1;\n"
+        "    if (q === 1'b1) $display(\"PASS: capture\");\n"
+        "    $finish;\n  end\n"
+        "endmodule\n"
+    )
+    faults = fi.inject_remove_clock_generator(tb, _SEQ_DUT, "dff")
+    assert faults, "the clock generator was not recognised"
+    assert "~" not in faults[0].testbench.replace("~clk", "", 0) or \
+        "forever" not in faults[0].testbench

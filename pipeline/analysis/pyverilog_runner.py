@@ -405,7 +405,14 @@ def _clock_is_toggled(tb_verilog: str, signal: str) -> bool:
     for block in re.finditer(r"\b(?:always|forever|repeat)\b", tb_verilog):
         if re.search(assign, _block_body(tb_verilog, block.end())):
             return True
-    return len(re.findall(assign, tb_verilog)) > 1
+    # Several assignments only toggle if they set different values. A testbench
+    # that writes `clk = 0;` in two places has a dead clock, not a running one —
+    # counting bare assignments credited it with toggling.
+    values = {
+        m.group(1).strip()
+        for m in re.finditer(rf"\b{word}\s*<?=(?!=)([^;]*);", tb_verilog)
+    }
+    return len(values) > 1
 
 
 def _check_clock_toggle(
