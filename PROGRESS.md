@@ -125,13 +125,34 @@ Regression on the 32 July testbenches: still 0 findings, 29/32 parses.
   standardiser repairs this case but the analyser does not report it. A
   `CLOCK_NEVER_TOGGLED` check is cheap; quantify it in the injection study first.
 
+### Fix F — Eval1 verdict decided by a scenario name
+
+The smoke run earned its keep. `fsm_sequence_detector` printed **8 PASS lines and no FAIL
+line**, was scored a failure, and burned **all three repair iterations** fixing a
+testbench that was already correct — ending `exhausted_iters`. Cause: the Eval1 verdict
+searched the whole output for the bare substring `"mismatch"`, and one scenario was named
+`immediate_mismatch`. The scenario's *name* was scoring its own run. Unfixed this would
+have produced a wrong row for any circuit whose scenario names contain the word, and
+burned three repair calls each time.
+
 ### Smoke runs (hybrid, one per circuit)
 
-All three hard CMB circuits pass: `alu_8bit` 10/10 scenarios, `barrel_shifter_8bit` 8/8,
-`bcd_to_7seg` 16/16; Eval2 = 1.00 with 5/5 valid mutants in each case. `alu_8bit` and
-`barrel_shifter_8bit` each needed one simulation-feedback repair — the first-shot failures
-were the genuinely hard scenarios (arithmetic right shift of a negative value; signed
-comparison), which is exactly the difficulty level the set was built for.
+| Circuit | Eval0 | Eval1 | Eval2 | repairs | scenarios |
+|---|---|---|---|---|---|
+| `alu_8bit` | ✅ | ✅ | 1.00 (5/5 valid) | 1 (sim) | 10/10 |
+| `barrel_shifter_8bit` | ✅ | ✅ | 1.00 (5/5 valid) | 1 (sim) | 8/8 |
+| `bcd_to_7seg` | ✅ | ✅ | 1.00 (5/5 valid) | 0 | 16/16 |
+| `fifo_8x8` | ✅ | ✅ | 1.00 (**3/3 valid of 5**) | 0 | 8/8 |
+| `traffic_light_fsm` | ✅ | ✅ | 0.80 (4/5 valid) | 3 (sim) | 7/7 |
+| `fsm_sequence_detector` | ✅ | ✗ → fixed by F | — | 3 (wasted) | 8/8 |
+
+- **The difficulty level is right.** `alu_8bit` and `barrel_shifter_8bit` failed first-shot
+  on exactly the hard cases — arithmetic right shift of a negative value, signed
+  comparison — and recovered in one repair; `traffic_light_fsm` needed all three. These
+  circuits discriminate between modes, which the original CMB fixtures did not.
+- **Fix D is visibly load-bearing.** `fifo_8x8` caught 3 of 3 *valid* mutants, but only 3
+  of the 5 generated mutants compiled. Under the old denominator it would have scored 0.60
+  instead of 1.00 — a 40-point error on a testbench that missed nothing.
 
 ---
 

@@ -89,10 +89,47 @@ Regression: the 32 saved testbenches from the July sweep still produce 0 finding
   is cheap and would be a genuine addition — quantify it in the Day-3 injection study
   before deciding.
 
+## Fix F — Eval1 verdict decided by a scenario name
+
+The smoke run earned its keep. `fsm_sequence_detector` printed **8 PASS lines and no
+FAIL line**, was scored a failure, and then burned **all three repair iterations** trying
+to fix a testbench that was already correct — ending `exhausted_iters`.
+
+Cause: the Eval1 verdict searched the whole simulation output for the bare substring
+`"mismatch"`, and one scenario was named `immediate_mismatch`. The scenario's *name* was
+scoring its own run.
+
+Unfixed, this would have produced a wrong row for any circuit whose generated scenario
+names happen to contain the word — plausible for comparators, ALUs and FSMs — and would
+have burned three repair calls per occurrence. The verdict now inspects line by line,
+skips `PASS:` verdict lines (their names are free text), and treats a zero-count report
+as the success it is (a VerilogEval reference testbench prints `Mismatches: 0 in N
+samples` when nothing went wrong).
+
 ## Smoke runs
 
 One `hybrid` run per hard circuit, before committing to the paid sweep.
-Results in `results/day2_smoke/`.
+
+| Circuit | Eval0 | Eval1 | Eval2 | repairs | scenarios |
+|---|---|---|---|---|---|
+| `alu_8bit` | ✅ | ✅ | 1.00 (5/5 valid) | 1 (sim) | 10/10 |
+| `barrel_shifter_8bit` | ✅ | ✅ | 1.00 (5/5 valid) | 1 (sim) | 8/8 |
+| `bcd_to_7seg` | ✅ | ✅ | 1.00 (5/5 valid) | 0 | 16/16 |
+| `fifo_8x8` | ✅ | ✅ | 1.00 (**3/3 valid of 5**) | 0 | 8/8 |
+| `traffic_light_fsm` | ✅ | ✅ | 0.80 (4/5 valid) | 3 (sim) | 7/7 |
+| `fsm_sequence_detector` | ✅ | ✗ → fixed by F | — | 3 (wasted) | 8/8 |
+
+Results in `results/day2_smoke/` and `results/day2_smoke_seq/`.
+
+Two observations worth carrying forward:
+
+- **The difficulty level is right.** `alu_8bit` and `barrel_shifter_8bit` failed first-shot
+  on exactly the hard cases — arithmetic right shift of a negative value, signed
+  comparison — and recovered in one repair. `traffic_light_fsm` needed all three. These
+  circuits discriminate between modes, which the original CMB fixtures did not.
+- **Fix D is visibly load-bearing.** `fifo_8x8` caught 3 of 3 *valid* mutants, but only 3
+  of the 5 generated mutants compiled. Under the old denominator it would have scored
+  0.60 instead of 1.00 — a 40-point error on a testbench that missed nothing.
 
 ## Validation
 
