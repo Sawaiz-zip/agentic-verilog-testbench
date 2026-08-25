@@ -72,37 +72,23 @@ Results: `results/injection_study_final.json`; write-up `specs/011-error-injecti
       now recorded by a test. Six checks remain, all injection-verified.
 - [x] Eight defects found and fixed in already-tested code (see write-up)
 
-### Day 4 — Freeze prompts, run the sweep  ⟵ NEXT
-**Pre-flight completed 2026-08-25 — 10/10 checks green, 3 bugs found and fixed.**
+### Day 4 — Sweeps ✅ DONE
+Prompts frozen at tag `prompts-frozen`. Three sweeps, 220 runs, ~$9.20, zero harness errors.
 
-Launch command (one line, resumable into the same dir if interrupted):
+- [x] `results/final_hard_r1` — Sonnet 4.5, 12 project circuits, 60 runs
+- [x] `results/weak_model_r1` — gpt-4o-mini, same 12 circuits, 60 runs (cross-model control)
+- [x] `results/verilogeval_weak` — gpt-4o-mini, 20 VerilogEval circuits, 100 runs
+      (selected by structural complexity *before* running, to avoid selecting on outcomes)
+- [x] Repeat 2 **deliberately skipped** — the decisive finding is a count (2 static findings
+      in 314 analyses), which repeats cannot change, and a 33-point variance floor means
+      repeats would not separate a 17-point gap either
 
-```bash
-python scripts/run_eval.py --yes --results-dir results/final_hard_r1 --modules \
-  alu_1bit comparator_2bit priority_encoder alu_8bit barrel_shifter_8bit bcd_to_7seg \
-  dff counter_4bit shift_register fsm_sequence_detector fifo_8x8 traffic_light_fsm
-```
-then repeat 2 into `results/final_hard_r2`, then:
-```bash
-python scripts/aggregate_repeats.py results/final_hard_r1 results/final_hard_r2
-```
-
-- [ ] **Freeze all prompts**, tag the commit `prompts-frozen`
-- [ ] Repeat 1 → `results/final_hard_r1` (60 runs)
-- [ ] Repeat 2 → `results/final_hard_r2` (60 runs)
-- [ ] 12 circuits × 5 modes × 2 repeats = **120 runs**, ≈1.9M tokens, ≈$15, ~4–6 h
-- [ ] Start in the morning; it is the only long-running step
-
-### Day 5 — Aggregate and produce the tables
-- [ ] Per-node failure attribution (already logged — aggregator computes it)
-- [ ] Iterations-to-pass distribution
-- [ ] Token cost per module per mode
-- [ ] Eval0/1/2 across all 5 modes with mean±std from the repeats
-      (`scripts/aggregate_repeats.py`)
-- [ ] Failure-mode catalogue from the persisted `static_findings`
-- [ ] Scenario-level pass rate alongside binary Eval1 (SEQ sits at 70–90% per TB even when
-      Eval1 says "fail" — much more informative than the binary)
-- [ ] Results tables + figures for the report
+### Day 5 — Analysis ✅ DONE
+- [x] `scripts/analyse_results.py` — pooled stats, Wilson intervals, Fisher exact tests
+- [x] `scripts/render_report.py` — per-sweep Markdown reports
+- [x] `docs/results.md` — consolidated findings, all four RQs, threats to validity
+- [x] Contribution 5 scope corrected (detection ≠ origin attribution)
+- [x] AutoBench comparison grounded in the paper's actual ablation numbers
 
 ### Aug 29 – Sept 1 — Report only
 - [ ] Results section: ablation tables, AutoBench comparison, honest caveats

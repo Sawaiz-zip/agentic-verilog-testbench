@@ -194,6 +194,13 @@ class GraphState(TypedDict):
 
 ## 8. Research Questions
 
+> **Status as of 2026-08-25** — full evidence in `docs/results.md`.
+> **RQ1 ✅ answered:** 87% of failures are semantic (133 of 153); 569 failing scenarios categorised.
+> **RQ2 ✅ answered, both halves:** the localiser detects 93% of injected faults with 0 false positives (30 invisible to compiler+simulator), but fired only 2 times in 314 analyses of real output.
+> **RQ3 ⚠️ partially:** the "informed by Pyverilog" half is unanswerable — there were almost no findings to inform it. The comparison half is answered negatively: no mode beats the control at n=44 (hybrid vs `retry_only`, p=0.372).
+> **RQ4 ✅ answered:** `hybrid` buys +14 points Eval1 for +50% tokens; `compiler_only` is the efficiency winner (+7 points for +6%); `pyverilog_only` costs ~nothing and gains nothing.
+
+
 - **RQ1.** What categories of functional errors appear most frequently in LLM-generated Verilog **testbenches**, and which of these are detectable without full simulation?
 - **RQ2.** To what extent can Pyverilog's AST and dataflow analysis (port bindings, sensitivity lists, dataflow consistency between testbench and DUT) narrow down testbench errors prior to simulation?
 - **RQ3.** Can an LLM, informed by Pyverilog analysis results, effectively localise and repair testbench errors, and how does this compare to using only compiler/simulator feedback as in prior work?
@@ -207,7 +214,7 @@ class GraphState(TypedDict):
 2. **Pyverilog-based pre-simulation error localiser** — reusable Python module converting Pyverilog AST/dataflow output into structured, LLM-readable summaries focused on testbench-DUT interaction errors.
 3. **Deterministic `$fdisplay` standardiser** — Python AST pass that replaces AutoBench's fragile LLM-based standardisation step.
 4. **Testbench-error taxonomy with measured detectability** — six error classes, each verified by fault injection: 215 injected faults across 14 testbenches, scored against static analysis, the compiler, and the simulator. Includes a negative result (one check removed for zero recall) and an explicit boundary (semantic faults such as swapped same-width bindings are undetectable statically).
-5. **Per-node failure attribution** — empirical breakdown of where failures originate in the 6-stage pipeline, enabled for free by LangGraph logging (AutoBench does not provide this).
+5. **Per-run failure *detection* attribution and full execution telemetry** — every run records the stage at which failure was detected, the feedback source that triggered each repair, and per-call model/token/latency data. ⚠️ **Scope corrected 2026-08-25:** the original wording claimed attribution of where failures *originate* across the 6 stages. The data does not support that: 70% of runs attribute to `evaluate` and 30% to `none`, because `evaluate` is where failure is *detected*, not where the defect was introduced. Origin attribution would require per-node ground truth the pipeline does not collect. What is delivered — and what AutoBench does not provide — is the repair-feedback breakdown (25 simulation, 8 compile, 0 static across 220 runs) and the cost telemetry behind RQ4.
 6. **Empirical comparison of feedback strategies** — baseline, retry-only (control), compiler-only, Pyverilog-only, and hybrid, across CMB and SEQ benchmarks. The `retry_only` arm is what makes the comparison sound: every repairing mode gets an extra LLM sample that baseline does not, so without it a gain cannot be attributed to the feedback.
 
 ---

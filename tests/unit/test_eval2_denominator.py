@@ -59,3 +59,32 @@ def test_no_mutants_scores_zero(monkeypatch):
 def test_eval2_wrapper_matches_detailed_rate(monkeypatch):
     _install(monkeypatch, [True, True, False], [False, True])
     assert icarus.eval2("tb", ["m"] * 3) == 0.5
+
+
+# ── Per-mutant auditability ──────────────────────────────────────────────────
+
+def test_per_mutant_detail_identifies_which_mutant_escaped(monkeypatch):
+    """Aggregate counts cannot say *which* mutant survived. A 189/190 score is
+    indistinguishable from mutants being too easy unless the escapee can be
+    identified after the fact — and regenerating them would produce different
+    ones, so it has to be recorded at the time."""
+    _install(monkeypatch, [True, True, True], [False, True, False])
+    rate, caught, valid, total, detail = icarus.eval2_with_detail("tb", ["m"] * 3)
+    assert (caught, valid, total) == (2, 3, 3)
+    escaped = [d["index"] for d in detail if d["compiled"] and not d["caught"]]
+    assert escaped == [1], detail
+
+
+def test_non_compiling_mutant_is_recorded_as_such(monkeypatch):
+    _install(monkeypatch, [True, False], [False])
+    _rate, _c, _v, _t, detail = icarus.eval2_with_detail("tb", ["m"] * 2)
+    assert detail[1]["compiled"] is False
+    assert detail[1]["caught"] is None      # never ran, so neither caught nor missed
+    assert detail[1]["note"]
+
+
+def test_detail_has_one_entry_per_mutant(monkeypatch):
+    _install(monkeypatch, [True, True, False, True], [False, False, False])
+    _r, _c, _v, _t, detail = icarus.eval2_with_detail("tb", ["m"] * 4)
+    assert len(detail) == 4
+    assert [d["index"] for d in detail] == [0, 1, 2, 3]

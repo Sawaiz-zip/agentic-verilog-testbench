@@ -71,6 +71,83 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 
 ---
 
+## 🆕 Day 4–5 (2026-08-25) — Three sweeps, 220 runs, and the answer
+
+Consolidated findings: **`docs/results.md`**. Reproduce with
+`python scripts/analyse_results.py --all`.
+
+Prompts frozen at tag `prompts-frozen` before any sweep; none modified afterwards.
+
+| Sweep | Model | Circuits | Runs |
+|---|---|---|---|
+| `final_hard_r1` | claude-sonnet-4.5 | 12 project | 60 |
+| `weak_model_r1` | gpt-4o-mini | same 12 | 60 |
+| `verilogeval_weak` | gpt-4o-mini | 20 VerilogEval | 100 |
+
+Zero harness errors across all 220 runs. Total API spend ≈ $9.20.
+
+### The decisive result
+
+**Static analysis fired twice in 314 analyses.** `pyverilog_only` performed **zero repairs
+in all three sweeps**. The single VerilogEval finding landed in `compiler_only`, which
+ignores static findings by design, so it was never even acted on.
+
+The "model too capable" explanation is **not supported**: `gpt-4o-mini` is far worse at the
+task (Eval1 63% → 35% on identical circuits) yet makes essentially the same number of
+structural mistakes. Both weak and strong models produce structurally well-formed
+testbenches; **87% of failures are semantic** (133 of 153) and need simulation by definition.
+
+The VerilogEval circuits were selected by structural complexity **before** running — 15 of
+20 sequential, port counts 6–12, complexity well above the benchmark median. Selecting on
+circuit properties rather than observed outcomes is what makes the null result valid: the
+sample was biased *toward* the conditions where static faults are possible, and it still
+found nothing.
+
+### Statistics, pooled over 220 runs (n=44 per mode)
+
+| mode | Eval1 | 95% CI |
+|---|---|---|
+| `pyverilog_only` | 20.5% | [11.2, 34.5] |
+| `baseline` | 27.3% | [16.3, 41.8] |
+| `retry_only` | 29.5% | [18.2, 44.2] |
+| `compiler_only` | 34.1% | [21.9, 48.9] |
+| `hybrid` | 40.9% | [27.7, 55.6] |
+
+**No pairwise difference reaches p<0.05.** hybrid vs the `retry_only` control: **p=0.372**.
+
+**Variance floor, measured twice independently:** arms taking an identical code path scored
+67/67/33% (Sonnet) and 17/50/33% (mini) — a **33-point spread** both times. At temperature
+0.7 and this sample size, smaller differences are uninterpretable. This bears directly on
+prior work, which reports single-run pass@1 without error bars.
+
+**`retry_only` degrades compilation** on hard circuits: Eval0 70% vs 90–95% elsewhere. A
+second attempt without information is worse than no second attempt.
+
+### Corrections made
+
+- **Contribution 5 rescoped.** It claimed per-node attribution of where failures *originate*;
+  the data shows 70% `evaluate` / 30% `none`, because that is where failure is *detected*.
+  Origin attribution needs per-node ground truth the pipeline does not collect. Reworded
+  rather than quietly kept.
+- **AutoBench comparison grounded in the paper.** They have no static analysis at all —
+  scenario-presence checking, compiler auto-debug, and a `$fdisplay` standardiser, none of
+  which parse Verilog. Their ablation reports +8% (auto-debug) and +10% (scenario checking)
+  but has **no control arm**, so it cannot separate feedback from retry either. Their
+  largest gain (SEQ Eval0 55%→97%) came from the deterministic standardiser — the same
+  category as this project's contribution, working then because GPT-4-turbo omitted
+  `$fdisplay` and failing now because current models do not.
+- **Eval2 is at ceiling** (189/190 mutants caught) and discriminates nothing. Mutants and
+  per-mutant outcomes are now persisted so this is auditable in future runs.
+
+### Two premature calls I made and corrected
+
+Recorded because the corrections are part of the method: I reported the completion of
+repeat 1 based on a file that `render_report.py` itself creates, and I called the
+weak-model hypothesis "confirming itself" on 1 finding in 9 analyses when the final count
+was 1 in 79. Both were caught and corrected within the same session.
+
+---
+
 ## 🆕 Day 3 (2026-08-24) — Error-injection study: the localiser, measured
 
 Branch: `011-error-injection-study`. Suite: **182 passed, 3 skipped** (was 153).

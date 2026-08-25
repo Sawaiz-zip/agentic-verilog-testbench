@@ -145,9 +145,10 @@ def evaluate_node(state: GraphState) -> dict:
         updates["llm_calls"] = mutant_logs
 
     if mutant_duts:
-        pass_rate, caught, valid, total = icarus.eval2_detailed(
+        pass_rate, caught, valid, total, mutant_detail = icarus.eval2_with_detail(
             driver_rtl, mutant_duts, timeout_s=cfg.simulation_timeout_s
         )
+        updates["eval2_mutant_results"] = mutant_detail
         updates["eval2_pass_rate"] = pass_rate
         # Mutant validity is reported so an Eval2 score can never be silently
         # depressed by mutants the LLM generated badly (they no longer count).
@@ -248,6 +249,11 @@ def _write_result(state: GraphState, updates: dict, t_start: float) -> None:
         # report, and neither can be reconstructed from the artifacts later.
         "static_findings": list(state.get("static_findings") or []),
         "pyverilog_report": state.get("pyverilog_report") or {},
+        # The mutants themselves, plus which of them escaped. Counts alone cannot
+        # distinguish "the testbench is excellent" from "the mutants were easy",
+        # and regenerating them later would produce different ones.
+        "mutant_duts": list(state.get("mutant_duts") or []),
+        "eval2_mutant_results": updates.get("eval2_mutant_results", []),
         "tokens_in_total": tokens_in_total,
         "tokens_out_total": tokens_out_total,
         "llm_calls": all_llm_calls,
