@@ -47,38 +47,65 @@ Every step is an explicit LangGraph node with explicit conditional edges — no 
 
 ## Results
 
-### Static analysis vs the existing tooling
+**220 pipeline runs** across three sweeps, plus an offline fault-injection study.
+Full detail and reproduction commands in [`docs/results.md`](docs/results.md).
 
-Measured by **fault injection**: take 14 testbenches already known to pass, break each in one known way (215 faults total), and ask three layers whether they notice.
+### The localiser works
 
-| Fault class | n | static | compiler | simulator | **only static** |
-|---|---|---|---|---|---|
-| Output never checked | 19 | **100%** | 0% | **0%** | **100%** |
-| Clock never toggled | 6 | **100%** | 0% | 17% | **83%** |
-| Wrong signal width | 22 | **100%** | 0% | 82% | **18%** |
-| Input never driven | 30 | **100%** | 0% | 97% | 3% |
-| Port left unconnected | 62 | **100%** | 0% | 98% | 2% |
-| Port bound under a wrong name | 62 | **100%** | 100% | 0% | 0% |
-| *Edge sync removed* (control) | 5 | 0% | 0% | 80% | 0% |
-| *Two inputs swapped* (control) | 9 | 0% | 0% | 78% | 0% |
-| **Total** | **215** | **93%** | **29%** | **56%** | **14%** |
+Fault injection: 14 known-good testbenches, 215 injected faults, three layers asked the
+same question.
 
-- **93% detection, 93% localisation** — localisation means naming the correct fault class *and* the correct signal, which is what gives a repair prompt somewhere to act.
-- **0 false positives** across all 14 clean testbenches.
-- **33 of 215 faults (15%) are invisible to both the compiler and the simulator. Static analysis catches 30 of them (91%).**
+| | static | compiler | simulator |
+|---|---|---|---|
+| Detection | **93%** | 29% | 56% |
+| Localisation (class **and** signal) | **93%** | — | — |
+| False positives on clean input | **0 / 14** | — | — |
 
-The decisive row is the first. An unchecked output is a real, common defect that no amount of simulation can surface.
+**33 of 215 faults (15%) are invisible to the compiler and the simulator together. Static
+analysis catches 30 of them.** The clearest case: a testbench that stops checking an
+output does not fail — it *passes*, because it is no longer looking.
 
-Reproduce with `python scripts/run_injection_study.py` — fully offline, no API calls.
+### But the faults it catches are rare in practice
 
-### Stated limits
+| Sweep | Model | Analyses | Runs with a finding |
+|---|---|---|---|
+| 12 project circuits | `claude-sonnet-4.5` | 82 | **0 / 60** |
+| 12 project circuits | `gpt-4o-mini` | 79 | **1 / 60** |
+| 20 VerilogEval circuits | `gpt-4o-mini` | 153 | **1 / 100** |
 
-Good results are only useful if the boundaries are stated too:
+**2 findings in 314 analyses.** Both a weak and a strong model produce structurally
+well-formed testbenches; **87% of real failures are semantic** (133 of 153) and require
+simulation by definition.
 
-- **Binding a port under a wrong name** (62 of 215 faults) is caught by the compiler as well. Static analysis adds speed there, not capability.
-- **Swapping two same-width inputs** is invisible to static analysis *by design* — it is a semantic error, not a structural one. Included deliberately as a negative control; the simulator caught 78%.
-- One check, `sensitivity_list_error`, was **removed** after measuring 0/5 recall and one false positive. Details in [`docs/research-log.md`](docs/research-log.md).
-- 14 circuits and 8 self-chosen fault classes is real evidence, not a public benchmark result.
+### Ablation, pooled (n=44 per mode)
+
+| mode | Eval1 | 95% CI | tokens vs baseline |
+|---|---|---|---|
+| `pyverilog_only` | 20.5% | [11.2, 34.5] | −2% |
+| `baseline` | 27.3% | [16.3, 41.8] | — |
+| `retry_only` | 29.5% | [18.2, 44.2] | +29% |
+| `compiler_only` | 34.1% | [21.9, 48.9] | +6% |
+| **`hybrid`** | **40.9%** | [27.7, 55.6] | +50% |
+
+**No pairwise difference reaches p < 0.05** (hybrid vs the `retry_only` control: p = 0.372).
+Arms that took an identical code path scored 33 points apart — a variance floor reproduced
+independently in two sweeps. At temperature 0.7 with this sample size, differences below
+~33 points are not interpretable.
+
+That measurement matters beyond this project: prior work in this area reports single-run
+pass@1 comparisons without error bars.
+
+### Findings
+
+1. The static localiser is sound — 93% detection, 0 false positives, measured not asserted
+2. Structural faults are rare in real LLM output — 2 in 314 analyses, two models, two circuit sets
+3. Failures are overwhelmingly semantic — 133 of 153
+4. Blind retry can *harm* — `retry_only` dropped Eval0 to 70% vs 90–95% elsewhere
+5. No mode beats the control at n=44, against a measured 33-point variance floor
+6. Static analysis is nearly free and nearly useless here; simulation feedback drives every effective repair
+
+The value of pre-simulation structural analysis is bounded not by the technique but by the
+error profile of the generator.
 
 ## Static checks
 
@@ -202,6 +229,7 @@ A few decisions that shaped the implementation:
 | [`docs/architecture_decisions.md`](docs/architecture_decisions.md) | why LangGraph, why Pyverilog, trade-offs considered |
 | [`docs/pipeline_walkthrough.md`](docs/pipeline_walkthrough.md) | node-by-node explanation |
 | [`docs/results_walkthrough.md`](docs/results_walkthrough.md) | how to read the evaluation output |
+| [`docs/results.md`](docs/results.md) | **consolidated findings** — all RQs, statistics, AutoBench comparison, threats to validity |
 | [`docs/research-log.md`](docs/research-log.md) | dated engineering log, including defects found and corrections made |
 | [`docs/roadmap.md`](docs/roadmap.md) | current status and remaining work |
 | [`specs/`](specs) | design notes per feature increment |

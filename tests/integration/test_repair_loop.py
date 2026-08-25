@@ -72,6 +72,10 @@ def _install_icarus(monkeypatch, sim_results, compile_ok=True):
         ev.icarus, "eval2_detailed",
         lambda drv, muts, timeout_s=30: (1.0, len(muts), len(muts), len(muts)),
     )
+    monkeypatch.setattr(
+        ev.icarus, "eval2_with_detail",
+        lambda drv, muts, timeout_s=30: (1.0, len(muts), len(muts), len(muts), []),
+    )
     monkeypatch.setattr("os.path.exists", lambda p: False)
 
 
@@ -153,6 +157,10 @@ def test_compiler_only_repairs_compile_not_sim(monkeypatch):
     monkeypatch.setattr(
         ev.icarus, "eval2_detailed",
         lambda d, m, timeout_s=30: (1.0, len(m), len(m), len(m)),
+    )
+    monkeypatch.setattr(
+        ev.icarus, "eval2_with_detail",
+        lambda d, m, timeout_s=30: (1.0, len(m), len(m), len(m), []),
     )
     monkeypatch.setattr("os.path.exists", lambda p: False)
 
