@@ -119,24 +119,46 @@ def eval2_detailed(
     in the numerator but still counted in the denominator, which silently capped
     the score: one bad mutant out of five pinned the maximum at 0.8.)
     """
+    rate, caught, valid, total, _detail = eval2_with_detail(
+        driver_rtl, mutant_duts, timeout_s
+    )
+    return rate, caught, valid, total
+
+
+def eval2_with_detail(
+    driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30
+) -> tuple[float, int, int, int, list[dict]]:
+    """As eval2_detailed, plus a per-mutant record.
+
+    Aggregate counts cannot say *which* mutant escaped, so a near-ceiling score
+    (189/190 in one sweep) is indistinguishable from mutants being too easy.
+    The per-mutant record makes that auditable after the fact, without re-running
+    the sweep.
+    """
     total = len(mutant_duts)
     if total == 0:
-        return 0.0, 0, 0, 0
+        return 0.0, 0, 0, 0, []
 
     caught = 0
     valid = 0
-    for mutant_verilog in mutant_duts:
-        success, _compiler_out, compiled_path = compile_tb(
+    detail: list[dict] = []
+    for i, mutant_verilog in enumerate(mutant_duts):
+        success, compiler_out, compiled_path = compile_tb(
             driver_rtl, mutant_verilog, timeout_s=timeout_s
         )
         if not success:
+            detail.append({"index": i, "compiled": False, "caught": None,
+                           "note": compiler_out.strip().splitlines()[0][:160]
+                                   if compiler_out.strip() else "did not compile"})
             continue
         valid += 1
         try:
             passed, _sim_out = simulate_tb(compiled_path, timeout_s=timeout_s)
-            if not passed:
+            was_caught = not passed
+            if was_caught:
                 # TB detected the bug in this mutant
                 caught += 1
+            detail.append({"index": i, "compiled": True, "caught": was_caught})
         finally:
             if compiled_path and os.path.exists(compiled_path):
                 try:
@@ -145,7 +167,7 @@ def eval2_detailed(
                     pass
 
     rate = (caught / valid) if valid else 0.0
-    return rate, caught, valid, total
+    return rate, caught, valid, total, detail
 
 
 def eval2(driver_rtl: str, mutant_duts: list[str], timeout_s: int = 30) -> float:
