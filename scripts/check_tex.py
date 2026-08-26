@@ -29,6 +29,8 @@ for env in set(begins) | set(ends):
 
 # Labels and references
 labels = set(re.findall(r"\\label\{([^}]+)\}", stripped))
+# listings sets labels through an option key, not a \label command
+labels |= set(re.findall(r"label\s*=\s*\{([^}]+)\}", stripped))
 refs = set(re.findall(r"\\(?:ref|autoref|nameref)\{([^}]+)\}", stripped))
 for r in sorted(refs - labels):
     errs.append(f"\\ref to undefined label: {r}")

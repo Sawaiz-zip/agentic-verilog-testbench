@@ -119,14 +119,167 @@ Error Localisation; Hardware Verification; LangGraph; Fault Injection \\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Background and Related Work}\label{ch:background}
 % PHASE 5 · target 5.5 pp
+
 \section{Simulation-Based Verification}\label{sec:bg-verification}
+
+Functional verification asks whether a design does what it is supposed to do, and in
+practice it is answered by simulation: drive the design with stimulus, observe its outputs,
+compare them against what the specification requires. The program that performs this is the
+testbench. It is ordinary Verilog, it is not synthesised into hardware, and its only purpose
+is to exercise something else.
+
+Writing testbenches is expensive. Surveys by the Wilson Research Group place roughly 49\% of
+a design engineer's time on an IC or ASIC project in verification tasks~\cite{wilson2022}.
+The work is also repetitive in a way that invites automation: for a large class of designs,
+the testbench follows directly from the interface and the specification, and an engineer
+writing one is transcribing rather than deciding.
+
 \section{Structural and Semantic Testbench Faults}\label{sec:bg-fault-classes}
+
+A testbench can be wrong in two ways, and the distinction runs through the whole of this
+report.
+
+A \textbf{structural} fault is one that can be identified by reading the testbench against
+the design's interface. Listing~\ref{lst:structural} shows one. The testbench declares a
+four-bit register and binds it to an eight-bit port. Nothing in the design's behaviour is
+relevant to establishing that this is wrong; the widths disagree, and that is visible on the
+page.
+
+\begin{lstlisting}[caption={A structural fault. The widths disagree, which is decidable
+from the text alone.},label={lst:structural},language=,basicstyle=\ttfamily\footnotesize]
+reg [3:0] data_in;                    // 4 bits
+fifo_8x8 uut (.data_in(data_in), ...) // port is 8 bits wide
+\end{lstlisting}
+
+A \textbf{semantic} fault is one that cannot. Listing~\ref{lst:semantic} shows a testbench
+that is structurally impeccable: every port bound, every input driven, the output compared.
+Whether \texttt{4'd1} is the right value depends entirely on how the counter behaves after a
+reset, and that information is in the design, not in the testbench.
+
+\begin{lstlisting}[caption={A semantic fault. The code is well-formed; only the expected
+value is wrong, and establishing that requires the design's behaviour.},
+label={lst:semantic},language=,basicstyle=\ttfamily\footnotesize]
+rst = 1; @(posedge clk); #1; rst = 0;
+@(posedge clk); #1;
+if (count === 4'd1) $display("PASS: after_reset");   // should be 4'd0
+\end{lstlisting}
+
+Static analysis can address the first class and cannot address the second at any level of
+effort, because the information required is absent from its input. Which class dominates in
+practice is an empirical question.
+
+One asymmetry within the structural class deserves note here, since it motivates the design
+in Chapter~\ref{ch:localiser}. A testbench that stops checking one of the design's outputs
+is structurally faulty and \emph{passes} simulation, because a check that is not performed
+cannot fail. This is the one case where static analysis is not merely faster than
+simulation but is the only method available.
+
 \section{Large Language Models for HDL}\label{sec:bg-llm-hdl}
+
+Applying language models to hardware description languages has been explored from several
+directions. Chip-Chat~\cite{blocklove2023chipchat} examined conversational co-design,
+reporting a full processor taped out through an iterative dialogue with the model, and is
+notable for documenting how much of the design intent had to be supplied by the engineer
+rather than the model. ChipGPT~\cite{chang2023chipgpt} studied natural-language hardware
+design more systematically. AutoChip~\cite{thakur2023autochip} closed a feedback loop by
+returning compiler and simulator output to the model, which is the same mechanism as the
+\texttt{compiler\_only} configuration in this work and, on the evidence of
+Section~\ref{sec:res-rq4}, the most cost-effective of the ones tested.
+
+Two efforts target verification rather than design. LLM4DV~\cite{zhang2023llm4dv} uses
+models to generate test stimuli, and Orenes-Vera et
+al.~\cite{orenes2023llmformal} apply them to formal verification of RTL. Both share the
+observation that the generated artefact is frequently plausible and wrong, which is the
+problem this project addresses from the static-analysis side.
+
+VerilogEval~\cite{liu2023verilogeval} supplies the evaluation substrate the field has
+converged on: 156 problems derived from HDLBits exercises, each with a natural-language
+description, a reference design and a reference testbench. It is used here for the third
+sweep (Section~\ref{sec:exp-circuits}).
+
 \section{Static Analysis of Verilog}\label{sec:bg-static}
+
+Pyverilog~\cite{takamaeda2015pyverilog} is a Python toolkit providing a Verilog parser, an
+abstract syntax tree, and dataflow and control-flow analysis built on top of it. It is the
+analysis backend used here, chosen because operating on an AST in Python allows checks to be
+expressed against the structure of the design and the testbench together rather than against
+text.
+
+Its limitations are real. It targets Verilog-2001 and handles only part of SystemVerilog, it
+was written for human-authored input, and it rejects constructs that appear in generated
+code. Where it fails to parse, Verible~\cite{verible} is used as a fallback for a syntax
+verdict. Section~\ref{sec:loc-parse} reports how often this was needed.
+
+Simulation throughout uses Icarus Verilog~\cite{iverilog}, an open-source simulator
+supporting IEEE 1364 and parts of IEEE 1800.
+
 \section{Evaluation Criteria: Eval0, Eval1 and Eval2}\label{sec:bg-eval}
+
+This work adopts the three-level evaluation introduced by
+AutoBench~\cite{qiu2024autobench}, which allows results to be compared against theirs where
+the comparison is meaningful.
+
+\textbf{Eval0} asks whether the testbench compiles against the design. It is the weakest
+criterion and a prerequisite for the other two.
+
+\textbf{Eval1} asks whether the testbench passes when run against a design known to be
+correct. A failure means the testbench expects something the reference design does not
+produce, which locates the fault in the testbench.
+
+\textbf{Eval2} asks whether the testbench detects faults. Mutants of the reference design
+are produced by introducing a single bug, and the testbench is scored on how many it
+catches. The criterion exists because Eval1 can be passed by a testbench that checks
+nothing, and mutation testing~\cite{jia2011mutation} is the established way of exposing
+that.
+
+Eval2's value depends entirely on mutant difficulty, which is a recurring weakness of the
+method and one this work encountered directly: Section~\ref{sec:disc-threats} reports the
+measure at ceiling and treats it as a limitation rather than a result.
+
 \section{AutoBench}\label{sec:bg-autobench}
-\section{Further Related Work}\label{sec:bg-related}
+
+AutoBench~\cite{qiu2024autobench} is the direct predecessor of this work. It generates a
+testbench in stages rather than in one call: classify the circuit as combinational or
+sequential, extract a structured specification, list test scenarios, generate a Verilog
+driver, then generate a Python checker that reads the driver's output. The pipeline in
+Chapter~\ref{ch:design} follows this decomposition.
+
+Three self-enhancement mechanisms sit on top. Scenario checking verifies in Python that each
+named scenario appears in the generated driver, retrying up to three times. Auto-debug
+returns compiler errors with line-numbered source to the model for one repair attempt. Code
+standardisation is a script that inserts missing \texttt{\$fdisplay} statements for
+sequential circuits.
+
+Reported results, on 156 VerilogEval problems with GPT-4-turbo: Eval0 pass@1 of 95.71\%, and
+Eval2 pass@1 of 44.81\% overall, 62.22\% for combinational circuits and 26.00\% for
+sequential ones. The ablation attributes roughly 8\% of Eval2 pass@1 to auto-debug and
+roughly 10\% to scenario checking. Sequential Eval0 rises from 55.47\% to 97.33\%, which the
+authors credit primarily to code standardisation.
+
+Two properties of the system matter for what follows. Nothing in AutoBench parses the
+Verilog it produces: scenario checking is a text search, auto-debug delegates to the
+compiler, and standardisation is a targeted insertion. There is no analysis of port
+bindings, signal widths or dataflow. And the ablation compares each mechanism against a
+version of the system with that mechanism disabled, which also removes the regeneration
+attempts the mechanism triggers, so the reported gains cannot separate the value of the
+diagnosis from the value of trying again. Section~\ref{sec:exp-control} describes the
+control arm this work adds for that reason.
+
 \section{Gap Addressed by this Work}\label{sec:bg-gap}
+
+Prior work detects faults in generated testbenches by compiling them, running them, or
+searching their text. None of it parses them.
+
+That leaves a specific question unanswered. Structural faults exist that the compiler
+accepts and the simulator cannot observe, of which an unchecked output is the clearest
+example. Whether such faults occur often enough in LLM-generated testbenches to be worth
+detecting has not been measured, and cannot be inferred from pass rates, because a pass rate
+does not say which defect caused a failure.
+
+This work builds the analyser that would detect them, measures what it can detect by
+injecting faults of known identity, and then measures how often it detects anything at all
+across 220 pipeline runs on two models and two circuit sets. The contribution is the pair of
+measurements rather than the analyser: the second is only interpretable given the first.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{System Design}\label{ch:design}
