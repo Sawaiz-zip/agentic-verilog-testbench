@@ -133,23 +133,344 @@ Error Localisation; Hardware Verification; LangGraph; Fault Injection \\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{System Design}\label{ch:design}
 % PHASE 1 · target 5.5 pp
+
+The pipeline takes a natural-language circuit description and returns a Verilog testbench,
+a Python checker, and a record of everything that happened on the way. This chapter
+describes how it is put together and why it is put together that way. The static analysis
+layer is the subject of Chapter~\ref{ch:localiser} and is treated here only as one node
+among several.
+
 \section{Why a Graph Rather than a Script}\label{sec:design-graph}
+
+Multi-stage LLM pipelines are usually written as imperative scripts: call the model, parse
+the reply, call it again, retry on failure. That works until the control flow acquires a
+loop. Once a repair step can send execution back to an earlier stage, the conditions
+governing that jump are scattered across the function that happens to contain them, and
+answering a question such as ``under which circumstances does this configuration
+regenerate the driver?'' means reading the whole script.
+
+We built the pipeline as a LangGraph~\cite{langgraph} state machine instead. Every stage is
+a node, every transition is an edge, and every conditional transition is a named routing
+function that takes the graph state and returns the name of the next node. The routing
+functions are small, pure, and testable in isolation; \texttt{should\_repair} decides
+whether static findings warrant a repair, \texttt{should\_repair\_after\_eval} decides the
+same for compiler and simulator failures, and \texttt{after\_repair} decides where a
+repaired testbench re-enters the graph.
+
+This has a practical consequence for the ablation study in
+Chapter~\ref{ch:experiment}. The five feedback strategies differ only in what those three
+routing functions return; the nodes themselves are identical across all of them. That the
+arms are genuinely distinct is therefore a property that can be checked by evaluating the
+routing functions over a matrix of states, rather than a property that has to be trusted.
+
 \section{Pipeline Topology and State}\label{sec:design-topology}
+
+The graph has thirteen nodes. Ten perform generation, analysis or evaluation; one is a
+fan-in barrier; two implement the two forms of regeneration described in
+Section~\ref{sec:design-repair}. Figure~\ref{fig:topology} shows the topology.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.92\textwidth}
+\small
+\begin{verbatim}
+  classify --> gen_dut --> extract_spec --> gen_scenarios
+                                                 |
+                             +-------------------+-------------------+
+                             v                                       v
+                       gen_driver                              gen_checker
+                             +-------------------+-------------------+
+                                                 v
+                                          merge_generation
+                                                 v
+                                     [SEQ] standardise --+
+                                                         v
+                                            pyverilog_analysis
+                                                         v
+                                              error_reasoner
+                                                         v
+                                    +--- repair / regenerate ---+
+                                    |                           |
+                                    +--------> evaluate <-------+
+                                                (Eval0/1/2)
+\end{verbatim}
+\end{minipage}
+\caption{Node topology. Solid progression runs top to bottom; the repair nodes route back
+to \texttt{standardise} for sequential circuits and to \texttt{pyverilog\_analysis}
+otherwise. Combinational circuits bypass \texttt{standardise} entirely.}
+\label{fig:topology}
+\end{figure}
+
+State is a single typed dictionary of thirty-five fields covering inputs, per-stage
+outputs, loop control, evaluation results and telemetry. Two fields use LangGraph reducers
+rather than plain assignment. \texttt{llm\_calls} accumulates with \texttt{operator.add} so
+that the parallel driver and checker branches can each append a log entry without
+overwriting the other's, and \texttt{static\_findings} accumulates for the same reason
+across repeated analysis passes. The distinction matters: the analysis node runs once per
+repair iteration, and a plain assignment would leave only the last pass visible, which is
+precisely the evidence needed to answer RQ2.
+
+A second field deserves mention because it exists to correct a measurement error rather
+than to implement a feature. \texttt{task\_id} carries the logical identity of a circuit,
+separately from \texttt{module\_name}, which carries the Verilog module name. Every
+VerilogEval problem defines its module as \texttt{RefModule}, so aggregating on
+\texttt{module\_name} would have collapsed all 156 problems into a single row. The bug was
+found before the benchmark sweeps rather than after, which was luck.
+
 \section{Generation Stages}\label{sec:design-generation}
+
+Generation follows AutoBench~\cite{qiu2024autobench} in decomposing the task rather than
+asking for a testbench in one call, and departs from it in generating the design under test
+as well.
+
+\texttt{classify} labels the circuit combinational or sequential from the description
+alone. The label controls one routing decision (whether \texttt{standardise} runs) and one
+analysis decision (whether the sequential-only checks apply).
+
+\texttt{gen\_dut} synthesises a design from the description. AutoBench withholds the DUT
+from generation on the grounds that a faulty DUT would mislead the model; we generate one
+because the realistic flow is description to design to testbench, and because a testbench
+written with privileged access to the reference answer is not being tested honestly. The
+golden design is supplied at evaluation time only, and the field \texttt{eval\_dut\_source}
+records which design each run was scored against.
+
+\texttt{extract\_spec} produces a structured JSON summary of ports, behaviour and timing,
+and \texttt{gen\_scenarios} turns that into a list of named test scenarios. The two
+generation nodes then run as parallel branches: \texttt{gen\_driver} writes the Verilog
+testbench, \texttt{gen\_checker} writes a Python checker for its output.
+\texttt{merge\_generation} is a no-op that exists solely as a fan-in barrier, so that the
+routing decision after generation sees both branches complete rather than racing them.
+
+Model assignment is by task rather than by stage: classification, scenario listing and
+mutant generation use the cheaper model, while specification extraction, code generation
+and repair use the stronger one. Section~\ref{sec:res-rq4} reports what this costs.
+
 \section{Deterministic Standardisation}\label{sec:design-standardiser}
+
+A sequential testbench must make the design's outputs observable and must toggle the clock.
+AutoBench addresses the first with a code standardisation step and reports it as the
+largest single contributor to their sequential compilation rate, which rose from 55.47\% to
+97.33\%. Their implementation is partly LLM-driven.
+
+Ours is not. \texttt{fdisplay\_inserter.py} is a Python pass that inserts a
+\texttt{\$monitor} covering any design output the testbench never observes, and a clock
+generator when a declared clock is present but never toggled. Inserting a monitor statement
+is a mechanical edit with a single correct answer, and a language model is the wrong tool
+for it: it is slower, it costs tokens, and it can decline to do the job in ways that are
+tedious to detect.
+
+Three properties make the pass safe to run unconditionally. It is idempotent, marking its
+own output with \verb|// [standardised]| and short-circuiting if that marker is already
+present. It is fail-safe, returning the input unchanged if anything goes wrong, on the
+principle that a missing monitor is a worse outcome than a corrupted testbench. And it
+never edits the design, only the testbench.
+
 \section{The Repair Loop}\label{sec:design-repair}
+
+Three sources can trigger a repair: static findings from the analysis layer, compiler
+errors from Eval0, and failing scenarios from Eval1. Each is converted into a structured
+error report, rendered into a repair prompt alongside the current testbench, and used to
+regenerate the driver. The loop is bounded at three iterations.
+
+Two mechanisms stop it wasting effort. Oscillation detection compares a signature of the
+current error set against the previous one and halts when they match, on the reasoning that
+a model which has already failed to fix an error given that description will not fix it on
+a second identical attempt; the check also fires when the regenerated testbench is
+byte-identical to its predecessor. Best-so-far retention addresses a subtler problem. The
+repair node regenerates the entire testbench rather than patching it, so a later iteration
+can be worse than an earlier one. Before this was added, a configuration that repaired more
+could score below one that repaired less, which is not a property an ablation should have.
+The pipeline now tracks the highest-scoring evaluated testbench and reports that one, while
+routing decisions continue to use the current iteration's result.
+
+The second regeneration node, \texttt{regenerate}, exists for the control arm described in
+Section~\ref{sec:exp-control}. It draws one additional sample from \texttt{gen\_driver} and
+passes it nothing at all: no error report, no static findings, no simulator output. It is
+deliberately uninformed.
+
 \section{Evaluation Harness}\label{sec:design-harness}
+
+The harness runs the pipeline over a set of circuits crossed with a set of ablation modes,
+writing one JSON record per run. Three guards protect a long unattended sweep.
+
+A budget guard prints the run count implied by a selection and refuses to start if it
+exceeds twenty-four runs without an explicit opt-in. This is deliberately low. The refusal
+performs zero runs, so an over-broad selection costs nothing.
+
+Two abort conditions distinguish failures that will clear from failures that will not. A
+rate limit naming a daily token quota, and an exhausted account balance, both mean that no
+later run in the sweep can succeed either; the harness stops immediately and aggregates
+what completed, rather than failing every remaining pair one at a time with its own retries
+and backoff. An ordinary transient failure does not abort: the run is recorded with status
+\texttt{harness\_error} and the sweep continues. Getting this distinction wrong in either
+direction is expensive, and the tests assert both behaviours by counting invocations.
+
 \section{Engineering Practices}\label{sec:design-practices}
+
+Prompts are Jinja templates in \texttt{prompts/}, never inline strings, so that they can be
+diffed, reviewed, and frozen at a tagged commit before an evaluation run begins
+(Section~\ref{sec:exp-freeze}).
+
+Every model call is logged with its node, model, token counts, latency and sampling
+temperature. The cost analysis in Section~\ref{sec:res-rq4} is assembled from these records
+rather than estimated.
+
+The test suite comprises 201 tests and spends no API tokens. Live-API tests exist but are
+marked and skip automatically unless a key is present in the environment, which keeps the
+default suite free to run as often as needed. Several of the defects reported in
+Section~\ref{sec:loc-falsepos} were caught only because running the full suite was cheap
+enough to do after every change.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{The Static Localiser}\label{ch:localiser}
 % PHASE 1 · target 4.0 pp
+
 \section{Design Principle and Scope}\label{sec:loc-principle}
+
+The localiser reads a generated testbench together with the design it instantiates and
+reports structural defects. Its scope is fixed by one rule: it detects only what reading
+the code can establish. Whether a testbench expects the correct value from a counter after
+reset depends on how that counter behaves, which is information the text does not contain.
+Whether a testbench drives an input it declared is visible on the page.
+
+That rule is a limitation by construction, and Chapter~\ref{ch:results} shows it to be a
+severe one in practice. It is also what makes the layer cheap: analysis is deterministic,
+requires no model call, and completes in milliseconds.
+
+Parsing uses Pyverilog~\cite{takamaeda2015pyverilog} to build an abstract syntax tree for
+the testbench and the design together. Where Pyverilog rejects the input,
+Verible~\cite{verible} is used as a fallback for a basic syntax verdict.
+
 \section{The Six Checks}\label{sec:loc-checks}
+
+Table~\ref{tab:checks} lists the checks. The final two columns state whether the same
+defect would be caught by compiling the testbench or by running it, which is the question
+that determines whether the layer adds anything.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l p{5.4cm} c c@{}}
+\toprule
+\textbf{Check} & \textbf{Defect} & \textbf{Compiler} & \textbf{Simulator} \\
+\midrule
+\texttt{port\_binding\_mismatch} & port bound under a name the design lacks, or a design
+port left unconnected & partly & usually \\
+\texttt{width\_mismatch} & testbench signal width differs from the port width & no & sometimes \\
+\texttt{undriven\_input} & design input never assigned in the testbench & no & usually \\
+\texttt{unobserved\_output} & design output never compared or printed & no & \textbf{no} \\
+\texttt{missing\_fdisplay} & sequential output never made observable & no & \textbf{no} \\
+\texttt{clock\_never\_toggled} & clock assigned once and never toggled & no & rarely \\
+\bottomrule
+\end{tabular}
+\caption{The six checks and whether existing tooling could find the same defect.
+Detection rates for each are reported in Section~\ref{sec:val-results}.}
+\label{tab:checks}
+\end{table}
+
+Two rows carry the argument for the whole layer. An output the testbench never observes
+cannot be detected by simulation, because a testbench that does not check an output does
+not fail on account of it. It passes. The compiler sees legal Verilog and has nothing to
+report. The same reasoning applies to \texttt{missing\_fdisplay}, which is the
+sequential-specific form of the same defect.
+
+\texttt{clock\_never\_toggled} covers a gap between two other checks. A testbench
+containing \texttt{initial clk = 0;} and nothing further has driven the clock as far as the
+undriven-input check is concerned, so that check stays silent. The simulation compiles and
+runs, but no clock edge ever occurs, the design never leaves its reset state, and every
+scenario reads back the reset value. The failure presents as a logic error, which is an
+expensive way to discover a missing clock generator.
+
 \section{Width Mismatch: Silent at Simulation Time}\label{sec:loc-width}
+
+Verilog resolves a width mismatch on a port connection by padding or truncating. It is not
+an error and, in Icarus Verilog~\cite{iverilog}, not a failure either. Compiling a
+testbench that declares \verb|wire [2:0] out| against a design whose port is four bits
+produces:
+
+\begin{lstlisting}[language=,basicstyle=\ttfamily\footnotesize]
+tb.v:3: warning: Port 3 (out) of module counter_4bit expects 4 bit(s), given 3.
+tb.v:3:        : Padding 1 high bits of the port.
+\end{lstlisting}
+
+The compiler exits with status zero. The testbench builds, runs, and silently compares the
+wrong values. Catching this by simulation is possible but unreliable, since it depends on
+whether the scenarios happen to exercise the truncated bits; Section~\ref{sec:val-results}
+measures how often they do. The check itself compares each design port's declared width
+against the testbench signal bound to it, reading both ANSI and Verilog-1995 declaration
+styles, and produces no finding for widths it cannot resolve, such as those given by a
+parameter or an expression. Guessing would be worse than silence here.
+
 \section{A Check that was Removed}\label{sec:loc-removed}
+
+A seventh check, \texttt{sensitivity\_list\_error}, was implemented and later deleted. It
+looked for \texttt{always} blocks inside the testbench and reported an error when none of
+them used \texttt{posedge} or \texttt{negedge} sensitivity, on the reasoning that a
+testbench driving a sequential design ought to synchronise to the clock.
+
+The fault-injection study in Chapter~\ref{ch:validation} scored it at zero: of five
+injected faults constructed to be exactly the defect it existed to catch, it detected none,
+and it had produced the study's only baseline false positive.
+
+The reason is structural. Generated testbenches drive the design from \texttt{initial}
+blocks and synchronise using \texttt{@(posedge clk)} event controls, not from
+edge-triggered \texttt{always} blocks. The only \texttt{always} block such a testbench
+typically contains is its clock generator, which has no sensitivity list by design. The
+check was inspecting a construct that the code it analyses does not use.
+
+We removed it rather than repair it. A check with no measured recall and a history of false
+positives is worse than no check, because it consumes the repair budget on nothing. The
+gap it leaves is recorded in the test suite so that it is not rediscovered later as a bug:
+a testbench that drives a sequential design entirely with bare delays is not reported, and
+the simulator catches four in five of those.
+
 \section{False Positives as the Primary Risk}\label{sec:loc-falsepos}
+
+A localiser that misses a defect costs one simulation cycle. A localiser that invents one
+costs a model call, a regeneration, and the credibility of every finding it subsequently
+reports. Four false-positive defects were found during development, all of the same
+character: a check that encoded one particular way of writing a testbench and flagged every
+other correct way.
+
+The most consequential was not a false positive but its mirror image, and it suppressed
+detection outright. Several checks ask questions of the source text, such as whether a
+signal is ever compared or printed. Asked of raw source, comments and string literals can
+answer those questions with text that is not code:
+
+\begin{lstlisting}[language=,basicstyle=\ttfamily\footnotesize]
+$display("PASS: addition_boundary_overflow");   // the word "overflow" appears here
+$fdisplay(f, "clk=%b out=%b", clk, out);        // so does an apparent assignment to clk
+\end{lstlisting}
+
+The first line made the \texttt{overflow} output of an ALU appear to be observed when the
+testbench had stopped checking it. The second made a clock that was assigned once and never
+toggled appear to be toggling. Both are false negatives that hide real defects, and the
+same class of error was independently found in the Eval1 verdict, where a scenario named
+\texttt{immediate\_mismatch} caused its own run to be scored as a failure.
+
+The fix is a preparation pass that blanks the contents of comments and string literals
+while preserving length and line breaks, so that callers matching on the prepared text can
+still edit the original at the same offsets. Detection for the unobserved-output class
+moved from 47\% to 100\% once it was applied.
+
+We report these defects because they bear on how the results should be read. The figures in
+Chapter~\ref{ch:results} were produced by a localiser whose measured behaviour moved by
+53 percentage points on one fault class during development. The fault-injection study
+exists partly because nothing in the ordinary test suite had revealed any of this.
+
 \section{Parse Robustness on Generated Code}\label{sec:loc-parse}
+
+Pyverilog is documented as a research tool and was not written for machine-generated input.
+Across the sweeps reported in Chapter~\ref{ch:results} it parsed 81 of 82 testbenches in the
+first, and 153 of 153 in the benchmark sweep. The single failure was a testbench that did
+not compile either, so nothing was lost by failing to analyse it.
+
+One earlier parse defect is worth recording. Pyverilog concatenates the files it is given,
+and a testbench ending in \texttt{endmodule} without a trailing newline was joined to the
+following design's \texttt{module} keyword as a single token. The parse failed on every
+testbench, the analysis layer returned an empty report, and an empty report is
+indistinguishable from a clean one. The static-analysis arm of the ablation was silently
+identical to the baseline for an entire round of experiments before this was found.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Validating the Localiser}\label{ch:validation}
