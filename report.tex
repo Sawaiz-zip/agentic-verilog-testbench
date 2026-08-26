@@ -15,9 +15,7 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{url}
-\usepackage{breakurl}
 \usepackage{xcolor}
-\usepackage{enumitem}
 \usepackage[
   left=2.5cm,
   right=2.5cm,
@@ -500,7 +498,8 @@ So we measured the analyser directly, by giving it faults whose identity we alre
 Take a testbench already known to pass. Break it in one known way. Ask three layers the
 same question:
 
-\begin{itemize}[nosep,leftmargin=1.4em]
+\begin{itemize}
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
   \item does the static analyser report a finding?
   \item does \texttt{iverilog} refuse to compile it?
   \item does the simulation fail against the golden design?
@@ -867,7 +866,8 @@ had one to act on. Its behaviour was therefore identical to \texttt{baseline} th
 a fact that Section~\ref{sec:res-variance} makes use of.
 
 The single finding in the benchmark sweep deserves a note. It occurred on
-\texttt{Prob150\_review2015\_fsmonehot}, a twelve-port one-hot state machine and the most
+\texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot}, a twelve-port one-hot state
+machine and the most
 port-dense circuit in the selection, and it landed in the \texttt{compiler\_only}
 configuration, which ignores static findings by design. It was detected and not acted upon.
 The same circuit produced structurally clean testbenches in the other four configurations,
