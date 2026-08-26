@@ -31,6 +31,8 @@
 \usepackage{float}
 \usepackage{microtype}     % reduces overfull boxes in a two-column-free layout
 \usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
 
 \hypersetup{
     colorlinks = true,
@@ -204,7 +206,7 @@ are invisible to the compiler and the simulator together; the localiser catches 
 
 The localiser has almost nothing to find. Across 220 pipeline runs on two models and two
 circuit sets, comprising 314 analyses, it reported two findings. The configuration whose
-sole purpose is to act on static findings performed zero repairs in 132 runs. Meanwhile 133
+sole purpose is to act on static findings performed zero repairs in 44 runs. Meanwhile 133
 runs produced a testbench that compiled and then failed simulation, which is 87\% of all
 failures.
 
@@ -282,8 +284,8 @@ four-bit register and binds it to an eight-bit port. Nothing in the design's beh
 relevant to establishing that this is wrong; the widths disagree, and that is visible on the
 page.
 
-\begin{lstlisting}[caption={A structural fault. The widths disagree, which is decidable
-from the text alone.},label={lst:structural},language=,basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}[caption={A structural fault. The widths disagree, which is decidable from the text
+alone without reference to the design's behaviour.},label={lst:structural},language=,basicstyle=\ttfamily\footnotesize]
 reg [3:0] data_in;                    // 4 bits
 fifo_8x8 uut (.data_in(data_in), ...) // port is 8 bits wide
 \end{lstlisting}
@@ -459,33 +461,61 @@ Section~\ref{sec:design-repair}. Figure~\ref{fig:topology} shows the topology.
 
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.92\textwidth}
-\small
-\begin{verbatim}
-  classify --> gen_dut --> extract_spec --> gen_scenarios
-                                                 |
-                             +-------------------+-------------------+
-                             v                                       v
-                       gen_driver                              gen_checker
-                             +-------------------+-------------------+
-                                                 v
-                                          merge_generation
-                                                 v
-                                     [SEQ] standardise --+
-                                                         v
-                                            pyverilog_analysis
-                                                         v
-                                              error_reasoner
-                                                         v
-                                    +--- repair / regenerate ---+
-                                    |                           |
-                                    +--------> evaluate <-------+
-                                                (Eval0/1/2)
-\end{verbatim}
-\end{minipage}
-\caption{Node topology. Solid progression runs top to bottom; the repair nodes route back
-to \texttt{standardise} for sequential circuits and to \texttt{pyverilog\_analysis}
-otherwise. Combinational circuits bypass \texttt{standardise} entirely.}
+\footnotesize
+\begin{tikzpicture}[
+  node distance = 4.5mm and 7mm,
+  every node/.style = {font=\footnotesize},
+  box/.style   = {draw, rounded corners=2pt, minimum height=6.5mm, minimum width=26mm,
+                  align=center, inner sep=2pt},
+  gen/.style   = {box, fill=black!4},
+  ana/.style   = {box, fill=black!10},
+  rep/.style   = {box, fill=black!4, dashed},
+  ev/.style    = {box, fill=black!14},
+  bar/.style   = {draw, fill=black!25, minimum width=52mm, minimum height=2mm,
+                  inner sep=0pt, label=center:{}},
+  ar/.style    = {-{Latex[length=1.6mm]}, thin},
+]
+\node[gen] (cls)  {classify};
+\node[gen, below=of cls]  (dut)  {gen\_dut};
+\node[gen, below=of dut]  (spec) {extract\_spec};
+\node[gen, below=of spec] (scen) {gen\_scenarios};
+
+\node[gen, below left=6mm and 1mm of scen]  (drv) {gen\_driver};
+\node[gen, below right=6mm and 1mm of scen] (chk) {gen\_checker};
+\node[bar, below=6mm of scen, yshift=-9mm] (merge) {};
+\node[right=1mm of merge, font=\scriptsize\itshape] {merge};
+
+\node[gen, below=5mm of merge] (std) {standardise\\[-1pt]{\scriptsize sequential only}};
+\node[ana, below=of std]  (pyv) {pyverilog\_analysis};
+\node[ana, below=of pyv]  (rea) {error\_reasoner};
+\node[rep, below=of rea]  (rep) {repair \textbar\ regenerate};
+\node[ev,  below=of rep]  (ev)  {evaluate\\[-1pt]{\scriptsize Eval0 / Eval1 / Eval2}};
+
+\draw[ar] (cls)  -- (dut);
+\draw[ar] (dut)  -- (spec);
+\draw[ar] (spec) -- (scen);
+\draw[ar] (scen.south) -- ++(0,-2mm) -| (drv.north);
+\draw[ar] (scen.south) -- ++(0,-2mm) -| (chk.north);
+\draw[ar] (drv.south) |- (merge.north);
+\draw[ar] (chk.south) |- (merge.north);
+\draw[ar] (merge) -- (std);
+\draw[ar] (std)  -- (pyv);
+\draw[ar] (pyv)  -- (rea);
+\draw[ar] (rea)  -- node[right, font=\scriptsize] {findings} (rep);
+\draw[ar] (rep)  -- (ev);
+
+% combinational bypass
+\draw[ar] (merge.west) -- ++(-16mm,0) |- (pyv.west);
+\node[left=17mm of std, font=\scriptsize\itshape, align=center] {combinational\\bypass};
+
+% repair feedback edge
+\draw[ar] (rep.east) -- ++(13mm,0) |- (std.east);
+\draw[ar] (ev.east)  -- ++(20mm,0) |- node[pos=0.25, right, font=\scriptsize] {Eval0/1 failure} (rep.east);
+\end{tikzpicture}
+\caption{Node topology. Shaded nodes perform analysis; the dashed node is the repair
+step, which is reached only in configurations that permit it. Combinational circuits
+bypass the standardiser. A repaired testbench re-enters at the standardiser for
+sequential circuits and at the analyser otherwise.}
 \label{fig:topology}
 \end{figure}
 
@@ -1008,7 +1038,7 @@ Five configurations differ only in which feedback sources are permitted to trigg
 \texttt{hybrid}          & static findings, compiler errors, or simulation failures \\
 \bottomrule
 \end{tabular}
-\caption{The five ablation arms.}
+\caption{The five ablation arms. All five execute identical nodes; only the routing functions differ, which is what allows the arms to be verified distinct rather than assumed so.}
 \label{tab:arms}
 \end{table}
 
@@ -1151,7 +1181,7 @@ Two findings in 314 analyses. Both were \texttt{port\_binding\_mismatch}; no oth
 fired at any point in any sweep.
 
 The \texttt{pyverilog\_only} configuration performed zero repairs in all three sweeps. It
-is the arm whose entire purpose is to act on static findings, and across 132 runs it never
+is the arm whose entire purpose is to act on static findings, and across 44 runs it never
 had one to act on. Its behaviour was therefore identical to \texttt{baseline} throughout,
 a fact that Section~\ref{sec:res-variance} makes use of.
 
@@ -1181,7 +1211,7 @@ Pooling the three sweeps gives 44 runs per configuration.
 \texttt{hybrid}          & 18 / 44 & \textbf{40.9\%} & [27.7, 55.6] \\
 \bottomrule
 \end{tabular}
-\caption{Eval1 pooled across all three sweeps, with Wilson score intervals.}
+\caption{Eval1 pooled across all three sweeps, 44 runs per configuration, with Wilson score intervals. Every interval overlaps every other.}
 \label{tab:ablation}
 \end{table}
 
@@ -1290,7 +1320,7 @@ Section~\ref{sec:design-practices}, averaged over the 44 runs of each configurat
 \texttt{hybrid}          & 9\,776 & 5\,103 & 61\,s & 40.9\% & $+50\%$ tokens \\
 \bottomrule
 \end{tabular}
-\caption{Mean cost per run against Eval1, pooled over 220 runs.}
+\caption{Mean cost per run against Eval1, pooled over 220 runs. Static analysis is the cheapest configuration and the lowest scoring; compiler feedback is the most efficient.}
 \label{tab:cost}
 \end{table}
 
