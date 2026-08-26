@@ -1034,13 +1034,193 @@ improvement occurs. Chapter~\ref{ch:discussion} takes up what follows from that.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Discussion}\label{ch:discussion}
 % PHASE 4 · target 5.5 pp
+
+The central result is that a localiser which detects 93\% of injected faults found two
+defects in 314 analyses of real generated testbenches. A null result of that kind is only
+worth reading if the obvious explanations for it have been excluded, and excluding them is
+what most of this chapter does.
+
 \section{Excluding the Alternative Explanations}\label{sec:disc-alternatives}
+
+Four explanations would account for the result without saying anything about static
+analysis. Each was anticipated and tested.
+
+\paragraph{The generation model was too capable.} The first sweep used
+\texttt{claude-sonnet-4.5}, a strong model, and it is reasonable to suppose that a weaker
+one would make the structural mistakes the checks look for. The second sweep tested this
+directly by holding the circuits fixed and substituting \texttt{gpt-4o-mini}.
+
+The weaker model is worse at the task by a wide margin. Baseline Eval1 fell from 67\% to
+17\% on identical circuits. It is not worse in the way the explanation requires: static
+findings went from 0 in 82 analyses to 1 in 79. The additional failures were semantic, and
+the structural quality of its testbenches was indistinguishable from the stronger model's.
+Capability affects whether the testbench is right. It does not appear to affect whether the
+testbench is well-formed.
+
+\paragraph{The circuits were too simple.} Four of the six checks cannot fire on a circuit
+with two unambiguous ports, and the twelve project fixtures were chosen by us. The third
+sweep used twenty problems from VerilogEval, the benchmark AutoBench evaluated on, selected
+by structural complexity before any run took place. Fifteen of the twenty are sequential,
+port counts run to twelve, and complexity scores sit well above the benchmark median.
+
+One finding in 153 analyses. The sample was deliberately biased towards the conditions in
+which the localiser can succeed and the result did not move.
+
+\paragraph{The localiser was broken.} It had been, twice, and both defects were found
+before the sweeps rather than after. Chapter~\ref{ch:validation} exists to answer this
+objection with a measurement rather than an assurance: 93\% detection, 93\% localisation,
+no findings on 14 clean testbenches. The analysis was additionally re-run independently over
+the swept testbenches after the sweeps completed, and reproduced the stored results exactly.
+The instrument was working when it reported nothing.
+
+\paragraph{The wrong faults were chosen.} The six checks were not selected arbitrarily. They
+cover the defect classes prior work found worth correcting, and in one case exactly so:
+AutoBench's code standardisation step inserts missing \texttt{\$fdisplay} statements, which
+is the \texttt{missing\_fdisplay} class in Table~\ref{tab:checks}. That check fired zero
+times in 314 analyses. Section~\ref{sec:disc-autobench} takes up what changed.
+
 \section{Why Generated Testbenches Are Structurally Sound}\label{sec:disc-why}
+
+A Verilog testbench has a highly regular shape. Declare registers for the inputs and wires
+for the outputs, instantiate the design and bind every port, generate a clock if one is
+needed, drive stimulus, compare against expected values. That shape is repeated across every
+testbench in a training corpus, and reproducing it is the kind of task language models are
+reliably good at.
+
+Deciding what the expected value \emph{is} requires something else. It requires holding the
+circuit's behaviour in mind and working out what a four-bit counter reads after three clock
+edges with reset asserted midway, or what a FIFO reports when read and written in the same
+cycle. That is not pattern reproduction, and the failures in Section~\ref{sec:res-rq1} are
+concentrated exactly there: 95 of 569 failing scenarios concern sequence or state behaviour,
+72 sit at boundary conditions.
+
+The distinction matters for tooling. Structural correctness is cheap for a model to achieve
+and cheap for a static analyser to verify, which means the two are competing for the same
+easy ground. Semantic correctness is expensive for the model and unavailable to static
+analysis at any price, because the information needed to check it is not in the text.
+
 \section{The Same Technique in a Different Model Generation}\label{sec:disc-autobench}
+
+AutoBench reports that its code standardisation step raised sequential compilation from
+55.47\% to 97.33\%, the largest single gain in the paper. That step is a mechanical
+pre-simulation fix for missing output observation, and it belongs to the same family as the
+work reported here.
+
+It succeeded because GPT-4-turbo omitted \texttt{\$fdisplay} often enough for a script that
+inserted it to be worth 42 percentage points. Two years later, our equivalent check found
+nothing to insert across 314 analyses, and our deterministic standardiser, which exists for
+the same purpose, had no output to make observable that the model had not already made
+observable itself.
+
+The technique did not stop working. The defect it corrects stopped occurring.
+
+That is a more useful conclusion than either a positive or a negative result on its own,
+because it generalises past this project. Auxiliary tooling built to compensate for a
+generator's weaknesses is calibrated against a particular generation of models, and its
+value decays as those weaknesses are trained out. A pipeline that inherited AutoBench's
+standardisation step unexamined would carry a component that costs maintenance and returns
+nothing, and would have no way of knowing. The measurement, not the mechanism, is the
+transferable part.
+
 \section{Where Static Analysis Retains Value}\label{sec:disc-value}
+
+The result should not be read as showing that pre-simulation analysis is useless in general.
+Three qualifications limit its reach.
+
+The two findings that did occur are informative about where the remaining risk sits. Both
+were port-binding errors, and the one in the benchmark sweep occurred on the most port-dense
+circuit in the selection, a twelve-port state machine. Structural errors did not vanish;
+they became rare and concentrated in the circuits with the most structure to get wrong.
+Designs far larger than anything tested here may reach a port count at which they return.
+
+Smaller and locally-hosted models are the more likely case. This work tested two models from
+two commercial providers, both well beyond the capability of a model a laboratory might run
+on its own hardware. The claim that structural faults are rare is established for those two;
+extending it to a quantised seven-billion-parameter model would require running the
+experiment, and Section~\ref{sec:concl-future} proposes it.
+
+The cost argument also survives. The layer is deterministic, requires no model call, and
+completes in milliseconds; \texttt{pyverilog\_only} consumed 2\% fewer tokens than baseline.
+A check that costs nothing and fires twice in 314 opportunities is not obviously worth
+removing, in the way that a smoke detector which has never sounded is not obviously worth
+removing. What the result rules out is treating it as a primary defence.
+
 \section{On Measurement Practice}\label{sec:disc-measurement}
+
+The variance measurement in Section~\ref{sec:res-variance} was not an intended contribution.
+It emerged because three configurations happened to execute identical logic, which made
+their disagreement a direct reading of sampling noise: 33 percentage points, twice,
+independently.
+
+Two consequences follow for how this kind of work is evaluated. A comparison of
+configurations at temperature 0.7 with a dozen circuits per arm cannot support a conclusion
+about a difference smaller than roughly a third of the scale, and published results in this
+area are routinely reported at that granularity without intervals. AutoBench's ablation
+gains of roughly 8\% and 10\% are of exactly the magnitude that this variance would obscure.
+
+The second consequence concerns controls. Any mechanism that triggers a regeneration must be
+compared against uninformed regeneration, or the measured gain confounds the value of the
+diagnosis with the value of the retry. Our own \texttt{hybrid} arm illustrates the point in
+both directions: it leads the field at 40.9\%, and against the control that gap yields
+$p=0.372$. Without \texttt{retry\_only} in the design we would have reported a 14-point
+improvement over baseline and been wrong to.
+
 \section{Threats to Validity}\label{sec:disc-threats}
+
+\paragraph{Construct.} Eval2 is at ceiling. Testbenches caught 189 of 190 mutants, so the
+measure does not discriminate between configurations and is reported in this work as a
+limitation rather than a result. The mutants are model-generated per run and evidently too
+easy; deterministic mutation operators would be a better instrument. The failure categories
+in Section~\ref{sec:res-rq1} come from keyword matching on model-authored scenario names,
+and 206 of 569 matched nothing, so they indicate shape rather than proportion.
+
+\paragraph{Internal.} The driver prompt was tuned during development against six of the
+twelve project fixtures, which are therefore not held out; the six purpose-built circuits
+and all twenty benchmark problems were not used for tuning. The cross-model comparison
+substitutes one commercial model for another, and the two differ in more than capability,
+so attributing the observed behaviour to capability alone overstates what the design can
+isolate.
+
+\paragraph{External.} Twelve project circuits and twenty benchmark problems, two models,
+one provider. The benchmark problems are drawn from HDLBits exercises and are small by
+industrial standards. Nothing here speaks to testbenches for designs of realistic size.
+
+\paragraph{Statistical.} Forty-four runs per configuration against a measured 33-point
+variance floor leaves the study underpowered for the comparison it was built to make. One
+repeat per sweep was run; the budget did not allow more. Three sweeps converging on the same
+qualitative picture is weaker evidence than three repeats of one sweep would have been for
+the quantitative claim, and stronger evidence for the qualitative one.
+
 \section{Corrections Made During the Work}\label{sec:disc-corrections}
+
+Several defects in this work were found by the work itself, and the sequence is relevant to
+how much confidence the results deserve.
+
+Two defects in the localiser suppressed detection rather than causing false alarms. A parse
+error caused by a missing trailing newline meant every testbench failed to parse and the
+analysis returned an empty report, which is indistinguishable from a clean one; the
+static-analysis arm was silently identical to the baseline for a full round of experiments.
+Separately, checks that searched the raw source treated comments and string literals as
+code, so a scenario named \texttt{addition\_boundary\_overflow} made an unchecked
+\texttt{overflow} output appear observed. Detection for that class moved from 47\% to 100\%
+when it was fixed.
+
+Three defects were in the measurement harness rather than the pipeline, and all three would
+have inflated the reported numbers. The injection corpus initially compiled mutated
+testbenches against the pipeline's own generated design rather than the reference, and one
+such design was malformed, so its compile error was recorded as a detection of the injected
+fault. There was no gate requiring a corpus entry to pass before injection. A port-direction
+parser silently dropped ports from shared declarations, causing injectors to skip them.
+
+Two conclusions drawn during the work were retracted before they reached this report. The
+completion of a sweep was announced on the basis of a file that the reporting script itself
+creates. The cross-model hypothesis was described as confirmed on the strength of one
+finding in nine analyses, where the final count was one in seventy-nine.
+
+None of this is unusual for an empirical study; what would be unusual is a study of this
+size in which nothing of the kind occurred. It is recorded because the figures in
+Chapter~\ref{ch:results} were produced by an instrument whose measured behaviour changed
+during development, and a reader is entitled to know how much and in which direction.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
