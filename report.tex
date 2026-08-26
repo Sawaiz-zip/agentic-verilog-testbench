@@ -99,8 +99,32 @@ Error Localisation; Hardware Verification; LangGraph; Fault Injection \\
 \vspace{8mm}
 
 \begin{abstract}
-% PHASE 6 — written last, after the conclusion is fixed.
-\textit{[Abstract placeholder. Written in Phase 6.]}
+\noindent
+Large language models can generate Verilog testbenches from natural-language descriptions,
+but the resulting code is frequently syntactically valid and functionally wrong: it
+compiles, runs, reports success, and may have tested nothing. This work asks whether such
+faults can be localised by static analysis before any simulation is run.
+
+We implement a graph-based generation pipeline with a bounded repair loop and a
+pre-simulation localiser performing six structural checks on the testbench and the design
+together. The localiser is measured by fault injection rather than by end-to-end pass rates:
+215 faults of known identity injected into testbenches known to pass. It detects 93\%,
+localises 93\% to the correct fault class and signal, raises no false alarms on correct
+input, and catches 30 of the 33 faults that neither the compiler nor the simulator detects.
+
+Applied to 220 pipeline runs across two models and two circuit sets, the same localiser
+reported two findings in 314 analyses, and the configuration built to act on static findings
+performed no repairs at all. Of 153 failing runs, 133 compiled and then failed simulation.
+Three alternative explanations were tested and rejected: a weaker model fails far more often
+but no more structurally, twenty benchmark circuits selected for structural complexity
+produced one finding in 153 analyses, and the localiser's correctness was established by
+measurement.
+
+The faults static analysis detects have largely stopped occurring in current model output.
+Two secondary results support how such claims should be evaluated: a no-diagnostics control
+arm shows that no configuration in this study beats uninformed regeneration at $p<0.05$, and
+configurations executing identical logic differ by 33 percentage points, which bounds what a
+single-run comparison at this sample size can establish.
 \end{abstract}
 
 \vspace{4mm}
@@ -109,12 +133,125 @@ Error Localisation; Hardware Verification; LangGraph; Fault Injection \\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}\label{ch:intro}
 % PHASE 6 · target 3.0 pp
+
 \section{Verification and the Cost of Testbenches}\label{sec:intro-cost}
+
+A digital design is only as trustworthy as the effort spent checking it, and that effort is
+substantial: surveys by the Wilson Research Group place roughly 49\% of a design engineer's
+time on an IC or ASIC project in verification~\cite{wilson2022}. A large share of it goes
+into writing testbenches, the programs that drive a design with stimulus and compare its
+outputs against what the specification requires.
+
+Much of that writing is transcription. Given an interface and a description of intended
+behaviour, the shape of the testbench follows, and the engineer producing it is converting
+one representation into another rather than making design decisions. Work of that character
+is the natural target for automation. Large language models have made the attempt plausible
+in a way it was not five years ago, and a body of recent work has taken it up: conversational
+co-design, natural-language RTL synthesis, and iterative generation with simulator feedback,
+surveyed in Section~\ref{sec:bg-llm-hdl}.
+
 \section{How LLM-Generated Testbenches Fail}\label{sec:intro-failure}
+
+A model will produce a syntactically valid testbench for a small design in seconds. The
+difficulty is that a testbench which is syntactically valid can be functionally useless in
+ways that are not apparent from looking at it. It compiles. It runs. It prints that every
+scenario passed. And it may have tested nothing.
+
+The most direct example is a testbench that instantiates the design correctly, drives every
+input, and then omits to check one of the outputs. Running it does not reveal the problem,
+because a check that is never performed cannot fail. The testbench passes, and it will keep
+passing however many times it is run.
+
+The standard response is to simulate and inspect the result. That works for defects
+simulation can observe, and it costs a full generate--compile--simulate cycle for each
+attempt. For the case above it does not work at all.
+
 \section{Hypothesis and Research Questions}\label{sec:intro-rq}
+
+The hypothesis behind this project is that some testbench faults are visible in the source
+itself, and that a static analysis pass could therefore localise them before any simulation
+runs: faster, at no token cost, and with a precise statement of which signal is at fault
+rather than a wall of simulator output.
+
+The premise is not speculative. AutoBench~\cite{qiu2024autobench}, the immediate predecessor
+of this work, reports that its largest single improvement came from a mechanical
+pre-simulation fix, a script inserting missing output-display statements, which raised
+sequential compilation from 55.47\% to 97.33\%.
+
+Four questions follow.
+
+\begin{description}
+\setlength{\itemsep}{1pt}
+\item[\textnormal{\textbf{RQ1}}] Which categories of functional error appear most often in
+LLM-generated testbenches, and which of them are detectable without simulation?
+\item[\textnormal{\textbf{RQ2}}] To what extent can static analysis of the abstract syntax
+tree and dataflow localise testbench errors before simulation?
+\item[\textnormal{\textbf{RQ3}}] Can a model informed by static analysis repair those errors
+effectively, and how does this compare with compiler or simulator feedback alone?
+\item[\textnormal{\textbf{RQ4}}] What is the cost--quality trade-off of static analysis
+against feedback that requires compilation or simulation?
+\end{description}
+
 \section{Summary of Findings}\label{sec:intro-findings}
+
+The answer to RQ2 has two halves that point in opposite directions, and stating both here is
+preferable to letting a reader discover the second at page thirty.
+
+The localiser works. Measured by injecting 215 faults of known identity into testbenches
+known to pass, it detects 93\%, names the correct fault class and the correct signal in 93\%
+of cases, and produces no findings at all on unmutated input. Thirty-three of those faults
+are invisible to the compiler and the simulator together; the localiser catches 30 of them.
+
+The localiser has almost nothing to find. Across 220 pipeline runs on two models and two
+circuit sets, comprising 314 analyses, it reported two findings. The configuration whose
+sole purpose is to act on static findings performed zero repairs in 132 runs. Meanwhile 133
+runs produced a testbench that compiled and then failed simulation, which is 87\% of all
+failures.
+
+Both follow from one fact: language models produce testbenches that are structurally well
+formed and semantically wrong. They connect the ports and check the outputs. They misjudge
+what the outputs should be.
+
+Three alternative explanations were tested and rejected. A weaker model performs far worse
+at the task and no worse structurally. Twenty circuits from the standard benchmark, selected
+for structural complexity before any run, produced one finding in 153 analyses. The
+localiser's correctness was established by measurement rather than assumed.
+
 \section{Contributions}\label{sec:intro-contrib}
+
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item A graph-based testbench generation pipeline with explicit routing, a bounded repair
+loop, deterministic standardisation and per-call telemetry, which completed 220 evaluation
+runs without a harness failure.
+\item A pre-simulation static localiser for testbench--design interaction faults, together
+with the fault-injection method used to measure it. The measurement is the contribution; the
+analyser without it would be an assertion.
+\item An empirical characterisation of where LLM-generated testbenches fail, showing the
+structural classes that prior work corrects to be largely absent from current model output.
+\item A no-diagnostics control arm for ablations of this kind, which separates the value of
+a diagnosis from the value of a second attempt. Applying it shows that no configuration in
+this study beats the control at $p<0.05$.
+\item A measurement of the variance floor in LLM testbench generation: 33 percentage points
+between configurations executing identical logic, reproduced independently on two models.
+\end{enumerate}
+
+The original project plan claimed a sixth contribution, per-node attribution of where
+failures originate across the pipeline. The instrumentation records where failure is
+\emph{detected}, which is not the same thing, and Section~\ref{sec:concl-contrib} states
+what was delivered instead.
+
 \section{Structure of this Report}\label{sec:intro-roadmap}
+
+Chapter~\ref{ch:background} covers verification, the structural--semantic distinction the
+rest of the report turns on, and the prior work. Chapter~\ref{ch:design} describes the
+pipeline and Chapter~\ref{ch:localiser} the localiser, including a check that was
+subsequently removed. Chapter~\ref{ch:validation} measures what the localiser can detect,
+and is placed before the empirical results deliberately: a null reading from an unvalidated
+instrument would be uninterpretable. Chapter~\ref{ch:experiment} sets out the sweeps and the
+statistical treatment, Chapter~\ref{ch:results} reports the measurements, and
+Chapter~\ref{ch:discussion} excludes the alternative explanations and considers what
+follows.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Background and Related Work}\label{ch:background}
@@ -1378,9 +1515,82 @@ during development, and a reader is entitled to know how much and in which direc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
 % PHASE 6 · target 2.0 pp
+
 \section{Answers to the Research Questions}\label{sec:concl-rq}
+
+\textbf{RQ1.} Failures in LLM-generated testbenches are overwhelmingly semantic. Of 153
+failing runs, 20 failed to compile and 133 compiled and then produced wrong results. The 569
+individual failing scenarios concentrate on sequence and state behaviour, boundary
+conditions, and reset and timing, all of which require knowing how the design behaves.
+Establishing that any of them is wrong is not possible from the testbench text.
+
+\textbf{RQ2.} Static analysis localises structural faults reliably and encounters them
+rarely. It detects 93\% of injected faults, localises 93\% to the correct class and signal,
+raises no false alarms on correct input, and catches 30 of the 33 faults that neither the
+compiler nor the simulator can find. In 314 analyses of real generated testbenches it
+reported two findings.
+
+\textbf{RQ3.} The half of the question concerning repair guided by static analysis cannot be
+answered, because across three sweeps there were almost no findings to guide a repair with;
+the configuration built for it never repaired once. On the comparison between feedback
+strategies, \texttt{hybrid} leads at 40.9\% Eval1 against 27.3\% for the baseline, but
+against the no-diagnostics control the difference gives $p=0.372$. No configuration in this
+study is distinguishable from the control at conventional significance.
+
+\textbf{RQ4.} Compiler feedback is the efficient choice: seven points of Eval1 above
+baseline for 6\% more tokens. The full hybrid configuration buys the highest pass rate at
+50\% more tokens and 45\% more wall time, without statistical support for the gap. Static
+analysis costs 2\% fewer tokens than baseline, because its report was always clean and the
+reasoning step was skipped.
+
 \section{Contributions in Retrospect}\label{sec:concl-contrib}
+
+Of the five contributions listed in Section~\ref{sec:intro-contrib}, the two that were not
+planned have worn best. The control arm and the variance measurement were added to make the
+ablation defensible, and they ended up producing the results most likely to be useful
+elsewhere: a demonstration that uninformed regeneration can degrade a testbench that already
+compiled, and a figure for how large a difference has to be before it means anything at this
+sample size.
+
+The sixth contribution claimed in the project plan, per-node attribution of failure origin,
+was not delivered. The pipeline records the stage at which failure is detected, and 70\% of
+runs attribute to the evaluation node for the straightforward reason that evaluation is
+where failure becomes visible. Recovering where a defect was introduced would require
+ground truth per node that the pipeline does not collect. What exists instead is the
+repair-feedback breakdown, which shows 42 repairs triggered by simulation, 8 by the
+compiler, and none by static analysis.
+
+The result that generalises furthest is not about static analysis at all. AutoBench's
+largest reported gain came from a script inserting output-display statements that
+GPT-4-turbo omitted. Two years later the equivalent check in this work fired zero times in
+314 analyses, and the deterministic standardiser built for the same purpose found nothing to
+standardise. The technique did not stop working; the defect it corrects stopped occurring.
+Auxiliary tooling built around a generator's weaknesses is calibrated against a particular
+generation of models, and a component inherited from prior work without re-measurement may
+cost maintenance and return nothing.
+
 \section{Future Work}\label{sec:concl-future}
+
+\textbf{Smaller and locally-hosted models.} The claim that structural faults are rare rests
+on two commercial models. A quantised open-weight model running on local hardware is the
+case where the checks might still earn their place, and the experiment is inexpensive: the
+pipeline is provider-agnostic and the sweep costs approximately \$0.50 at the cheaper tier.
+
+\textbf{Semantic checking.} The defects that dominate are semantic, and static analysis
+cannot reach them from the testbench alone. It could reach some of them given the
+specification: generating assertions from the structured specification the pipeline already
+extracts, and checking the testbench's expectations against those assertions, would attack
+the class that matters rather than the class that is convenient.
+
+\textbf{Harder mutants.} Eval2 sits at 189 of 190 mutants caught and discriminates nothing.
+Deterministic mutation operators, applied systematically rather than by a model, would make
+the measure informative and allow a genuine comparison with AutoBench's 44.81\%.
+
+\textbf{Statistical power.} Resolving whether hybrid feedback genuinely improves on
+uninformed retry needs either a larger circuit set or enough repeats to average the
+33-point variance down. At the cheaper model tier, twenty repeats of the full sweep would
+cost less than one sweep at the stronger tier, which makes this the most affordable of the
+open questions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 References
