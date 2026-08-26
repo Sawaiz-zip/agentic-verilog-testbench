@@ -776,15 +776,260 @@ the pipeline writes. No figure in Chapter~\ref{ch:results} was transcribed by ha
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Results}\label{ch:results}
 % PHASE 3 · target 6.5 pp
+
+Every figure in this chapter is produced by \texttt{scripts/analyse\_results.py} from the
+JSON records the pipeline writes, and can be regenerated from the repository.
+
 \section{Pipeline Reliability}\label{sec:res-reliability}
+
+The three sweeps completed 220 of 220 planned runs with no harness errors, no rate-limit
+aborts and no runs abandoned for want of credit. Reporting this first is not a formality.
+The measurements that follow are only interpretable if the machinery producing them ran to
+completion, and a sweep that silently drops a configuration would bias every rate in the
+chapter.
+
 \section{RQ1: Where Failures Originate}\label{sec:res-rq1}
+
+Of the 220 runs, 67 produced a testbench that passed. The remaining 153 divide sharply.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r p{5.6cm}@{}}
+\toprule
+\textbf{Outcome} & \textbf{Runs} & \textbf{Detectable without simulation?} \\
+\midrule
+Failed to compile               & 20  & yes, by the compiler \\
+Compiled, failed simulation     & 133 & no \\
+Passed                          & 67  & --- \\
+\bottomrule
+\end{tabular}
+\caption{Failure origin across all 220 runs. 87\% of failures survive compilation and are
+only revealed by running the testbench.}
+\label{tab:failure-origin}
+\end{table}
+
+Eighty-seven percent of failures compile cleanly and then produce wrong results. These are
+semantic defects: the testbench is well-formed, instantiates the design correctly, drives
+its inputs and checks its outputs, and expects the wrong values.
+
+The 133 failing runs contain 569 individual failing scenarios. Grouping them by keyword in
+the scenario name gives 95 concerning sequence or state-machine behaviour, 74 arithmetic or
+logical, 72 at a boundary or overflow condition, 68 involving reset or initialisation, and
+51 concerning clocking or timing. A further 206 matched no pattern. The categories are
+indicative rather than a hand-verified classification, and the unmatched share is large
+enough that they should be read as a shape rather than a distribution.
+
+What the categories share is more informative than how they divide. Failures such as
+\texttt{right\_arithmetic\_shift\_2\_positions}, \texttt{read\_from\_full\_fifo} and
+\texttt{overlapping\_detection} are all cases where the model misjudged how the circuit
+behaves in a corner case. Determining that any of them is wrong requires knowing the
+reference behaviour, which the testbench text does not contain.
+
 \section{RQ2a: Detection Capability}\label{sec:res-rq2a}
+
+Chapter~\ref{ch:validation} reports the fault-injection study in full. The three figures
+carried forward here are that the localiser detected 93\% of 215 injected faults, localised
+93\% to the correct class and signal, and produced no findings on any of the 14 unmutated
+testbenches. Thirty-three faults were missed by both the compiler and the simulator; static
+analysis found 30 of them.
+
 \section{RQ2b: Yield on Generated Testbenches}\label{sec:res-rq2b}
+
+The localiser ran on every generated testbench in every sweep, in all five configurations,
+whether or not the configuration was permitted to act on the result.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l l r r r@{}}
+\toprule
+\textbf{Sweep} & \textbf{Model} & \textbf{Analyses} & \textbf{Parse failures} & \textbf{Runs with a finding} \\
+\midrule
+\texttt{final\_hard\_r1}   & \texttt{sonnet-4.5}  & 82  & 1 & \textbf{0 / 60} \\
+\texttt{weak\_model\_r1}   & \texttt{gpt-4o-mini} & 79  & 3 & \textbf{1 / 60} \\
+\texttt{verilogeval\_weak} & \texttt{gpt-4o-mini} & 153 & 0 & \textbf{1 / 100} \\
+\midrule
+\textbf{Total}             &                      & \textbf{314} & 4 & \textbf{2 / 220} \\
+\bottomrule
+\end{tabular}
+\caption{Static findings on real generated testbenches. Analyses exceed runs because the
+layer runs again after each repair iteration.}
+\label{tab:yield}
+\end{table}
+
+Two findings in 314 analyses. Both were \texttt{port\_binding\_mismatch}; no other check
+fired at any point in any sweep.
+
+The \texttt{pyverilog\_only} configuration performed zero repairs in all three sweeps. It
+is the arm whose entire purpose is to act on static findings, and across 132 runs it never
+had one to act on. Its behaviour was therefore identical to \texttt{baseline} throughout,
+a fact that Section~\ref{sec:res-variance} makes use of.
+
+The single finding in the benchmark sweep deserves a note. It occurred on
+\texttt{Prob150\_review2015\_fsmonehot}, a twelve-port one-hot state machine and the most
+port-dense circuit in the selection, and it landed in the \texttt{compiler\_only}
+configuration, which ignores static findings by design. It was detected and not acted upon.
+The same circuit produced structurally clean testbenches in the other four configurations,
+so the defect was a random generation slip rather than a property of the circuit.
+
 \section{RQ3: Ablation Across Feedback Strategies}\label{sec:res-rq3}
+
+Pooling the three sweeps gives 44 runs per configuration.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r l@{}}
+\toprule
+\textbf{Mode} & \textbf{Eval1} & \textbf{rate} & \textbf{95\% CI (Wilson)} \\
+\midrule
+\texttt{pyverilog\_only} & 9 / 44  & 20.5\% & [11.2, 34.5] \\
+\texttt{baseline}        & 12 / 44 & 27.3\% & [16.3, 41.8] \\
+\texttt{retry\_only}     & 13 / 44 & 29.5\% & [18.2, 44.2] \\
+\texttt{compiler\_only}  & 15 / 44 & 34.1\% & [21.9, 48.9] \\
+\texttt{hybrid}          & 18 / 44 & \textbf{40.9\%} & [27.7, 55.6] \\
+\bottomrule
+\end{tabular}
+\caption{Eval1 pooled across all three sweeps, with Wilson score intervals.}
+\label{tab:ablation}
+\end{table}
+
+\texttt{hybrid} ranks highest and \texttt{pyverilog\_only} lowest, which is the ordering the
+project's hypothesis would predict for the first and contradict for the second. Every
+interval overlaps every other.
+
+Pairwise Fisher exact tests confirm what the intervals suggest. No comparison reaches
+$p<0.05$. The two that come closest are \texttt{hybrid} against \texttt{pyverilog\_only} at
+$p=0.063$, and \texttt{hybrid} against \texttt{baseline} at $p=0.261$. The comparison the
+project actually depends on, \texttt{hybrid} against the no-diagnostics control
+\texttt{retry\_only}, gives $p=0.372$.
+
+The seventeen-point gap between \texttt{hybrid} and the control is therefore not
+distinguishable from sampling variation at this sample size. It is not evidence that the
+feedback does nothing; it is an absence of evidence that it does something, and the next
+section explains why that absence was difficult to avoid.
+
 \section{The Measured Variance Floor}\label{sec:res-variance}
+
+Three configurations performed no repairs at all in the first two sweeps:
+\texttt{baseline} by definition, \texttt{compiler\_only} because every testbench compiled,
+and \texttt{pyverilog\_only} because no static finding ever occurred. Having taken the same
+path through the graph, they differ only in the random draw from the model.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l c c c r@{}}
+\toprule
+\textbf{Sweep} & \texttt{baseline} & \texttt{compiler\_only} & \texttt{pyverilog\_only} & \textbf{spread} \\
+\midrule
+\texttt{final\_hard\_r1} & 67\% & 67\% & 33\% & \textbf{33 pts} \\
+\texttt{weak\_model\_r1} & 17\% & 50\% & 33\% & \textbf{33 pts} \\
+\bottomrule
+\end{tabular}
+\caption{Eval1 for three configurations executing identical logic. The spread is
+sampling variation and nothing else.}
+\label{tab:variance}
+\end{table}
+
+Thirty-three points, twice, on different models and independently. Six of the twelve
+circuits in the first sweep produced different pass/fail outcomes across arms that ran the
+same code.
+
+At temperature 0.7 and twelve circuits per arm, a difference smaller than roughly 33 points
+carries no information. The seventeen-point gap in Section~\ref{sec:res-rq3} sits at half
+that. Detecting an effect of that size would require either a much larger circuit set or
+enough repeats to average the variance down, and the budget allowed neither.
+
+We report this as a result rather than as a caveat. It bears directly on how work in this
+area is evaluated: AutoBench reports single-run pass@1 comparisons without error bars, and
+at the variance measured here such comparisons would not support the conclusions drawn from
+them.
+
 \section{Uninformed Retry Degrades Compilation}\label{sec:res-retry}
+
+The control arm was included to isolate the effect of feedback. It produced a finding of its
+own.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+\textbf{Mode} & \texttt{sonnet}/12 & \texttt{mini}/12 & \texttt{mini}/VerilogEval \\
+\midrule
+\texttt{baseline}        & 92\%  & 92\%  & 95\% \\
+\texttt{retry\_only}     & 100\% & 75\%  & \textbf{70\%} \\
+\texttt{compiler\_only}  & 100\% & 100\% & 90\% \\
+\texttt{pyverilog\_only} & 100\% & 83\%  & 90\% \\
+\texttt{hybrid}          & 100\% & 92\%  & 95\% \\
+\bottomrule
+\end{tabular}
+\caption{Eval0 by configuration and sweep. Uninformed regeneration is the only
+configuration that compiles worse than the baseline.}
+\label{tab:eval0}
+\end{table}
+
+On the benchmark circuits, regenerating the testbench with no information about what was
+wrong dropped compilation from 95\% to 70\%. Six of twenty runs produced a testbench that
+had compiled before the retry and did not compile after it.
+
+A second attempt is not free. Where the first attempt was adequate, discarding it and
+sampling again risks a worse draw, and on harder circuits that risk is realised often
+enough to be visible. Any repair mechanism that regenerates rather than patches inherits
+this exposure, which is the reason the pipeline retains the best-scoring testbench rather
+than the most recent one.
+
 \section{RQ4: Cost Against Quality}\label{sec:res-rq4}
+
+Cost is measured from the per-call telemetry described in
+Section~\ref{sec:design-practices}, averaged over the 44 runs of each configuration.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r r r l@{}}
+\toprule
+\textbf{Mode} & \textbf{tokens in} & \textbf{tokens out} & \textbf{wall} & \textbf{Eval1} & \textbf{vs baseline} \\
+\midrule
+\texttt{pyverilog\_only} & 6\,025 & 3\,676 & 40\,s & 20.5\% & $-2\%$ tokens \\
+\texttt{baseline}        & 6\,040 & 3\,870 & 42\,s & 27.3\% & --- \\
+\texttt{compiler\_only}  & 6\,554 & 3\,911 & 43\,s & 34.1\% & $+6\%$ tokens \\
+\texttt{retry\_only}     & 7\,982 & 4\,797 & 55\,s & 29.5\% & $+29\%$ tokens \\
+\texttt{hybrid}          & 9\,776 & 5\,103 & 61\,s & 40.9\% & $+50\%$ tokens \\
+\bottomrule
+\end{tabular}
+\caption{Mean cost per run against Eval1, pooled over 220 runs.}
+\label{tab:cost}
+\end{table}
+
+\texttt{compiler\_only} is the efficient configuration: seven points above baseline for six
+percent more tokens. \texttt{hybrid} buys the highest pass rate at half again the token cost
+and 45\% more wall time, and, as Section~\ref{sec:res-rq3} establishes, without statistical
+support for the gap.
+
+\texttt{pyverilog\_only} spends two percent fewer tokens than baseline, because the error
+reasoning node is skipped when the report is clean and its report was always clean. It is
+the cheapest configuration and the worst-performing one. Static analysis itself is close to
+free, requiring no model call and completing in milliseconds; the layer's cost is not the
+reason to question it.
+
+Total expenditure across all experiments in this report, including the injection study and
+the discarded pilot runs, was approximately \$9.20.
+
 \section{Consistency Across Models and Circuit Sets}\label{sec:res-consistency}
+
+The 42 simulation-triggered repairs and 8 compile-triggered repairs across the three sweeps
+account for every repair the pipeline performed on the basis of a diagnosis. The remaining
+44 were the control arm's uninformed regenerations. No repair in any sweep was triggered by
+a static finding.
+
+Absolute pass rates vary between sweeps by a wide margin, as intended: the benchmark
+circuits are much harder, with \texttt{baseline} Eval1 falling from 67\% on the project
+fixtures to 10\% on VerilogEval. The qualitative picture does not vary. Static findings remain at or
+near zero, \texttt{pyverilog\_only} never repairs, and simulation feedback drives whatever
+improvement occurs. Chapter~\ref{ch:discussion} takes up what follows from that.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Discussion}\label{ch:discussion}
