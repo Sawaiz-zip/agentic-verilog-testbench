@@ -1,0 +1,298 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% S6.ReKI.1 — Research Project Report
+% Muhammad Sawaiz Naveed · Technische Universität Ilmenau
+% Preamble follows expose.tex; additions for tables, listings and units.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,a4paper,titlepage=false]{scrreprt}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{breakurl}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[
+  left=2.5cm,
+  right=2.5cm,
+  top=3cm,
+  bottom=3cm,
+]{geometry}
+
+% --- additions beyond the expose preamble -----------------------------------
+\usepackage{booktabs}      % rules for the results tables
+\usepackage{longtable}     % tables spanning a page break
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{microtype}     % reduces overfull boxes in a two-column-free layout
+\usepackage{listings}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = black,
+    citecolor  = black,
+    urlcolor   = blue,
+    pdfauthor  = {Muhammad Sawaiz Naveed},
+    pdftitle   = {Agentic Verilog Testbench Generation with Pre-Simulation Error Localisation},
+    pdfsubject = {S6.ReKI.1 Research Project},
+    pdfkeywords= {LLM, Verilog, testbench generation, Pyverilog, error localization,
+                  hardware verification, LangGraph, fault injection}
+}
+
+% Verilog listing style, used for the structural/semantic examples
+\lstdefinestyle{verilog}{
+  language        = Verilog,
+  basicstyle      = \ttfamily\small,
+  keywordstyle    = \bfseries,
+  commentstyle    = \itshape\color{gray!70!black},
+  numbers         = none,
+  frame           = single,
+  framesep        = 4pt,
+  rulecolor       = \color{black!30},
+  breaklines      = true,
+  showstringspaces= false,
+  captionpos      = b,
+}
+\lstset{style=verilog}
+
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+
+% Tighter chapter headings: the page budget is 40 pages.
+\renewcommand*{\chapterheadstartvskip}{\vspace*{-1.2\baselineskip}}
+
+\begin{document}
+\selectlanguage{english}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                 Front matter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Agentic Verilog Testbench Generation\\with Pre-Simulation Error Localisation}
+\author{Muhammad Sawaiz Naveed}
+\date{\today}
+\maketitle
+
+\vspace{0.5cm}
+
+\begin{tabular}{r l}
+Type of work: & Research Project \\
+Student:      & Muhammad Sawaiz Naveed \\
+Supervisor:   & Bing Wen \\
+Topic ID:     & S6.ReKI.1 \\
+Department:   & Technische Universität Ilmenau \\
+Semester:     & Summer Semester 2025/2026 \\
+Deadline:     & September 1, 2026 \\
+\end{tabular}
+
+\vspace{4mm}
+
+\begin{tabular}{l p{0.75\textwidth}}
+\textbf{Keywords:} & Large Language Models; Verilog; Testbench Generation; Pyverilog;
+Error Localisation; Hardware Verification; LangGraph; Fault Injection \\
+\end{tabular}
+
+\vspace{8mm}
+
+\begin{abstract}
+% PHASE 6 — written last, after the conclusion is fixed.
+\textit{[Abstract placeholder. Written in Phase 6.]}
+\end{abstract}
+
+\vspace{4mm}
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}\label{ch:intro}
+% PHASE 6 · target 3.0 pp
+\section{Verification and the Cost of Testbenches}\label{sec:intro-cost}
+\section{How LLM-Generated Testbenches Fail}\label{sec:intro-failure}
+\section{Hypothesis and Research Questions}\label{sec:intro-rq}
+\section{Summary of Findings}\label{sec:intro-findings}
+\section{Contributions}\label{sec:intro-contrib}
+\section{Structure of this Report}\label{sec:intro-roadmap}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Background and Related Work}\label{ch:background}
+% PHASE 5 · target 5.5 pp
+\section{Simulation-Based Verification}\label{sec:bg-verification}
+\section{Structural and Semantic Testbench Faults}\label{sec:bg-fault-classes}
+\section{Large Language Models for HDL}\label{sec:bg-llm-hdl}
+\section{Static Analysis of Verilog}\label{sec:bg-static}
+\section{Evaluation Criteria: Eval0, Eval1 and Eval2}\label{sec:bg-eval}
+\section{AutoBench}\label{sec:bg-autobench}
+\section{Further Related Work}\label{sec:bg-related}
+\section{Gap Addressed by this Work}\label{sec:bg-gap}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{System Design}\label{ch:design}
+% PHASE 1 · target 5.5 pp
+\section{Why a Graph Rather than a Script}\label{sec:design-graph}
+\section{Pipeline Topology and State}\label{sec:design-topology}
+\section{Generation Stages}\label{sec:design-generation}
+\section{Deterministic Standardisation}\label{sec:design-standardiser}
+\section{The Repair Loop}\label{sec:design-repair}
+\section{Evaluation Harness}\label{sec:design-harness}
+\section{Engineering Practices}\label{sec:design-practices}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{The Static Localiser}\label{ch:localiser}
+% PHASE 1 · target 4.0 pp
+\section{Design Principle and Scope}\label{sec:loc-principle}
+\section{The Six Checks}\label{sec:loc-checks}
+\section{Width Mismatch: Silent at Simulation Time}\label{sec:loc-width}
+\section{A Check that was Removed}\label{sec:loc-removed}
+\section{False Positives as the Primary Risk}\label{sec:loc-falsepos}
+\section{Parse Robustness on Generated Code}\label{sec:loc-parse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Validating the Localiser}\label{ch:validation}
+% PHASE 2 · target 4.0 pp
+\section{Why Pass Rates Cannot Answer RQ2}\label{sec:val-motivation}
+\section{Fault Injection Method}\label{sec:val-method}
+\section{Injectors and Negative Controls}\label{sec:val-injectors}
+\section{Methodological Safeguards}\label{sec:val-safeguards}
+\section{Detection, Localisation and False Positives}\label{sec:val-results}
+\section{The Case Only Static Analysis Detects}\label{sec:val-unobserved}
+\section{Boundaries of the Method}\label{sec:val-limits}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Experimental Design}\label{ch:experiment}
+% PHASE 2 · target 3.0 pp
+\section{Three Sweeps}\label{sec:exp-sweeps}
+\section{Circuit Sets and Selection Criteria}\label{sec:exp-circuits}
+\section{Ablation Arms}\label{sec:exp-arms}
+\section{The No-Diagnostics Control}\label{sec:exp-control}
+\section{Prompt Freezing}\label{sec:exp-freeze}
+\section{Statistical Treatment}\label{sec:exp-stats}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Results}\label{ch:results}
+% PHASE 3 · target 6.5 pp
+\section{Pipeline Reliability}\label{sec:res-reliability}
+\section{RQ1: Where Failures Originate}\label{sec:res-rq1}
+\section{RQ2a: Detection Capability}\label{sec:res-rq2a}
+\section{RQ2b: Yield on Generated Testbenches}\label{sec:res-rq2b}
+\section{RQ3: Ablation Across Feedback Strategies}\label{sec:res-rq3}
+\section{The Measured Variance Floor}\label{sec:res-variance}
+\section{Uninformed Retry Degrades Compilation}\label{sec:res-retry}
+\section{RQ4: Cost Against Quality}\label{sec:res-rq4}
+\section{Consistency Across Models and Circuit Sets}\label{sec:res-consistency}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Discussion}\label{ch:discussion}
+% PHASE 4 · target 5.5 pp
+\section{Excluding the Alternative Explanations}\label{sec:disc-alternatives}
+\section{Why Generated Testbenches Are Structurally Sound}\label{sec:disc-why}
+\section{The Same Technique in a Different Model Generation}\label{sec:disc-autobench}
+\section{Where Static Analysis Retains Value}\label{sec:disc-value}
+\section{On Measurement Practice}\label{sec:disc-measurement}
+\section{Threats to Validity}\label{sec:disc-threats}
+\section{Corrections Made During the Work}\label{sec:disc-corrections}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusion and Future Work}\label{ch:conclusion}
+% PHASE 6 · target 2.0 pp
+\section{Answers to the Research Questions}\label{sec:concl-rq}
+\section{Contributions in Retrospect}\label{sec:concl-contrib}
+\section{Future Work}\label{sec:concl-future}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                 References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{\small
+\begingroup
+\let\chapter\section
+\bibliographystyle{ieeetr}
+
+\begin{thebibliography}{99}
+
+\bibitem{wilson2022}
+H.~Foster,
+``The 2022 Wilson Research Group Functional Verification Study,''
+Siemens, Tech. Rep., Dec. 2022.
+
+\bibitem{liu2023verilogeval}
+M.~Liu, N.~Pinckney, B.~Khailany, and H.~Ren,
+``VerilogEval: Evaluating Large Language Models for Verilog Code Generation,''
+in \textit{Proc. IEEE/ACM Int. Conf. Computer-Aided Design (ICCAD)}, 2023.
+
+\bibitem{qiu2024autobench}
+R.~Qiu, G.~L.~Zhang, R.~Drechsler, U.~Schlichtmann, and B.~Li,
+``AutoBench: Automatic Testbench Generation and Evaluation Using LLMs for HDL Design,''
+in \textit{Proc. ACM/IEEE Int. Symp. Machine Learning for CAD (MLCAD)}, 2024.
+arXiv:2407.03891.
+
+\bibitem{takamaeda2015pyverilog}
+S.~Takamaeda-Yamazaki,
+``Pyverilog: A Python-Based Hardware Design Processing Toolkit for Verilog HDL,''
+in \textit{Applied Reconfigurable Computing (ARC)}, 2015.
+
+\bibitem{thakur2023autochip}
+S.~Thakur, J.~Blocklove, H.~Pearce, B.~Tan, S.~Garg, and R.~Karri,
+``AutoChip: Automating HDL Generation Using LLM Feedback,''
+arXiv:2311.04887, 2023.
+
+\bibitem{blocklove2023chipchat}
+J.~Blocklove, S.~Garg, R.~Karri, and H.~Pearce,
+``Chip-Chat: Challenges and Opportunities in Conversational Hardware Design,''
+in \textit{Proc. ACM/IEEE Int. Symp. Machine Learning for CAD (MLCAD)}, 2023.
+
+\bibitem{chang2023chipgpt}
+K.~Chang, Y.~Wang, H.~Ren, M.~Wang, S.~Liang, Y.~Han, H.~Li, and X.~Li,
+``ChipGPT: How Far Are We From Natural Language Hardware Design,''
+arXiv:2305.14019, 2023.
+
+\bibitem{orenes2023llmformal}
+M.~Orenes-Vera, M.~Martonosi, and D.~Wentzlaff,
+``Using LLMs to Facilitate Formal Verification of RTL,''
+arXiv:2309.09437, 2023.
+
+\bibitem{zhang2023llm4dv}
+Z.~Zhang, G.~Chadwick, H.~McNally, Y.~Zhao, and R.~Mullins,
+``LLM4DV: Using Large Language Models for Hardware Test Stimuli Generation,''
+arXiv:2310.04535, 2023.
+
+\bibitem{wilson1927}
+E.~B.~Wilson,
+``Probable Inference, the Law of Succession, and Statistical Inference,''
+\textit{Journal of the American Statistical Association}, vol.~22, no.~158,
+pp.~209--212, 1927.
+
+\bibitem{fisher1922}
+R.~A.~Fisher,
+``On the Interpretation of $\chi^2$ from Contingency Tables, and the Calculation of P,''
+\textit{Journal of the Royal Statistical Society}, vol.~85, no.~1, pp.~87--94, 1922.
+
+\bibitem{langgraph}
+LangChain Inc.,
+``LangGraph: Building Stateful, Multi-Actor Applications with LLMs,'' 2024.
+\url{https://langchain-ai.github.io/langgraph/}
+
+\bibitem{iverilog}
+S.~Williams,
+``Icarus Verilog,'' open-source Verilog simulator.
+\url{https://steveicarus.github.io/iverilog/}
+
+\bibitem{verible}
+Google,
+``Verible: SystemVerilog Parser, Style-Linter and Formatter.''
+\url{https://github.com/chipsalliance/verible}
+
+\bibitem{jia2011mutation}
+Y.~Jia and M.~Harman,
+``An Analysis and Survey of the Development of Mutation Testing,''
+\textit{IEEE Trans. Software Engineering}, vol.~37, no.~5, pp.~649--678, 2011.
+
+\end{thebibliography}
+\endgroup
+}
+
+\end{document}
