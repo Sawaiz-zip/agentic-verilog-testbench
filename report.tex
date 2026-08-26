@@ -475,23 +475,303 @@ identical to the baseline for an entire round of experiments before this was fou
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Validating the Localiser}\label{ch:validation}
 % PHASE 2 · target 4.0 pp
+
 \section{Why Pass Rates Cannot Answer RQ2}\label{sec:val-motivation}
+
+RQ2 asks how well static analysis narrows down testbench errors before simulation. The
+obvious way to answer it is to run the pipeline with the static layer enabled and disabled
+and compare pass rates. That answer would be worthless, for two reasons.
+
+A pass rate is a single bit per run. When a testbench fails, the rate does not say which
+defect caused it, and therefore cannot say whether the analyser could have caught that
+defect. When a testbench passes, the rate says nothing about whether the analyser would
+have caught a defect that was never there. Neither outcome constrains the quantity RQ2 asks
+about.
+
+The second reason is variance. Chapter~\ref{ch:results} reports a measured spread of 33
+percentage points between configurations that execute identical code, which is larger than
+any effect the comparison is trying to detect. A difference in pass rates at this sample
+size would not be evidence either way.
+
+So we measured the analyser directly, by giving it faults whose identity we already knew.
+
 \section{Fault Injection Method}\label{sec:val-method}
+
+Take a testbench already known to pass. Break it in one known way. Ask three layers the
+same question:
+
+\begin{itemize}[nosep,leftmargin=1.4em]
+  \item does the static analyser report a finding?
+  \item does \texttt{iverilog} refuse to compile it?
+  \item does the simulation fail against the golden design?
+\end{itemize}
+
+The three-way comparison is what makes the result interpretable. A fault only the analyser
+catches is a fault the existing toolchain cannot find at all, and is the strongest possible
+case for the layer. A fault the compiler already catches is one the layer adds nothing to
+beyond speed. Reporting the first without the second would be selective.
+
+The corpus is 14 testbenches, one per circuit, taken from recorded runs that passed Eval1.
+These are real generated artefacts rather than hand-written examples. That distinction
+matters, because a hand-written testbench would carry the author's assumptions about what a
+testbench looks like, and those assumptions are exactly what the checks encode. Measuring a
+checker against inputs shaped by the same beliefs that produced it would flatter it.
+Injecting into all 14 produced 215 faults.
+
 \section{Injectors and Negative Controls}\label{sec:val-injectors}
+
+Eight injectors cover the taxonomy. Six target a check directly: renaming a port in the
+instantiation, dropping a port connection, narrowing a declared signal width, redirecting
+an input's assignments so the input is never driven, removing an output from the
+testbench's comparisons, and deleting the clock generator.
+
+Two are negative controls, and they are the more interesting half. \texttt{break\_edge\_sync}
+replaces every \texttt{@(posedge clk)} with a bare delay, and \texttt{swap\_bindings} binds
+two same-width inputs to each other's signals. Neither is detectable by any structural
+check. The second in particular produces a testbench in which every connection is legal and
+correctly typed, and only the meaning is wrong.
+
+Including faults the method provably cannot catch is a deliberate choice. A study
+containing only detectable faults reports a detection rate that describes the study design
+rather than the method. The controls mark where the boundary actually falls, and
+Section~\ref{sec:val-limits} states what fell outside it.
+
 \section{Methodological Safeguards}\label{sec:val-safeguards}
+
+Three properties of the harness were necessary to make the comparison mean anything. Each
+was added after the corresponding mistake was made.
+
+\textbf{Mutations must produce legal Verilog.} An injector that emits a syntax error would
+score as ``the compiler caught it'' for a defect the injector itself introduced. The
+undriven-input injector therefore redirects assignments to a fresh register rather than
+deleting statements, because deleting a statement can empty an \texttt{if} branch and
+produce exactly that artefact. Injectors that cannot mutate a given testbench cleanly
+decline, and the declined cases are excluded from the denominator rather than counted as
+misses.
+
+\textbf{The corpus must use golden designs, not generated ones.} A recorded run stores the
+design the pipeline generated, which can itself be malformed. An early version of the study
+compiled mutated testbenches against a generated design that did not build, and scored that
+design's defect as a detection of the injected fault. The corpus now loads the reference
+design from the fixture set.
+
+\textbf{Every corpus entry is re-verified before injection.} The unmutated testbench must
+compile and its simulation must pass against the golden design. Measuring detection against
+a baseline that is already failing attributes the baseline's problems to the injected
+fault. Entries that fail this gate are excluded and reported.
+
 \section{Detection, Localisation and False Positives}\label{sec:val-results}
+
+Table~\ref{tab:injection} gives the result by fault class. The final column is the fraction
+of faults in that class that \emph{only} the static analyser detected.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r r r r@{}}
+\toprule
+\textbf{Fault class} & \textbf{n} & \textbf{static} & \textbf{compiler} & \textbf{simulator} & \textbf{only static} \\
+\midrule
+output never checked          & 19  & \textbf{100\%} & 0\%    & \textbf{0\%} & \textbf{100\%} \\
+clock never toggled           & 6   & \textbf{100\%} & 0\%    & 17\%  & 83\% \\
+wrong signal width            & 22  & \textbf{100\%} & 0\%    & 82\%  & 18\% \\
+input never driven            & 30  & \textbf{100\%} & 0\%    & 97\%  & 3\%  \\
+port left unconnected         & 62  & \textbf{100\%} & 0\%    & 98\%  & 2\%  \\
+port bound to unknown name    & 62  & \textbf{100\%} & 100\%  & 0\%   & 0\%  \\
+\textit{edge sync removed} (control)  & 5   & 0\%  & 0\% & 80\% & 0\% \\
+\textit{inputs swapped} (control)     & 9   & 0\%  & 0\% & 78\% & 0\% \\
+\midrule
+\textbf{Total}                & \textbf{215} & \textbf{93\%} & 29\% & 56\% & 14\% \\
+\bottomrule
+\end{tabular}
+\caption{Fault injection across 14 known-good testbenches. The two control classes are
+undetectable by structural analysis by construction and are included to mark the boundary
+of the method.}
+\label{tab:injection}
+\end{table}
+
+Three figures summarise the table. Detection is 93\% overall, and 100\% for every class the
+method is designed to cover. Localisation, meaning the analyser named both the correct fault
+class and the correct signal, is 201 of 215, also 93\%; an exact signal match was required,
+so a report naming \texttt{a} does not count as localising a fault in \texttt{data}. On the
+14 unmutated testbenches the analyser produced no findings at all.
+
+The false-positive figure is the one we would defend first. A localiser that misses a defect
+costs one simulation cycle; a localiser that invents one costs a model call, a regeneration,
+and the credibility of every subsequent finding.
+
+Thirty-three of the 215 faults, 15\%, were caught by neither the compiler nor the simulator.
+Static analysis found 30 of those, 91\%.
+
 \section{The Case Only Static Analysis Detects}\label{sec:val-unobserved}
+
+The first row of Table~\ref{tab:injection} carries more weight than the rest. Nineteen
+faults were injected by removing an output from the testbench's checks; the analyser caught
+all nineteen, the compiler none, the simulator none.
+
+The simulator's score is not a shortcoming of the simulator. A testbench that stops checking
+an output does not fail on account of that output. It passes, because it is no longer
+looking, and it will keep passing however many times it is run. There is no observation the
+simulator could make that would distinguish this testbench from a correct one. The compiler
+sees legal Verilog throughout.
+
+This is the clearest form of the argument for pre-simulation analysis, and it is worth
+stating plainly before Chapter~\ref{ch:results} reports how rarely the situation arises in
+practice.
+
 \section{Boundaries of the Method}\label{sec:val-limits}
+
+Binding a port under a name the design does not have is detected by the analyser and by the
+compiler equally, at 100\% each. Sixty-two of the 215 faults fall in this class, so a
+substantial part of the headline detection rate describes work the existing toolchain
+already does. What the analyser contributes there is speed, not capability.
+
+The two control classes were detected at zero, as designed. Swapping two same-width inputs
+leaves a testbench in which every port is bound, every signal is driven, every output is
+checked, and every width agrees. The defect is in what the testbench means, not in how it is
+built, and no amount of reading will find it. The simulator caught 78\% of those, which is
+the correct division of labour.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Experimental Design}\label{ch:experiment}
 % PHASE 2 · target 3.0 pp
+
 \section{Three Sweeps}\label{sec:exp-sweeps}
+
+Chapter~\ref{ch:validation} establishes what the localiser can detect. This chapter sets up
+the question of how often it gets the chance, which requires running the whole pipeline
+against real circuits and counting.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l l l r@{}}
+\toprule
+\textbf{Sweep} & \textbf{Generation model} & \textbf{Circuits} & \textbf{Runs} \\
+\midrule
+\texttt{final\_hard\_r1}   & \texttt{claude-sonnet-4.5} & 12 project fixtures & 60 \\
+\texttt{weak\_model\_r1}   & \texttt{gpt-4o-mini}       & the same 12         & 60 \\
+\texttt{verilogeval\_weak} & \texttt{gpt-4o-mini}       & 20 VerilogEval problems & 100 \\
+\bottomrule
+\end{tabular}
+\caption{The three sweeps. Only the generation and repair model changes between the first
+two; only the circuit set changes between the second and third.}
+\label{tab:sweeps}
+\end{table}
+
+The design isolates one variable at a time. Comparing the first two sweeps holds the
+circuits fixed and changes the model, which tests whether the results depend on model
+capability. Comparing the second and third holds the model fixed and changes the circuits,
+which tests whether they depend on our choice of circuits. Both comparisons matter for
+Chapter~\ref{ch:discussion}, where the alternative explanations for the central result have
+to be excluded.
+
+Classification, scenario listing and mutant generation use \texttt{gpt-4o-mini} in all three
+sweeps. Sampling temperature is 0.7 throughout, which is the supervisor-agreed setting and
+reflects realistic use rather than a controlled deterministic condition.
+
 \section{Circuit Sets and Selection Criteria}\label{sec:exp-circuits}
+
+The project set is twelve circuits in two halves. Six are small and were used during
+development: two-bit comparators, a D flip-flop, a four-bit counter. Six were written later
+and deliberately made harder, with more ports and mixed signal widths: an eight-bit ALU with
+carry and overflow flags, a barrel shifter, a nine-port FIFO, an overlapping sequence
+detector, a timed traffic-light controller. The second group exists because four of the six
+static checks cannot fire on an eight-line circuit with two unambiguous ports, and measuring
+a checker on inputs that cannot trigger it is not a measurement.
+
+The third sweep uses VerilogEval~\cite{liu2023verilogeval}, which is the benchmark AutoBench
+evaluated on. Running all 156 problems was outside the project's budget, so twenty were
+selected. How they were selected determines whether the result is usable, so the procedure
+is stated in full.
+
+Every problem was scored before any run took place, using three properties of its reference
+design: the number of ports, the number of distinct signal widths, and whether it contains
+edge-triggered logic. The twenty highest-scoring problems were taken. Their scores range
+from 26.4 to 41.9 against a median of 18.7 across all 156, port counts run from six to
+twelve, and fifteen of the twenty are sequential.
+
+The criterion is structural complexity because structural faults are only possible where
+structure is complex. This biases the sample \emph{towards} the conditions in which the
+localiser can succeed, and that is the point. A null result obtained under favourable
+conditions is stronger than one obtained under arbitrary conditions.
+
+The alternative procedure, running all 156 and reporting the twenty that produced findings,
+would have selected on the outcome. It would have produced a better-looking number that
+meant nothing, and it would not have survived the first question about how the circuits were
+chosen.
+
 \section{Ablation Arms}\label{sec:exp-arms}
+
+Five configurations differ only in which feedback sources are permitted to trigger a repair.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l p{9.2cm}@{}}
+\toprule
+\textbf{Mode} & \textbf{Repair is triggered by} \\
+\midrule
+\texttt{baseline}        & nothing; a single generation \\
+\texttt{retry\_only}     & nothing, but one further generation is drawn regardless, with no diagnostic information \\
+\texttt{compiler\_only}  & \texttt{iverilog} compilation errors \\
+\texttt{pyverilog\_only} & static analysis findings \\
+\texttt{hybrid}          & static findings, compiler errors, or simulation failures \\
+\bottomrule
+\end{tabular}
+\caption{The five ablation arms.}
+\label{tab:arms}
+\end{table}
+
+The nodes are identical across all five; only the three routing functions described in
+Section~\ref{sec:design-graph} behave differently. That the arms are genuinely distinct was
+checked by evaluating those functions over a matrix of states rather than assumed.
+
 \section{The No-Diagnostics Control}\label{sec:exp-control}
+
+Every repairing configuration receives something the baseline does not: a second generation.
+If \texttt{hybrid} outperforms \texttt{baseline}, two explanations fit equally well. The
+feedback may have identified the defect and guided the repair. Or the model may simply have
+had a second attempt, and sampling twice from a stochastic generator produces a better
+result often enough to explain the gap without any feedback being involved.
+
+\texttt{retry\_only} separates them. It draws exactly one additional sample from
+\texttt{gen\_driver} and passes it no error report, no static findings and no simulator
+output. Any configuration must beat \texttt{retry\_only}, not merely \texttt{baseline},
+before its feedback can be credited with the improvement.
+
+AutoBench's ablation has no equivalent arm. Its reported gains of roughly 8\% from
+auto-debug and 10\% from scenario checking are measured against versions of the system with
+those mechanisms disabled, which also removes the regeneration attempts they trigger. The
+comparison therefore cannot distinguish the two explanations above.
+Section~\ref{sec:res-rq3} reports what happens when the control is present.
+
 \section{Prompt Freezing}\label{sec:exp-freeze}
+
+All nine prompt templates were frozen at a tagged commit before the first sweep and were not
+modified afterwards. The tag records a checksum of the template set so the claim can be
+checked rather than taken on trust.
+
+The protection this offers is against a specific and easy mistake: observing a poor result,
+adjusting a prompt, re-running, and reporting the improved number as though the prompt had
+been fixed in advance. One caveat has to be stated alongside it. The driver prompt was tuned
+during development against the six original project fixtures, so those six are not held out.
+The six purpose-built circuits and all twenty VerilogEval problems were never used for
+prompt tuning.
+
 \section{Statistical Treatment}\label{sec:exp-stats}
+
+Pass rates are proportions from small samples, and the usual normal approximation behaves
+badly at the extremes. Confidence intervals are therefore Wilson score
+intervals~\cite{wilson1927}, which remain sensible when a proportion approaches zero or one.
+
+Comparisons between arms use Fisher's exact test~\cite{fisher1922} rather than a chi-square
+test. With 44 runs per arm and pass counts in the range of nine to eighteen, several cells
+of the contingency tables fall below the expected-frequency threshold at which chi-square is
+valid. Fisher's test makes no such assumption.
+
+Both are computed by \texttt{scripts/analyse\_results.py}, which reads the same JSON records
+the pipeline writes. No figure in Chapter~\ref{ch:results} was transcribed by hand.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Results}\label{ch:results}
