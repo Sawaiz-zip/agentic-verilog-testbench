@@ -194,11 +194,20 @@ class GraphState(TypedDict):
 
 ## 8. Research Questions
 
-> **Status as of 2026-08-25** — full evidence in `docs/results.md`.
-> **RQ1 ✅ answered:** 87% of failures are semantic (133 of 153); 569 failing scenarios categorised.
-> **RQ2 ✅ answered, both halves:** the localiser detects 93% of injected faults with 0 false positives (30 invisible to compiler+simulator), but fired only 2 times in 314 analyses of real output.
-> **RQ3 ⚠️ partially:** the "informed by Pyverilog" half is unanswerable — there were almost no findings to inform it. The comparison half is answered negatively: no mode beats the control at n=44 (hybrid vs `retry_only`, p=0.372).
-> **RQ4 ✅ answered:** `hybrid` buys +14 points Eval1 for +50% tokens; `compiler_only` is the efficiency winner (+7 points for +6%); `pyverilog_only` costs ~nothing and gains nothing.
+> **Status as of 2026-08-29** — full evidence in `docs/results.md`; corrections this date in git log.
+> **RQ1 ✅ answered:** 87% of failures are semantic (133 of 153). ⚠️ **Bounded 2026-08-29:** re-simulating all 133 against their *own generated* DUT gives 108 confirmed testbench-internal (81%), 3 faithful-TB-wrong-DUT (2%), 22 indeterminate (generated DUT won't elaborate). Read as "108 confirmed, 25 unresolved". Uncategorised scenarios are **209**, not 206.
+> **RQ2 ✅ answered, both halves.** ⚠️ **Denominator corrected 2026-08-29:** Pyverilog parsed only **190 of 314** analyses; 120 fell back to Verible (syntax-only — *no structural check ran*, recorded as `parse_ok`). Quote **2 findings in 190**, never 2 in 314. Worst on the benchmark sweep (64/153). Detection side unchanged: 93% of 215 injected faults, 0 false positives, 30 of 33 invisible to compiler+simulator.
+> **RQ3 ⚠️ partially.** The "informed by Pyverilog" half is unanswerable — almost no findings to inform it. Comparison half: hybrid vs `retry_only` gap is **11.4 points** (NOT 17 — old error), p=0.372 unpaired / **p=0.125 McNemar paired**. Arms are circuit-matched so paired tests apply; hybrid vs `pyverilog_only` reaches p=0.012 paired but fails Bonferroni and is uninformative (pyverilog_only never repaired). **Decomposition:** hybrid's 18 passes = 15 first-attempt (baseline 12, same process → noise) + **3 rescued by repair**; the mechanism is worth 6.8 points, not 13.6.
+> **RQ4 ✅ answered:** `hybrid` buys +13.6 points Eval1 for +50% tokens; `compiler_only` is the efficiency winner (+7 points for +6%); `pyverilog_only` costs ~nothing and gains nothing.
+
+### Findings added 2026-08-29 (not in the original four RQs)
+
+- **Why repairs fail.** 23 runs performed a diagnosed repair; **3 passed (13%)**. Of the 20 failures: 7 regenerated a testbench failing the *identical* scenario set (diagnosis not acted on); 13 exhausted the budget with a *different* error signature every iteration — across 14 multi-iteration runs **no signature ever repeated**. Ten of seventeen ended 1–2 scenarios short. Prior work does not report this.
+- **Eval2 ceiling is a fixture-size artefact, not a mutant artefact.** Pre-registered pilot (`specs/012-mutant-quality/PILOT_CRITERIA.md`, committed before generation): regenerating mutants with the strong model under AutoBench's own prompt, equivalent mutants filtered, gives **97.4%** vs 96.7% before — one point. The same testbenches score **53.8%** on AutoBench's *published* mutants for the benchmark circuits. Prompt structure governs diversity; model governs validity; neither governs the score. Correct pooled Eval2 is **324/335**, not 189/190 (that was one sweep).
+- **AutoBench's mutants are public** — `AutoBench/AutoBench` on GitHub, `data/HDLBits/HDLBits_data_mutants.jsonl`, 1,525 mutants covering all 156 problems (20/20 of our benchmark subset). Their Eval2 is *agreement with the golden TB at ≥80%*, not raw detection; under their rule our benchmark runs give 10%.
+- **AutoBench's Eval1 figures** (from paper Table 1, never previously cited here): **51.47% total, 64.81% CMB, 37.07% SEQ**; Eval0 95.71%; Eval2 44.81%.
+- ⚠️ **The 20-problem benchmark subset is the hardest quintile** (complexity 26.4–41.9 vs median 18.7; 75% sequential vs the benchmark's 48%) **and was run with the cheap model**. No relative standing vs AutoBench is established. Weighting their numbers to a 75%-SEQ mix gives ~44%, not 51.47%.
+- **Variance floor is sample-size dependent.** 33 points is at n=12/arm (expected spread of 3 identical arms there is ~24, so 33 is a high-but-ordinary draw). At n=44 it is ~12 expected, and the *measured* null gap between `baseline` and `pyverilog_only` (identical logic) is **6.8 points**. Judge the 11.4-point gap against 6.8, not 33.
 
 
 - **RQ1.** What categories of functional errors appear most frequently in LLM-generated Verilog **testbenches**, and which of these are detectable without full simulation?
@@ -311,6 +320,8 @@ All 9 references verified correct as of session creation.
 
 - ✅ **Scope pivot confirmed** — supervisor email 2026-05-26 confirmed testbench gen + Pyverilog localisation.
 - ⚠️ **Dataset re-scoped (2026-08-24)** — the VerilogEval 156 run is **not funded** and will not be done. Evaluation uses a 12-circuit set (6 easy existing + 6 purpose-built hard) × 5 modes × 2 repeats at temp 0.7. Note the absence of a public-benchmark head-to-head as a limitation in the report.
+  - **Reopened 2026-08-29.** Measured per-run cost from telemetry is far below the earlier estimate: `baseline` \$0.074, `retry_only` \$0.108, `hybrid` \$0.103 per run at the strong tier. Full 156 × 3 modes ≈ \$44 / 19.5 h; **random 60 × 3 modes ≈ \$17 / 7.5 h**. A strong-model sweep on the existing hard-20 (`results/verilogeval_strong`, baseline + hybrid) was run this date.
+  - ⚠️ **Design constraint for any further benchmark run: it MUST include `retry_only`.** A baseline-vs-hybrid comparison without the control reproduces exactly the confound this project criticises AutoBench for (Contribution #4, report §2.6). Prefer a *random* sample with 3 arms over the full 156 with 2 arms — the current 20 are the hardest quintile and are not representative.
 - **Pyverilog robustness on LLM-generated code** — *quantified* (2026-07-15): Pyverilog parses **7/8** LLM testbenches after fixing a concat/newline bug; Verible fallback (now installed) covers the rest. Failure was structural (parse), not semantic.
 - ✅ **SEQ standardisation** — done deterministically in Python (`fdisplay_inserter.py`), no LLM.
 - **Overfitting / generalisation** — the SEQ prompt was tuned on the 8 local fixtures. Without the 156 held-out run this cannot be fully resolved; mitigate by freezing prompts before the sweep and by adding 6 circuits the prompt was never tuned on.
