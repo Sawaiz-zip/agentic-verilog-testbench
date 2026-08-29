@@ -149,14 +149,19 @@ it would not survive the first question about how the circuits were chosen.
 
 ## 6.4 The main result
 
-**Static analysis fired twice in 314 analyses.**
+**Static analysis fired twice in the 190 analyses where its checks could actually run.**
 
-| Sweep | Analyses | Runs with a finding |
-|---|---|---|
-| Sonnet, our circuits | 82 | **0 / 60** |
-| mini, our circuits | 79 | **1 / 60** |
-| mini, VerilogEval | 153 | **1 / 100** |
-| **Total** | **314** | **2 / 220** |
+| Sweep | Analyses | Checks actually ran | Runs with a finding |
+|---|---|---|---|
+| Sonnet, our circuits | 82 | 75 | **0 / 60** |
+| mini, our circuits | 79 | 51 | **1 / 60** |
+| mini, VerilogEval | 153 | 64 | **1 / 100** |
+| **Total** | **314** | **190** | **2 / 220** |
+
+**Why two denominators?** Pyverilog could not parse 124 of the 314 files. In those we fell
+back to Verible, which only checks syntax — so no structural check ran, even though the record
+says the analysis succeeded (see doc 03). **Quote 2-in-190, not 2-in-314.** The unqualified
+figure understates the rate by a factor of 1.65 and an examiner who checks will find it.
 
 `pyverilog_only` — the configuration whose entire purpose is to act on static findings —
 performed **zero repairs across 44 runs**. It never had anything to act on.
@@ -234,11 +239,20 @@ They scored:
 
 **Same program. 33 points apart. Twice, independently, on different models.**
 
-That is pure randomness from temperature 0.7. And the difference we were trying to measure was
-17 points — **half the noise**.
+That is pure randomness from temperature 0.7. The difference we were trying to measure was
+11.4 points — **about a third of the noise**.
 
-**Why this is genuinely valuable:** it says that at this sample size, any difference under
-roughly 33 points carries no information. AutoBench's headline ablation gains are **8% and
+**One caution, because an examiner may push on it.** That 33-point figure is measured at
+*twelve circuits per arm*. It does not transfer unchanged to the pooled comparison, which has
+forty-four. At twelve circuits and a pass rate near 0.4 the expected spread across three
+identical arms is about 24 points, so 33 is a high but ordinary draw. At forty-four it is
+about 12 points. We also have a direct measurement at the larger size: `baseline` and
+`pyverilog_only` run identical code and differ by **6.8 points** over all 44 runs. That 6.8 is
+the right number to judge the 11.4-point gap against — so the gap is roughly 1.7x the noise,
+not half of it, and still not significant.
+
+**Why this is genuinely valuable:** it says that at these sample sizes, small differences
+carry no information. AutoBench's headline ablation gains are **8% and
 10%**, reported from single runs without error bars. At the variance we measured, those numbers
 could not support the conclusions drawn from them.
 

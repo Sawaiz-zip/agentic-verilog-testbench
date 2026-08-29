@@ -250,14 +250,34 @@ failed to build.
 
 ### The honest problem with our Eval2
 
-Our testbenches caught **189 of 190 mutants — 99.5%**.
+Our testbenches caught **324 of 335 mutants — 97%**.
 
-That is a *ceiling*. It does not mean our testbenches are excellent; it means **our mutants
-are too easy**. AutoBench's Eval2 was 44.8%, which suggests much harder mutants.
+That is a *ceiling*. When nearly everything scores full marks, the test is too easy to tell a
+good testbench from a mediocre one — and it cannot separate our five configurations either.
 
-**This is why we report Eval2 as a limitation, not a result**, and why comparing our 82% to
-their 44.8% would be misleading. If your professor asks "your Eval2 looks better than
-AutoBench's" — that is the answer.
+**Careful here, because the obvious explanation is wrong.** It would be natural to say "our
+mutants were too easy." We tested that, and it is not the cause:
+
+| what we changed | result |
+|---|---|
+| our circuits, our original mutants | 96.7% |
+| our circuits, **better** mutants (strong model, AutoBench's prompt, fakes filtered out) | **97.4%** |
+| **different circuits** (the benchmark), AutoBench's own published mutants | **53.8%** |
+
+Improving the mutants moved the score by **one point**. Changing the circuits moved it by
+**forty-four**.
+
+So the real cause is **our circuits are too small**. Our `dff` fixture has *one input bit* —
+there is nowhere for a bug to hide, so any testbench that does anything at all finds every
+non-equivalent mutant. Eval2 needs circuits with enough internal state for a defect to escape
+a limited set of test inputs.
+
+**This is why we report Eval2 as a limitation, not a result.** But we can now say something
+stronger than "it's a limitation": we can say *we checked why*, and it was a flaw in our
+choice of fixtures, not in the measuring instrument.
+
+> If your professor asks *"your Eval2 looks better than AutoBench's"* — see doc 07 §7.3 for
+> the full answer.
 
 ---
 

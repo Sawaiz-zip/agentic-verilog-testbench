@@ -30,7 +30,8 @@ This document gives you both halves.
 | Control arm in ablation? | **no** | **yes** (`retry_only`) |
 | Error bars? | **no** | Wilson intervals + Fisher tests |
 | Eval0 | 95.7% (SEQ 97.3%) | 95–100% |
-| Eval2 | 44.8% | 82% — **not comparable** |
+| Eval1 | 51.47% (SEQ 37.07%) | 30% overall, 10% on their benchmark |
+| Eval2 | 44.81% | 97% raw — **not comparable**; 10% under their rule |
 
 ---
 
@@ -39,22 +40,42 @@ This document gives you both halves.
 **Our number looks better and means nothing.** You must be able to explain this, because it
 looks like our strongest result and it is actually our weakest measurement.
 
-Our testbenches caught **189 of 190 mutants — 99.5%**.
+Our testbenches caught **324 of 335 mutants — 97%**. AutoBench reports 44.81%.
 
-That is a **ceiling**. When almost everything scores full marks, the test is too easy. It does
-not distinguish a good testbench from a mediocre one, and it cannot distinguish our five
-configurations from each other either.
+That 97% is a **ceiling**. When almost everything scores full marks the test is too easy: it
+cannot separate a good testbench from a mediocre one, nor our five configurations from each
+other.
 
-AutoBench's 44.8% suggests **much harder mutants**. Their bar is also different — they require
-catching ≥80% of mutants to count as a pass, whereas we report the raw fraction.
+### We tested the obvious explanation, and it was wrong
 
-**So:** our 82% vs their 44.8% is comparing two different instruments, and ours is the blunter
-one. We report Eval2 **as a limitation**, in the threats-to-validity section, not as a result.
+The natural answer is "our mutants were too easy." We checked it properly rather than
+assuming, and it is not the cause:
 
-> If asked *"your Eval2 beat theirs"* — say: "That comparison doesn't hold. Our mutants were
-> too easy; we caught 99.5% of them, which is a ceiling effect. It tells you about our mutant
-> generator, not about our testbenches. Fixing it with deterministic mutation operators is in
-> our future work."
+| what changed | caught |
+|---|---|
+| our circuits, original mutants | 96.7% |
+| our circuits, **better** mutants (strong model, AutoBench's own prompt, equivalent ones filtered) | **97.4%** |
+| **the benchmark circuits**, AutoBench's own published mutants | **53.8%** |
+
+Better mutants moved it **one point**. Different circuits moved it **forty-four**.
+
+**The cause is that our fixture circuits are too small.** A `dff` has one input bit — a bug has
+nowhere to hide. On real benchmark circuits the *same testbenches* catch only 53.8%.
+
+### Two other reasons the raw comparison is void
+
+- **Different measurement.** Theirs is not a detection rate. A problem passes their Eval2 when
+  the testbench's verdicts *agree with the golden testbench* on ≥80% of mutants, counted over
+  all 156 problems. Ours is a raw fraction of mutants detected.
+- **Applying their rule to us** gives 2 of 20 circuits clearing 80% — **10%**, not 97%.
+
+> **If asked "your Eval2 beat theirs"** — say: "It doesn't, and the comparison is void twice
+> over. First, they measure agreement with a golden testbench at an 80% threshold across all
+> 156 problems; we measure raw detection. Applying *their* rule to our runs gives 10%, not
+> 97%. Second, our 97% is a ceiling caused by our fixture circuits being too small — we tested
+> that by regenerating the mutants with a stronger model and their own prompt, and the score
+> moved by one point. On real benchmark circuits with their published mutants, the same
+> testbenches score 53.8%. So our Eval2 measures our choice of circuits, not our testbenches."
 
 ---
 
@@ -93,7 +114,9 @@ could just mean "our tool is broken."
 
 ### 3. A variance floor
 
-Three of our configurations executed identical code and scored **33 points apart**. Twice.
+Three of our configurations executed identical code and scored **33 points apart** — twice,
+at twelve circuits per arm. Over the pooled forty-four runs, two identical arms differ by
+**6.8 points**. Quote whichever matches the sample size being discussed.
 
 This bears directly on their reporting: single-run pass@1 comparisons with 8–10% claimed gains,
 no error bars, at a variance that would swamp them.
@@ -119,8 +142,9 @@ percentage points, from a deterministic script.
 That is **the same category of technique as our contribution**: a mechanical, pre-simulation
 fix for a structural defect.
 
-Our equivalent check, `missing_fdisplay`, fired **zero times in 314 analyses**. Our
-deterministic standardiser found essentially nothing to standardise.
+Our equivalent check, `missing_fdisplay`, fired **zero times in 190 analyses**. Our
+deterministic standardiser had something to insert in **3 of 220 runs** — and in the other 137
+sequential runs it was handed a testbench that already observed every output.
 
 **The technique did not stop working. The defect it corrects stopped occurring.**
 
@@ -149,21 +173,24 @@ Be straightforward about this — it makes the rest more credible.
 - **Peer review.** Published at MLCAD 2024.
 - **A working end-to-end improvement.** They demonstrably improved testbench quality. Our
   headline result is a null.
-- **Better mutants.** Their Eval2 at 44.8% is a discriminating measurement. Ours is not.
+- **Better-chosen circuits for Eval2.** Their Eval2 at 44.81% discriminates between systems.
+  Ours cannot, because our fixtures are too small — which is a flaw in our experimental
+  design, not in our mutants.
 
 ---
 
 ## 7.8 The paragraph to memorise
 
 > We build directly on AutoBench and do not claim to outperform it — different model,
-> different circuit sample, and an Eval2 that is not comparable because ours sits at a 99.5%
-> ceiling. What we add is methodological. Their ablation has no control for the extra
+> different circuit sample, and an Eval2 that is not comparable because ours sits at a 97%
+> ceiling caused by our fixture circuits being too small. What we add is methodological. Their ablation has no control for the extra
 > generation attempts each mechanism triggers, so their reported gains cannot separate the
 > value of a diagnosis from the value of a retry. We added that control and found that no
 > configuration in our study beats it at conventional significance. We also measured our
 > localiser directly by fault injection rather than asserting that it works, and we measured
-> the variance floor at 33 points, which is larger than the gains prior work reports without
-> error bars. And we found that the mechanism responsible for their single largest improvement
+> the variance floor — 33 points between identical configurations at twelve circuits per arm,
+> and 6.8 points over the pooled forty-four — which is larger than the gains prior work reports
+> without error bars. And we found that the mechanism responsible for their single largest improvement
 > — a script inserting missing print statements — no longer fires at all against current
 > models. The technique did not stop working; the defect it corrects stopped occurring.
 

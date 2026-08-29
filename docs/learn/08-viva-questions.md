@@ -118,16 +118,53 @@ itself one of our findings.
 
 > No, and we say so in the report. Hybrid scores highest at 40.9% against 29.5% for the
 > control, but the p-value is 0.372 — nowhere near significance. The reason is our measured
-> variance: configurations running identical code differ by 33 points, which is double the gap
-> we are trying to detect. Resolving it needs more circuits or more repeats, and we costed
+> variance: configurations running identical code differ by 33 points at twelve circuits per
+> arm, and by 6.8 points over the pooled forty-four. Against that 6.8, our 11.4-point gap is
+> only about 1.7x the noise. Resolving it needs more circuits or more repeats, and we costed
 > both in the future work section.
 
-**Q: Your Eval2 is 82% and AutoBench got 44.8%. You beat them.**
+**Q: Your Eval2 is 97% and AutoBench got 44.81%. You beat them.**
 
-> That comparison doesn't hold, and I would not make it. Our testbenches caught 189 of 190
-> mutants — 99.5%, a ceiling. That means our mutants were too easy, not that our testbenches
-> are better. It tells you about our mutant generator. We report Eval2 as a limitation, and
-> harder deterministic mutants are in future work.
+> That comparison doesn't hold, and I would not make it. It fails for two separate reasons.
+>
+> First, we are not measuring the same thing. Their Eval2 counts a problem as a pass when the
+> testbench's verdicts agree with the golden testbench on at least 80% of mutants, across all
+> 156 problems. Ours is a raw detection rate. Applying their rule to our runs gives 10%, not
+> 97%.
+>
+> Second, our 97% is a ceiling, and we established why rather than assuming. The obvious
+> explanation is that our mutants were too easy, so we regenerated them with a stronger model
+> using AutoBench's own prompt and filtered out the equivalent ones — the score moved from
+> 96.7% to 97.4%. One point. Then we scored the same testbenches against AutoBench's published
+> mutants on the benchmark circuits and got 53.8%. So it isn't the mutants; it's that our
+> fixture circuits are too small for a bug to hide in. Our `dff` has one input bit.
+>
+> That's a flaw in our experimental design, which we report in threats to validity, and using
+> larger circuits for Eval2 is in future work.
+
+**Q: So how good are your testbenches, really?**
+
+> On realistic circuits, they detect a bit over half of planted bugs — 43 of 80 of AutoBench's
+> published mutants. And that is only counting the testbenches that work at all: 67 of our 220
+> runs passed Eval1, about 30%, and only 10% on the benchmark circuits. So the honest summary
+> is that the pipeline produces a usable testbench roughly a third of the time, and those
+> testbenches catch about half of subtle bugs. The 97% figure measures our fixtures, not our
+> testbenches.
+
+**Q: Your repair loop — does it actually work?**
+
+> Rarely, and we can say exactly how rarely. 23 runs performed a repair informed by a
+> diagnosis; 3 of them went on to pass. That is 13%. It also decomposes our headline: hybrid's
+> 18 passes are 15 that passed first time — against baseline's 12 from an identical process,
+> so that difference is noise — plus 3 genuinely rescued by repair. The repair mechanism is
+> worth about 6.8 points, not the 13.6-point raw gap.
+>
+> We also characterised *why* it fails, which prior work doesn't report. Of the 20 failures,
+> 7 regenerated a testbench that failed the identical scenario set — the model didn't act on
+> the diagnosis. The other 13 exhausted the iteration budget with a *different* error
+> signature every time: each repair fixes the scenario we complained about and breaks another.
+> Across 14 multi-iteration runs, not one signature ever repeated. And ten of seventeen ended
+> just one or two scenarios short of passing.
 
 **Q: Did you beat AutoBench?**
 
@@ -222,7 +259,7 @@ run."** That is a perfectly good answer in research, and far better than guessin
 > We built a six-check static analyser, proved it works by injecting 215 known faults — 93%
 > detection, no false alarms, and it catches 30 faults that neither the compiler nor the
 > simulator can see. Then we ran it on 220 real generations across two models and two circuit
-> sets. It found two problems in 314 analyses. The reason is that 87% of real failures are
+> sets. It found two problems in the 190 analyses where the parser could read the file. The reason is that 87% of real failures are
 > semantic — the testbench is well-formed and expects the wrong values, which is not visible in
 > the text. We ruled out the obvious explanations: a weaker model is worse at the task but just
 > as structurally tidy, and benchmark circuits chosen for maximum complexity changed nothing.
