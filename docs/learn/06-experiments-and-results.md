@@ -149,14 +149,39 @@ it would not survive the first question about how the circuits were chosen.
 
 ## 6.4 The main result
 
-**Static analysis fired twice in the 190 analyses where its checks could actually run.**
+**Static analysis fired on three runs in the 237 analyses where its checks could actually run.**
 
 | Sweep | Analyses | Checks actually ran | Runs with a finding |
 |---|---|---|---|
 | Sonnet, our circuits | 82 | 75 | **0 / 60** |
 | mini, our circuits | 79 | 51 | **1 / 60** |
 | mini, VerilogEval | 153 | 64 | **1 / 100** |
-| **Total** | **314** | **190** | **2 / 220** |
+| **Sonnet, VerilogEval** | 77 | 47 | **1 / 40** |
+| **Total** | **394** | **237** | **3 / 260** |
+
+### The fourth sweep — the strong model on the benchmark circuits
+
+Added 2026-08-29 to close the one empty cell in the design: the strong model had only ever run
+on our own fixtures, never on the benchmark. Same pipeline, same frozen prompts, same 20
+circuits — **only the model changed**.
+
+| | gpt-4o-mini | **Sonnet 4.5** |
+|---|---|---|
+| baseline Eval1 | 10% | **25%** |
+| hybrid Eval1 | 10% | **50%** |
+| runs with a static finding | 1 / 100 | 1 / 40 |
+
+**Eval1 moved 25 points. The structural yield did not move.** That is the cleanest single
+statement of this project's central finding: model capability controls whether a testbench is
+*right*, not whether it is *well-formed*.
+
+Two more things from this sweep:
+
+- **A static finding triggered a repair — the only time in 260 runs.** On the 12-port one-hot
+  FSM, the localiser correctly reported `clk` and `reset` unconnected, hybrid repaired on that
+  basis, and two iterations later they were *still* unconnected. Exercised once; did not work.
+- **A live lesson in variance.** At 9 of 20 circuits, hybrid stood at 89%. It finished at 50%.
+  Nothing changed but the sample size. If asked why you insist on error bars, tell this story.
 
 **Why two denominators?** Pyverilog could not parse 124 of the 314 files. In those we fell
 back to Verible, which only checks syntax — so no structural check ran, even though the record

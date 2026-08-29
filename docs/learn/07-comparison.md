@@ -9,11 +9,14 @@ This document gives you both halves.
 
 ## 7.1 The short answer
 
-> We did not outperform AutoBench, and the comparison is not clean enough to try. Different
-> model, different circuit sample, and our Eval2 is measuring something theirs is not. What we
-> contribute is methodological rigour their evaluation lacks — a control arm, a measured
-> localiser, and a variance floor — plus a finding about their own approach: the mechanism
-> that gave them their largest gain no longer fires against current models.
+> We are in the same range as AutoBench and do not claim to beat them. On the hardest 20
+> problems of their own benchmark, with a newer model, we reach 50% Eval1 against their 37%
+> sequential figure, and 20% Eval2 against their 26%. But our model is two years newer, our
+> sample is 20 circuits with a confidence interval from 30% to 70%, and they have retry
+> mechanisms we don't — so no ranking is established. What we contribute is methodological
+> rigour their evaluation lacks — a control arm, a measured localiser, and a variance floor —
+> plus a finding about their own approach: the mechanism that gave them their largest gain no
+> longer fires against current models.
 
 ---
 
@@ -30,8 +33,8 @@ This document gives you both halves.
 | Control arm in ablation? | **no** | **yes** (`retry_only`) |
 | Error bars? | **no** | Wilson intervals + Fisher tests |
 | Eval0 | 95.7% (SEQ 97.3%) | 95–100% |
-| Eval1 | 51.47% (SEQ 37.07%) | 30% overall, 10% on their benchmark |
-| Eval2 | 44.81% | 97% raw — **not comparable**; 10% under their rule |
+| Eval1 | 51.47% (SEQ 37.07%) | **50%** on their benchmark's hardest 20 (strong model) |
+| Eval2 | 44.81% (SEQ 26.00%) | **20%** under their rule; 66.7% raw detection |
 
 ---
 
@@ -142,7 +145,7 @@ percentage points, from a deterministic script.
 That is **the same category of technique as our contribution**: a mechanical, pre-simulation
 fix for a structural defect.
 
-Our equivalent check, `missing_fdisplay`, fired **zero times in 190 analyses**. Our
+Our equivalent check, `missing_fdisplay`, fired **zero times in 237 analyses**. Our
 deterministic standardiser had something to insert in **3 of 220 runs** — and in the other 137
 sequential runs it was handed a testbench that already observed every output.
 
