@@ -1,0 +1,74 @@
+[
+ {
+  "task": "Prob081_7458",
+  "mode": "hybrid",
+  "ab_caught": 2,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob065_7420",
+  "mode": "retry_only",
+  "ab_caught": 5,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob065_7420",
+  "mode": "hybrid",
+  "ab_caught": 6,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob081_7458",
+  "mode": "pyverilog_only",
+  "ab_caught": 3,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob087_gates",
+  "mode": "baseline",
+  "ab_caught": 9,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob065_7420",
+  "mode": "compiler_only",
+  "ab_caught": 6,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob081_7458",
+  "mode": "retry_only",
+  "ab_caught": 2,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 5,
+  "ours_valid": 5
+ },
+ {
+  "task": "Prob127_lemmings1",
+  "mode": "baseline",
+  "ab_caught": 10,
+  "ab_valid": 10,
+  "ab_total": 10,
+  "ours_caught": 4,
+  "ours_valid": 5
+ }
+]
