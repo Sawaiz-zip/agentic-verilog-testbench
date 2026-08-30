@@ -114,8 +114,8 @@ together. The localiser is measured by fault injection rather than by end-to-end
 localises 93\% to the correct fault class and signal, raises no false alarms on correct
 input, and catches 30 of the 33 faults that neither the compiler nor the simulator detects.
 
-Applied to 260 pipeline runs across two models and two circuit sets, the same localiser
-reported findings on three runs in the 237 analyses in which its checks could run, and
+Applied to 280 pipeline runs across two models and two circuit sets, the same localiser
+reported findings on three runs in the 262 analyses in which its checks could run, and
 triggered exactly one repair in the whole study, which did not fix the defect it named. Of
 153 failing runs in the ablation, 133 compiled and then failed simulation.
 Three alternative explanations were tested and rejected: a weaker model fails far more often
@@ -126,7 +126,9 @@ measurement.
 
 The faults static analysis detects have largely stopped occurring in current model output.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
-arm shows that no configuration in this study beats uninformed regeneration at $p<0.05$, and
+arm shows that uninformed regeneration is itself worth nothing ($p=1.000$ in both samples),
+leaving informed repair ahead on 11 of 13 discordant circuits across 64 matched pairs at an
+uncorrected $p=0.023$; and
 configurations executing identical logic differ by 33 percentage points at twelve circuits
 per arm and by 6.8 over the pooled 44, which bounds what a comparison at these sample sizes
 can establish.
@@ -207,8 +209,8 @@ known to pass, it detects 93\%, names the correct fault class and the correct si
 of cases, and produces no findings at all on unmutated input. Thirty-three of those faults
 are invisible to the compiler and the simulator together; the localiser catches 30 of them.
 
-The localiser has almost nothing to find. Across 260 pipeline runs on two models and two
-circuit sets, it reported findings on three runs in the 237 analyses in which Pyverilog could
+The localiser has almost nothing to find. Across 280 pipeline runs on two models and two
+circuit sets, it reported findings on three runs in the 262 analyses in which Pyverilog could
 build a syntax tree, and triggered one repair in the whole study, which did not fix the
 defect it named. The configuration whose sole purpose is to act on static findings performed
 zero repairs in 44 runs. Meanwhile 133 runs produced a testbench that compiled and then
@@ -218,8 +220,8 @@ Both follow from one fact: language models produce testbenches that are structur
 formed and semantically wrong. They connect the ports and check the outputs. They misjudge
 what the outputs should be.
 
-Three alternative explanations were tested and rejected. A weaker model performs far worse
-at the task and no worse structurally. Twenty circuits from the standard benchmark, selected
+Three alternative explanations were tested and rejected. A weaker model performs far worse at
+the task and no worse structurally, and so does a stronger one run on the harder circuits. Twenty circuits from the standard benchmark, selected
 for structural complexity before any run, produced one finding in 64 parsed analyses. The
 localiser's correctness was established by measurement rather than assumed.
 
@@ -228,7 +230,7 @@ localiser's correctness was established by measurement rather than assumed.
 \begin{enumerate}
 \setlength{\itemsep}{1pt}
 \item A graph-based testbench generation pipeline with explicit routing, a bounded repair
-loop, deterministic standardisation and per-call telemetry, which completed 260 evaluation
+loop, deterministic standardisation and per-call telemetry, which completed 280 evaluation
 runs without a harness failure.
 \item A pre-simulation static localiser for testbench--design interaction faults, together
 with the fault-injection method used to measure it. The measurement is the contribution; the
@@ -236,8 +238,9 @@ analyser without it would be an assertion.
 \item An empirical characterisation of where LLM-generated testbenches fail, showing the
 structural classes that prior work corrects to be largely absent from current model output.
 \item A no-diagnostics control arm for ablations of this kind, which separates the value of
-a diagnosis from the value of a second attempt. Applying it shows that no configuration in
-this study beats the control at $p<0.05$.
+a diagnosis from the value of a second attempt. Applying it shows the second attempt to be
+worth nothing on its own in both samples, and leaves informed repair ahead by a margin that is
+suggestive but uncorrected.
 \item A measurement of the variance floor in LLM testbench generation: 33 percentage points
 between configurations executing identical logic at twelve circuits per arm, reproduced
 independently on two models, and 6.8 points over the pooled 44.
@@ -447,7 +450,7 @@ does not say which defect caused a failure.
 
 This work builds the analyser that would detect them, measures what it can detect by
 injecting faults of known identity, and then measures how often it detects anything at all
-across 260 pipeline runs on two models and two circuit sets. The contribution is the pair of
+across 280 pipeline runs on two models and two circuit sets. The contribution is the pair of
 measurements rather than the analyser: the second is only interpretable given the first.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -817,13 +820,13 @@ exists partly because nothing in the ordinary test suite had revealed any of thi
 \section{Parse Robustness on Generated Code}\label{sec:loc-parse}
 
 Pyverilog is documented as a research tool and was not written for machine-generated input,
-and this turned out to be the binding constraint on the whole layer. Across the 394 analyses
-of Chapter~\ref{ch:results}, Pyverilog built an abstract syntax tree for 237. In 153 it
+and this turned out to be the binding constraint on the whole layer. Across the 434 analyses
+of Chapter~\ref{ch:results}, Pyverilog built an abstract syntax tree for 262. In 168 it
 failed and the pipeline fell back to Verible; in 4 both failed.
 
 The distinction matters more than a parse-success rate suggests, because the fallback is not
 an equivalent analysis. Verible is invoked for a syntax verdict only: it returns a report
-that is well-formed and empty, and none of the six checks run. Those 153 analyses are
+that is well-formed and empty, and none of the six checks run. Those 168 analyses are
 recorded as \texttt{parse\_ok} and contribute nothing to the question RQ2 asks.
 
 \begin{table}[H]
@@ -836,12 +839,12 @@ recorded as \texttt{parse\_ok} and contribute nothing to the question RQ2 asks.
 \texttt{final\_hard\_r1}     & 82  & 75 & 6  & 1 \\
 \texttt{weak\_model\_r1}     & 79  & 51 & 25 & 3 \\
 \texttt{verilogeval\_weak}   & 153 & 64 & 89 & 0 \\
-\texttt{verilogeval\_strong} & 77  & 47 & 30 & 0 \\
+\texttt{verilogeval\_strong} & 120 & 72 & 48 & 0 \\
 \midrule
-\textbf{Total}               & \textbf{394} & \textbf{237} & \textbf{153} & \textbf{4} \\
+\textbf{Total}               & \textbf{434} & \textbf{262} & \textbf{168} & \textbf{4} \\
 \bottomrule
 \end{tabular}
-\caption{Which parser produced each analysis. Only the 237 Pyverilog analyses ran the six
+\caption{Which parser produced each analysis. Only the 262 Pyverilog analyses ran the six
 structural checks; the Verible fallback yields a syntax verdict and an empty report.}
 \label{tab:parsers}
 \end{table}
@@ -849,7 +852,7 @@ structural checks; the Verible fallback yields a syntax verdict and an empty rep
 The rate is worst exactly where the localiser was given its best chance. The benchmark sweep
 was selected for structural complexity, and Pyverilog parsed 64 of its 153 analyses; at run
 level, 43 of its 100 runs received at least one structural analysis. Across all four sweeps
-167 of 260 runs did. The failures are genuine language coverage gaps rather than one
+180 of 280 runs did. The failures are genuine language coverage gaps rather than one
 repairable bug --- \texttt{logic} declarations, tasks with argument lists, and other
 SystemVerilog constructs that Pyverilog's Verilog-2001 grammar rejects --- and they fall
 hardest on the sequential, port-dense circuits that the complexity criterion selected for.
@@ -863,7 +866,7 @@ The static-analysis arm of the ablation was silently identical to the baseline f
 round of experiments before this was found. The fallback reintroduces the same ambiguity in
 a legitimate form: a clean report and an unanalysed file are the same object, and only the
 recorded parser name separates them. Section~\ref{sec:res-rq2b} therefore reports the yield
-against 190 rather than 314.
+against the analyses that were actually parsed rather than against every analysis attempted.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Validating the Localiser}\label{ch:validation}
@@ -1065,12 +1068,13 @@ against real circuits and counting.
 \texttt{weak\_model\_r1}     & \texttt{gpt-4o-mini}       & the same 12         & all 5 & 60 \\
 \texttt{verilogeval\_weak}   & \texttt{gpt-4o-mini}       & 20 VerilogEval problems & all 5 & 100 \\
 \midrule
-\texttt{verilogeval\_strong} & \texttt{claude-sonnet-4.5} & the same 20 & 2 & 40 \\
+\texttt{verilogeval\_strong} & \texttt{claude-sonnet-4.5} & the same 20 & 3 & 60 \\
 \bottomrule
 \end{tabular}
-\caption{The four sweeps, 260 runs. The first three form the ablation study and are pooled in
-Section~\ref{sec:res-rq3}; the fourth is a two-arm confirmation sweep reported separately in
-Section~\ref{sec:res-strong} and is not pooled with them.}
+\caption{The four sweeps, 280 runs. The first three form the five-arm ablation study and are
+pooled in Section~\ref{sec:res-rq3}; the fourth carries \texttt{baseline},
+\texttt{retry\_only} and \texttt{hybrid} and is reported separately in
+Section~\ref{sec:res-strong}.}
 \label{tab:sweeps}
 \end{table}
 
@@ -1083,13 +1087,13 @@ to be excluded.
 
 The fourth sweep fills the one cell of that grid the first three leave empty: the stronger
 model on the benchmark circuits. Its purpose is to check that the central null result is not
-an artefact of having run the harder circuits only with the weaker generator. It carries two
-arms rather than five because it was added late and under a fixed budget, and
-Section~\ref{sec:res-strong} states plainly what that costs: without \texttt{retry\_only} the
-sweep cannot attribute its own \texttt{hybrid}--\texttt{baseline} gap to the feedback, which
-is the same limitation this work identifies in AutoBench's ablation. It is reported as a
-check on the null result, which needs no control arm, and not as evidence that hybrid
-feedback works.
+an artefact of having run the harder circuits only with the weaker generator. It carries three arms rather than five because it was added late
+and under a fixed budget. \texttt{compiler\_only} and \texttt{pyverilog\_only} were the ones
+dropped; \texttt{retry\_only} was retained deliberately, because without the no-diagnostics
+control the sweep could not attribute its own \texttt{hybrid}--\texttt{baseline} gap to the
+feedback, and that is the exact limitation this work identifies in AutoBench's ablation
+(Section~\ref{sec:exp-control}). Reporting a two-arm comparison would have reproduced the
+methodological error the study exists to point out.
 
 Classification, scenario listing and mutant generation use \texttt{gpt-4o-mini} in all four
 sweeps. Sampling temperature is 0.7 throughout, which is the supervisor-agreed setting and
@@ -1216,7 +1220,7 @@ JSON records the pipeline writes, and can be regenerated from the repository.
 
 \section{Pipeline Reliability}\label{sec:res-reliability}
 
-The four sweeps completed 260 of 260 planned runs with no harness errors, no rate-limit
+The four sweeps completed 280 of 280 planned runs with no harness errors, no rate-limit
 aborts and no runs abandoned for want of credit. Reporting this first is not a formality.
 The measurements that follow are only interpretable if the machinery producing them ran to
 completion, and a sweep that silently drops a configuration would bias every rate in the
@@ -1323,9 +1327,9 @@ whether or not the configuration was permitted to act on the result.
 \texttt{final\_hard\_r1}     & \texttt{sonnet-4.5}  & 82  & 75  & \textbf{0 / 60} \\
 \texttt{weak\_model\_r1}     & \texttt{gpt-4o-mini} & 79  & 51  & \textbf{1 / 60} \\
 \texttt{verilogeval\_weak}   & \texttt{gpt-4o-mini} & 153 & 64  & \textbf{1 / 100} \\
-\texttt{verilogeval\_strong} & \texttt{sonnet-4.5}  & 77  & 47  & \textbf{1 / 40} \\
+\texttt{verilogeval\_strong} & \texttt{sonnet-4.5}  & 120 & 72  & \textbf{1 / 60} \\
 \midrule
-\textbf{Total}               &                      & \textbf{394} & \textbf{237} & \textbf{3 / 260} \\
+\textbf{Total}               &                      & \textbf{434} & \textbf{262} & \textbf{3 / 280} \\
 \bottomrule
 \end{tabular}
 \caption{Static findings on real generated testbenches. Analyses exceed runs because the
@@ -1335,14 +1339,14 @@ execute (Table~\ref{tab:parsers}).}
 \label{tab:yield}
 \end{table}
 
-Three runs with findings in the 237 analyses where the checks could fire. Every finding was
+Three runs with findings in the 262 analyses where the checks could fire. Every finding was
 \texttt{port\_binding\_mismatch}, every one came from a Pyverilog analysis rather than a
 fallback, and no other check fired at any point in any sweep. The unqualified figure ---
-three runs in 394 analyses --- understates the yield by a factor of 1.66 and is not the one to
+three runs in 434 analyses --- understates the yield by a factor of 1.66 and is not the one to
 quote.
 
 The corrected denominator weakens the evidence without changing its direction. A rate of three
-in 237 is still a rate at which the layer cannot be a primary defence, and the 157 unanalysed
+in 262 is still a rate at which the layer cannot be a primary defence, and the 172 unanalysed
 cases are not silently favourable to it: they are files the localiser could not read, so they
 support no conclusion either way. They do bound how strongly the null can be stated, and
 Section~\ref{sec:disc-threats} records that bound.
@@ -1390,8 +1394,9 @@ problems with \texttt{claude-sonnet-4.5}, in \texttt{baseline} and \texttt{hybri
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Mode} & \textbf{Eval0} & \textbf{Eval1} & \textbf{Eval0} & \textbf{Eval1} \\
 \midrule
-\texttt{baseline} & 95\% & 2/20 (10\%) & 19/20 (95\%)  & 5/20 (25\%) \\
-\texttt{hybrid}   & 95\% & 2/20 (10\%) & 20/20 (100\%) & \textbf{10/20 (50\%)} \\
+\texttt{baseline}    & 95\% & 2/20 (10\%) & 19/20 (95\%)  & 5/20 (25\%) \\
+\texttt{retry\_only} & 70\% & 2/20 (10\%) & 20/20 (100\%) & 6/20 (30\%) \\
+\texttt{hybrid}      & 95\% & 2/20 (10\%) & 20/20 (100\%) & \textbf{10/20 (50\%)} \\
 \bottomrule
 \end{tabular}
 \caption{The same 20 benchmark problems under both generation models. Eval1 rises
@@ -1399,12 +1404,24 @@ substantially with model capability; the structural picture below does not.}
 \label{tab:strong}
 \end{table}
 
-\paragraph{Eval1 rises and remains statistically unresolved.} \texttt{hybrid} doubles
-\texttt{baseline}, 10 of 20 against 5 of 20, with six circuits passing under \texttt{hybrid}
-alone and one under \texttt{baseline} alone. The paired test gives $p=0.125$ and Fisher
-$p=0.191$. At twenty circuits a doubling is still not separable from sampling variation, which
-is the same conclusion Section~\ref{sec:res-rq3} reaches on the pooled data and for the same
-reason.
+\paragraph{The control shows the extra attempt is worth almost nothing.} This is the result
+the arm was included for. \texttt{retry\_only} draws a second sample and is told nothing about
+what was wrong; it reaches 6 of 20 against \texttt{baseline}'s 5, a difference of one circuit
+gained and one lost against two, and an exact McNemar $p=1.000$. The same comparison in the
+ablation gives $p=1.000$ as well. On these circuits, resampling by itself does not help.
+
+That matters for how the rest of the table reads. \texttt{retry\_only} and \texttt{hybrid}
+both receive the additional generation; the only thing separating them is the diagnosis. The
+twenty-point gap between them therefore sits on the feedback rather than on the retry, which
+is precisely the attribution the control was added to make possible.
+
+\paragraph{The gap remains statistically unresolved.} \texttt{hybrid} doubles
+\texttt{baseline}, 10 of 20 against 5, and leads the control by 20 points, 10 against 6, with
+five circuits passing under \texttt{hybrid} alone and one under \texttt{retry\_only} alone.
+The paired tests give $p=0.219$ against the control and $p=0.125$ against baseline; Fisher
+gives $0.333$ and $0.191$. At twenty circuits a doubling is still not separable from sampling
+variation, which is the conclusion Section~\ref{sec:res-rq3} reaches on the ablation and for
+the same reason. Section~\ref{sec:res-strata} takes up what the two samples say together.
 
 The interim state of this sweep is itself worth recording. At nine completed circuits per arm
 \texttt{hybrid} stood at 8 of 9, 89\%. The final figure is 50\%. Nothing changed but the
@@ -1412,15 +1429,15 @@ sample size, and Section~\ref{sec:res-variance} predicts exactly this: at $n=9$ 
 0.5$ one standard deviation is 17 points. An early reading of a sweep in progress is not a
 result, and this one would have supported a conclusion the completed sweep does not.
 
-\paragraph{The structural null result survives the stronger model.} Across 77 analyses the
+\paragraph{The structural null result survives the stronger model.} Across 120 analyses the
 localiser reported findings in one run. Both records come from the same
 \texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot} run, at repair iterations 1
 and 3, and both are \texttt{port\_binding\_mismatch}. Every other check remained silent, as in
 all three earlier sweeps. Capability raised Eval1 by 25 points and left the structural yield
 where it was.
 
-Parse coverage improved with the model: Pyverilog built a syntax tree for 47 of 77 analyses,
-61\%, against 42\% on the same circuits with the weaker model. The stronger generator writes
+Parse coverage improved with the model: Pyverilog built a syntax tree for 72 of 120 analyses,
+60\%, against 42\% on the same circuits with the weaker model. The stronger generator writes
 more Verilog-2001 and less of the SystemVerilog that Pyverilog rejects
 (Section~\ref{sec:loc-parse}). The coverage limitation is therefore partly a function of the
 generator, not only of the parser --- and even at 61\% it remains the largest constraint on
@@ -1443,7 +1460,7 @@ in the study of the mechanism the project was built to test operating end to end
 \bottomrule
 \end{tabular}
 \caption{\texttt{Prob150\_review2015\_fsmonehot} under \texttt{hybrid}. The static finding at
-iteration 1 triggered the repair at iteration 2 --- the only static-triggered repair in 260
+iteration 1 triggered the repair at iteration 2 --- the only static-triggered repair in 280
 runs. The defect was still present at iteration 3 and the run terminated
 \texttt{exhausted\_iters} without passing.}
 \label{tab:static-repair}
@@ -1456,13 +1473,13 @@ because Section~\ref{sec:concl-rq} would otherwise have to say the static-repair
 never exercised at all, and it now has been: once, unsuccessfully, and in the manner
 Section~\ref{sec:res-repair-fail} describes as the diagnosis not being acted on.
 
-\paragraph{What this sweep cannot show.} It has no \texttt{retry\_only} arm, so the
-\texttt{hybrid}--\texttt{baseline} gap cannot be attributed to the feedback rather than to the
-additional generation attempt. That is precisely the confound
-Section~\ref{sec:exp-control} identifies in prior work, and it applies here with equal force.
-What the run-level records do show is that 14 of the \texttt{hybrid} runs performed a
-diagnosed repair and 5 of those passed, which Section~\ref{sec:res-repair-fail} compares
-against the weaker model. The arm-level claim is not made.
+\paragraph{Arm isolation, checked on the data.} Section~\ref{sec:design-graph} claims the
+five configurations differ only in three routing functions and that this is checkable rather
+than assumed. The run records bear it out here: all 15 diagnosed repairs in this sweep occur
+in \texttt{hybrid}, and none in \texttt{baseline} or \texttt{retry\_only}, whose 20 runs
+each record a single uninformed regeneration and no diagnosis. Five of those 15 repairs
+produced a passing testbench, which Section~\ref{sec:res-repair-fail} compares against the
+weaker model.
 
 \section{RQ3: Ablation Across Feedback Strategies}\label{sec:res-rq3}
 
@@ -1552,6 +1569,63 @@ not distinguishable from sampling variation at this sample size. It is not evide
 feedback does nothing; it is an absence of evidence that it does something, and the next two
 sections explain why that absence was difficult to avoid: the repair mechanism succeeds
 rarely, and the measurement floor is high.
+
+\section{The Two Samples Together}\label{sec:res-strata}
+
+The comparison this project depends on --- \texttt{hybrid} against the no-diagnostics control
+--- now exists in two independent samples: the 44 matched circuits of the ablation, and the 20
+of the benchmark sweep. They use different generators and different circuits, and they agree.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+\textbf{Sample} & \textbf{matched} & \textbf{hybrid only} & \textbf{control only} & \textbf{McNemar} \\
+\midrule
+ablation (three sweeps)      & 44 & 6  & 1 & $p=0.125$ \\
+benchmark, stronger model    & 20 & 5  & 1 & $p=0.219$ \\
+\midrule
+\textbf{stratified}          & \textbf{64} & \textbf{11} & \textbf{2} & $\mathbf{p=0.023}$ \\
+\bottomrule
+\end{tabular}
+\caption{\texttt{hybrid} against \texttt{retry\_only} on circuit-matched pairs. Neither sample
+reaches significance alone; pooling the discordant pairs across both does.}
+\label{tab:strata}
+\end{table}
+
+Pooling matched pairs across strata is defensible when the effect points the same way in each,
+and here it does, 6:1 and 5:1, before any pooling is done. Eleven circuits pass under
+\texttt{hybrid} and fail under the control; two go the other way.
+
+Three qualifications have to travel with that $p=0.023$, and they are not decoration.
+
+It is a post-hoc analysis. The benchmark sweep was not planned as part of the ablation. It was
+run to check the null result against a stronger generator, \texttt{hybrid} was observed to
+lead, the control arm was then added, and the two samples were pooled afterwards. That
+sequence is the one this report criticises elsewhere, and naming it is the minimum owed to a
+reader.
+
+It does not survive correction. Ten pairwise comparisons are computed in
+Section~\ref{sec:res-rq3} and this is an eleventh; the Bonferroni threshold across them is
+$p<0.005$.
+
+The strata are not exchangeable. They differ in generation model and in circuit set, so a
+common underlying effect is an assumption rather than an observation.
+
+What can be said, then, is narrower than the p-value suggests and stronger than either sample
+alone. Across 64 circuit-matched pairs and two generators, informed repair beat uninformed
+regeneration on 11 circuits and lost on 2; the direction is consistent and the magnitude is
+similar in both samples; and a stratified test returns $p=0.023$, which is suggestive and
+uncorrected. This work does not claim the effect is established. It claims the evidence now
+points one way rather than none, which is a change from the position in
+Section~\ref{sec:res-rq3}.
+
+The companion result is cleaner and needs no such hedging. \texttt{retry\_only} beat
+\texttt{baseline} in neither sample --- $p=1.000$ in both, 5:4 and 2:1 discordant. An extra
+generation attempt carrying no diagnosis is worth approximately nothing on either circuit set.
+Since \texttt{hybrid} and \texttt{retry\_only} both receive that attempt, whatever separates
+them is the diagnosis and not the resampling.
 
 \section{Decomposing the Hybrid Result}\label{sec:res-decompose}
 
@@ -1656,7 +1730,7 @@ sweeps in which the generator was \texttt{gpt-4o-mini} for two of the three. The
 \textbf{Generation model} & \textbf{diagnosed repairs} & \textbf{passed} & \textbf{rate} \\
 \midrule
 mixed, three ablation sweeps & 23 & 3 & 13\% \\
-\texttt{claude-sonnet-4.5}, benchmark sweep & 14 & 5 & \textbf{36\%} \\
+\texttt{claude-sonnet-4.5}, benchmark sweep & 15 & 5 & \textbf{33\%} \\
 \bottomrule
 \end{tabular}
 \caption{Diagnosed repairs and their outcomes by generator. Acting usefully on a diagnosis is
@@ -1664,9 +1738,9 @@ a reasoning task, and a stronger reasoner does it more often.}
 \label{tab:repair-by-model}
 \end{table}
 
-The difference is substantial and the samples are small; 3 of 23 against 5 of 14 gives Fisher
-$p=0.09$. Read as a direction rather than an established rate, it is consistent with the rest
-of this report: the structural properties of generated testbenches are insensitive to model
+The difference is sizeable and the samples are small; 3 of 23 against 5 of 15 gives Fisher
+$p=0.22$, so it is a direction rather than an established difference. It is consistent with the
+rest of this report: the structural properties of generated testbenches are insensitive to model
 capability (Section~\ref{sec:disc-alternatives}), while everything requiring the model to
 reason about behaviour --- writing correct expectations, and repairing them when told they
 are wrong --- is not.
@@ -1907,7 +1981,7 @@ that the ceiling is an artefact of the circuits rather than evidence about the t
 % PHASE 4 · target 5.5 pp
 
 The central result is that a localiser which detects 93\% of injected faults found defects
-on three runs in 237 analyses of real generated testbenches. A null result of that kind is only
+on three runs in 262 analyses of real generated testbenches. A null result of that kind is only
 worth reading if the obvious explanations for it have been excluded, and excluding them is
 what most of this chapter does.
 
@@ -2183,8 +2257,10 @@ a larger sample and might not answer it the same way; nothing in this study excl
 one provider. The benchmark problems are drawn from HDLBits exercises and are small by
 industrial standards. Nothing here speaks to testbenches for designs of realistic size.
 
-\paragraph{Statistical.} Forty-four runs per configuration against a measured 33-point
-variance floor leaves the study underpowered for the comparison it was built to make. One
+\paragraph{Statistical.} Forty-four runs per configuration in the ablation, and twenty in the
+benchmark sweep, leave the study underpowered for the comparison it was built to make; the
+stratified result in Section~\ref{sec:res-strata} is post-hoc and uncorrected and is reported
+as such. One
 repeat per sweep was run; the budget did not allow more. Three sweeps converging on the same
 qualitative picture is weaker evidence than three repeats of one sweep would have been for
 the quantitative claim, and stronger evidence for the qualitative one.
@@ -2248,18 +2324,28 @@ correct diagnosis naming two unconnected ports and had not fixed them two iterat
 One observation supports no rate, and the honest position is that the mechanism was
 exercised once and did not work.
 
-On the comparison between feedback strategies, \texttt{hybrid} leads the five-arm ablation at
-40.9\% Eval1 against 27.3\% for the baseline, but against the no-diagnostics control the
-difference gives $p=0.372$ unpaired and $p=0.125$ paired. No configuration is distinguishable
-from the control at conventional significance. Decomposing that lead shows why: of
-\texttt{hybrid}'s 18 passes, 3 were rescued by a repair and 15 passed first time against
-\texttt{baseline}'s 12 from an identical process, so the mechanism is worth about 7 points and
-the remainder is variance. The fourth sweep shows the same ordering more strongly --- 50\%
-against 25\% --- but carries no control arm and therefore cannot attribute it.
+On the comparison between feedback strategies the answer is qualified but no longer empty.
+Within either sample alone, no configuration is distinguishable from the no-diagnostics
+control: the ablation gives $p=0.372$ unpaired and $p=0.125$ paired, the benchmark sweep
+$p=0.219$. Across both, on 64 circuit-matched pairs, informed repair beats uninformed
+regeneration on 11 circuits and loses on 2, and a stratified test returns $p=0.023$ --- a
+post-hoc analysis that does not survive correction for the eleven comparisons made, and which
+this work therefore reports as suggestive rather than established
+(Section~\ref{sec:res-strata}).
+
+Two subsidiary findings are firmer than that headline. First, uninformed regeneration is worth
+approximately nothing: \texttt{retry\_only} fails to beat \texttt{baseline} in both samples
+at $p=1.000$. Since it and \texttt{hybrid} both receive the extra generation attempt, whatever
+separates them is the diagnosis. Second, the magnitude of what a diagnosis buys is small in
+absolute terms: of \texttt{hybrid}'s 18 passes in the ablation, 3 were rescued by a repair and
+15 passed first time against \texttt{baseline}'s 12 from an identical process, so the
+mechanism is worth about 7 points and the remainder is variance. An ablation powered for a
+7-point effect is what this question needed, and 44 runs per arm is not it.
 
 What can be said about repair without an arm-level comparison is that it succeeds rarely and
-that its success depends on the generator: 3 of 23 diagnosed repairs with the mixed models of
-the ablation, 5 of 14 with the stronger one. When it fails it does so in two ways --- the
+that its success may depend on the generator: 3 of 23 diagnosed repairs with the mixed models
+of the ablation, 5 of 15 with the stronger one, a difference not established at this sample
+size. When it fails it does so in two ways --- the
 diagnosis is not acted on, or each repair exchanges one failing corner case for another,
 never repeating an error signature and never converging.
 
@@ -2332,11 +2418,14 @@ regeneration, so that repair accumulates rather than resamples; and patching the
 rather than regenerating it whole, which is what exposes the pipeline to the degradation
 measured in Section~\ref{sec:res-retry}.
 
-\textbf{Statistical power.} Resolving whether hybrid feedback genuinely improves on
-uninformed retry needs either a larger circuit set or enough repeats to average the
-variance down. Section~\ref{sec:res-decompose} sharpens the target: the mechanism rescued 3
-runs in 44, so an experiment powered to detect a 7-point effect is what is required, not one
-powered for the 13.6-point raw gap.
+\textbf{Statistical power.} Section~\ref{sec:res-strata} leaves the central comparison
+suggestive and uncorrected at $p=0.023$ over 64 matched pairs. Settling it requires a
+pre-registered replication rather than more post-hoc pooling: \texttt{baseline},
+\texttt{retry\_only} and \texttt{hybrid} over a randomly drawn benchmark sample, with the
+hypothesis and the test fixed in advance. Section~\ref{sec:res-decompose} sharpens the target
+--- the mechanism rescued 3 runs in 44, so the experiment must be powered for a 7-point
+effect, not the 13.6-point raw gap. At the stronger tier a 60-problem three-arm sweep costs
+approximately \$23 by the telemetry in Section~\ref{sec:res-rq4}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 References

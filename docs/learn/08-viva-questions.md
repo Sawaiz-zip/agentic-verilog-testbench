@@ -114,6 +114,22 @@ itself one of our findings.
 > zero to one. Capability affects whether the testbench is *right*. It does not appear to
 > affect whether it is *well-formed*.
 
+**Q: Did the control arm show hybrid's feedback actually works?**
+
+> Partly, and I'll be precise about how far it goes. The control, `retry_only`, gets a second
+> generation attempt but no diagnosis. It scored 30% against baseline's 25% on the benchmark —
+> McNemar p=1.000, and p=1.000 in the ablation too. So the extra attempt on its own is worth
+> nothing. Since hybrid also gets that attempt, whatever separates them is the diagnosis.
+>
+> The comparison now exists in two independent samples — 6:1 discordant in the ablation, 5:1 in
+> the benchmark sweep. Neither reaches significance alone. Pooled across 64 matched circuits
+> it's 11:2, stratified McNemar p=0.023.
+>
+> But that pooling is post hoc — we ran the sweep, saw hybrid leading, then added the control —
+> and it doesn't survive Bonferroni for the eleven comparisons we made. So we report it as
+> suggestive, not established. What we'd claim is that the evidence now points one way rather
+> than none.
+
 **Q: Can you claim hybrid is better?**
 
 > No, and we say so in the report. Hybrid scores highest at 40.9% against 29.5% for the

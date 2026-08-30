@@ -156,8 +156,8 @@ it would not survive the first question about how the circuits were chosen.
 | Sonnet, our circuits | 82 | 75 | **0 / 60** |
 | mini, our circuits | 79 | 51 | **1 / 60** |
 | mini, VerilogEval | 153 | 64 | **1 / 100** |
-| **Sonnet, VerilogEval** | 77 | 47 | **1 / 40** |
-| **Total** | **394** | **237** | **3 / 260** |
+| **Sonnet, VerilogEval** | 120 | 72 | **1 / 60** |
+| **Total** | **434** | **262** | **3 / 280** |
 
 ### The fourth sweep — the strong model on the benchmark circuits
 
@@ -168,8 +168,27 @@ circuits — **only the model changed**.
 | | gpt-4o-mini | **Sonnet 4.5** |
 |---|---|---|
 | baseline Eval1 | 10% | **25%** |
+| retry_only Eval1 | 10% | **30%** |
 | hybrid Eval1 | 10% | **50%** |
-| runs with a static finding | 1 / 100 | 1 / 40 |
+| runs with a static finding | 1 / 100 | 1 / 60 |
+
+**The control arm earned its place.** `retry_only` gets a second attempt but is told nothing
+about what went wrong. It scored 30% against baseline's 25% — **McNemar p = 1.000**. The bare
+extra attempt is worth nothing. Since `hybrid` *also* gets that extra attempt, the 20 points
+separating it from `retry_only` sit on **the diagnosis**, not on resampling.
+
+That comparison now exists in two independent samples and agrees in both:
+
+| sample | hybrid wins | control wins | McNemar |
+|---|---|---|---|
+| ablation, 44 circuits | 6 | 1 | p=0.125 |
+| benchmark, 20 circuits | 5 | 1 | p=0.219 |
+| **stratified, 64** | **11** | **2** | **p=0.023** |
+
+⚠️ **Say this carefully.** The p=0.023 is *post hoc* — we ran the sweep, saw hybrid leading,
+then added the control, then pooled. It does not survive Bonferroni for the 11 comparisons
+made. The honest line is: *"directionally consistent across two independent samples, stratified
+p=0.023, reported as suggestive rather than established."* Do not say "we proved hybrid works."
 
 **Eval1 moved 25 points. The structural yield did not move.** That is the cleanest single
 statement of this project's central finding: model capability controls whether a testbench is
