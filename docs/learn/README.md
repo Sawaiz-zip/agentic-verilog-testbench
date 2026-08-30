@@ -18,6 +18,53 @@ Read in order. Each document assumes the ones before it and nothing else.
 
 ---
 
+## The whole project in plain words
+
+*If you read nothing else in this folder, read this.*
+
+We asked whether mistakes in AI-written test programs could be caught by **reading** the code
+instead of **running** it. Reading is instant and free; running means a full compile-and-simulate
+cycle every time.
+
+We built the reading tool. We proved it works by deliberately planting 215 known mistakes and
+checking it caught them — it caught 93%, and never raised a false alarm on correct code.
+
+Then we pointed it at 280 real AI-generated test programs. **It found three things.**
+
+Not because the tool is broken — we proved it isn't. Because the AI writes *tidy* code. The
+wiring is fine: right ports, right widths, everything connected. A tool that checks wiring has
+no work to do.
+
+**What goes wrong instead is a different kind of mistake.** The AI writes a test that expects
+the wrong answer — "the counter should read 5" when it reads 4. On the page that test looks
+perfect. The number isn't wrong *on paper*; it's wrong compared to how the chip actually
+behaves. You cannot see that by reading. You have to run it.
+
+Out of 280 attempts, **88 worked and 192 failed** — roughly two in three fail. And about nine
+in ten of those failures are the "expects the wrong answer" kind.
+
+**What happens to a failed one? Mostly nothing.** In most configurations the pipeline isn't
+allowed to retry. Where it is, we hand the AI the error and ask it to fix it — that worked
+about **one time in five**. When it didn't, the usual reason was that the AI fixed the thing we
+complained about and broke something else, so after three rounds it's still wrong, just wrong
+somewhere new.
+
+### The conclusion
+
+The answer to the research question is **no** — and knowing *why* it is no is the contribution.
+
+AI models have become good at the part of a testbench that is readable, and stayed bad at the
+part that isn't. The same thing happened to the paper we built on: AutoBench's single biggest
+result came from a similar reading-based fix, worth 42 percentage points in 2024. Our
+equivalent check fired **zero** times.
+
+> **Tools built to patch a model's weaknesses have a shelf life, because the weaknesses get
+> trained away. Nobody had measured that before.**
+
+That sentence is the project. Everything else is the evidence for it.
+
+---
+
 ## The one-paragraph version
 
 An AI writes test programs (testbenches) for digital circuits. Those programs are often
