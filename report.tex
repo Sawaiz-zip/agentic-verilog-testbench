@@ -42,7 +42,8 @@
     pdfauthor  = {Muhammad Sawaiz Naveed},
     pdftitle   = {Agentic Verilog Testbench Generation with Pre-Simulation Error Localisation},
     pdfsubject = {S6.ReKI.1 Research Project},
-    pdfkeywords= {LLM, Verilog, testbench generation, Pyverilog, error localization,
+    pdfkeywords= {LLM, Verilog, testbench generation, Pyverilog, error localisation,
+                  error localization,
                   hardware verification, LangGraph, fault injection}
 }
 
@@ -398,7 +399,8 @@ returns compiler errors with line-numbered source to the model for one repair at
 standardisation is a script that inserts missing \texttt{\$fdisplay} statements for
 sequential circuits.
 
-Reported results, on 156 VerilogEval problems with GPT-4-turbo, at pass@1:
+Reported results, on 156 VerilogEval problems with GPT-4-turbo, are given in
+Table~\ref{tab:autobench-results} at pass@1.
 
 \begin{table}[H]
 \centering
@@ -1050,7 +1052,7 @@ built. The simulator caught 78\% of those, which is the correct division of labo
 \paragraph{The boundary is narrower than ``by construction'' suggests.} That phrasing is
 accurate for the six checks as implemented and too strong as a statement about structural
 analysis in general. Two candidate checks, written after the study and measured against the
-same corpus, reach both control classes.
+same corpus, reach both control classes; Table~\ref{tab:candidate-checks} gives their scores.
 
 \begin{table}[H]
 \centering
@@ -1118,7 +1120,7 @@ reach, one level further down.
 
 Chapter~\ref{ch:validation} establishes what the localiser can detect. This chapter sets up
 the question of how often it gets the chance, which requires running the whole pipeline
-against real circuits and counting.
+against real circuits and counting. Table~\ref{tab:sweeps} sets out the four sweeps that do so.
 
 \begin{table}[H]
 \centering
@@ -1195,7 +1197,8 @@ chosen.
 
 \section{Ablation Arms}\label{sec:exp-arms}
 
-Five configurations differ only in which feedback sources are permitted to trigger a repair.
+Five configurations, listed in Table~\ref{tab:arms}, differ only in which feedback sources are
+permitted to trigger a repair.
 
 \begin{table}[H]
 \centering
@@ -1291,7 +1294,8 @@ chapter.
 
 \section{RQ1: Where Failures Originate}\label{sec:res-rq1}
 
-Of the 220 runs, 67 produced a testbench that passed. The remaining 153 divide sharply.
+Of the 220 runs, 67 produced a testbench that passed. The remaining 153 divide sharply, as
+Table~\ref{tab:failure-origin} shows.
 
 \begin{table}[H]
 \centering
@@ -1342,7 +1346,7 @@ model having misjudged anything, and would be counted above as a semantic testbe
 The 133 failing testbenches were therefore re-simulated against the generated designs they
 were actually written for. If a testbench passes there, its expectations are self-consistent
 and the Eval1 failure belongs to the design; if it fails there too, the testbench contradicts
-its own design and the fault is the testbench's.
+its own design and the fault is the testbench's. Table~\ref{tab:dut-attrib} gives the split.
 
 \begin{table}[H]
 \centering
@@ -1383,6 +1387,7 @@ analysis found 30 of them.
 
 The localiser ran on every generated testbench in every sweep, in all five configurations,
 whether or not the configuration was permitted to act on the result.
+Table~\ref{tab:yield} reports what it found.
 
 \begin{table}[H]
 \centering
@@ -1450,7 +1455,8 @@ The three sweeps above leave one cell of the design empty. The stronger model wa
 the project fixtures; the benchmark circuits were run only with the weaker one. A reader is
 entitled to ask whether the null result on those circuits is a property of static analysis or
 of \texttt{gpt-4o-mini}. The fourth sweep answers that by running the same 20 benchmark
-problems with \texttt{claude-sonnet-4.5}, in \texttt{baseline} and \texttt{hybrid}.
+problems with \texttt{claude-sonnet-4.5}, in \texttt{baseline}, \texttt{retry\_only} and
+\texttt{hybrid}. Table~\ref{tab:strong} places the two generators side by side.
 
 \begin{table}[H]
 \centering
@@ -1511,7 +1517,8 @@ generator, not only of the parser --- and even at 61\% it remains the largest co
 the null result.
 
 \paragraph{A static finding triggered a repair, once.} This sweep contains the only instance
-in the study of the mechanism the project was built to test operating end to end.
+in the study of the mechanism the project was built to test operating end to end, traced in
+Table~\ref{tab:static-repair}.
 
 \begin{table}[H]
 \centering
@@ -1641,7 +1648,8 @@ rarely, and the measurement floor is high.
 
 The comparison this project depends on --- \texttt{hybrid} against the no-diagnostics control
 --- now exists in two independent samples: the 44 matched circuits of the ablation, and the 20
-of the benchmark sweep. They use different generators and different circuits, and they agree.
+of the benchmark sweep. They use different generators and different circuits, and as
+Table~\ref{tab:strata} shows, they agree.
 
 \begin{table}[H]
 \centering
@@ -1757,7 +1765,7 @@ what oscillation detection is for. A loop that produces a new failure every time
 stuck --- it is exchanging one corner case for another, and there is no evidence in these
 records that a fourth or fifth iteration would terminate.
 
-How near these failures come is the last piece.
+How near these failures come is the last piece, and Table~\ref{tab:repair-nearmiss} gives it.
 
 \begin{table}[H]
 \centering
@@ -1787,7 +1795,8 @@ verdicts rather than on scenario names.
 
 \paragraph{Repair success depends on the generation model.} The figures above pool three
 sweeps in which the generator was \texttt{gpt-4o-mini} for two of the three. The fourth sweep
-(Section~\ref{sec:res-strong}) runs the same repair loop with \texttt{claude-sonnet-4.5}.
+(Section~\ref{sec:res-strong}) runs the same repair loop with \texttt{claude-sonnet-4.5};
+Table~\ref{tab:repair-by-model} compares them.
 
 \begin{table}[H]
 \centering
@@ -1820,7 +1829,8 @@ its Eval2 pass rate to auto-debug and does not characterise the cases where debu
 Three configurations performed no repairs at all in the first two sweeps:
 \texttt{baseline} by definition, \texttt{compiler\_only} because every testbench compiled,
 and \texttt{pyverilog\_only} because no static finding ever occurred. Having taken the same
-path through the graph, they differ only in the random draw from the model.
+path through the graph, they differ only in the random draw from the model, and
+Table~\ref{tab:variance} reports how far apart that draw put them.
 
 \begin{table}[H]
 \centering
@@ -1870,6 +1880,7 @@ them.
 
 The control arm was included to isolate the effect of feedback. It produced a finding of its
 own, and the fourth sweep bounds that finding to the conditions under which it holds.
+Table~\ref{tab:eval0} gives Eval0 for every arm.
 
 \begin{table}[H]
 \centering
@@ -1899,7 +1910,7 @@ information about what was wrong dropped compilation from 95\% to 70\%.
 \paragraph{The effect is specific to the weaker generator.} Repeating the same arms on the
 same circuits with \texttt{claude-sonnet-4.5} produced no degradation at all:
 \texttt{retry\_only} compiled 20 of 20 against \texttt{baseline}'s 19. The paired counts
-across all four sweeps make the pattern plain.
+across all four sweeps, in Table~\ref{tab:retry-eval0}, make the pattern plain.
 
 \begin{table}[H]
 \centering
@@ -1950,7 +1961,8 @@ than the most recent one.
 \section{RQ4: Cost Against Quality}\label{sec:res-rq4}
 
 Cost is measured from the per-call telemetry described in
-Section~\ref{sec:design-practices}, averaged over the 44 runs of each configuration.
+Section~\ref{sec:design-practices}, averaged over the 44 runs of each configuration and
+reported in Table~\ref{tab:cost}.
 
 \begin{table}[H]
 \centering
@@ -2021,7 +2033,8 @@ mutants under AutoBench's own prompt, which requests all ten in a single respons
 instructs the model to spread the edits over different positions and modification types. The
 criteria for accepting a generator were fixed in advance and concern mutant quality only:
 validity of at least 80\%, positional diversity, and an unmodified module header. The
-resulting Eval2 score was excluded as a criterion by design.
+resulting Eval2 score was excluded as a criterion by design. Table~\ref{tab:mutant-pilot}
+gives the outcome.
 
 \begin{table}[H]
 \centering
@@ -2048,7 +2061,8 @@ project circuits with a passing testbench: 462 valid mutants, 450 caught, \textb
 The ceiling is unchanged.
 
 \paragraph{The circuits are the binding constraint.} Scoring the same testbenches against
-AutoBench's published mutants for the benchmark circuits gives a different picture entirely.
+AutoBench's published mutants for the benchmark circuits gives a different picture entirely,
+set out in Table~\ref{tab:eval2-compare}.
 
 \begin{table}[H]
 \centering
@@ -2210,7 +2224,7 @@ problems. Both are reported below, computed against AutoBench's own published mu
 at least the fault set is shared.
 
 With the fourth sweep (Section~\ref{sec:res-strong}) the model difference is removed, and the
-comparison becomes reportable for the first time.
+comparison becomes reportable for the first time, and Table~\ref{tab:vs-autobench} states it.
 
 \begin{table}[H]
 \centering
