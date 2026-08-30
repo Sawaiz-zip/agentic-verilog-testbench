@@ -31,8 +31,10 @@ Eval0: does it compile. Eval1: does it pass against the correct circuit — a fa
 that checks nothing passes Eval1.
 
 **Q: What is a mutant?**
-A copy of the circuit with exactly one small bug — a flipped operator, a changed constant. We
-make 5 per testbench with a cheap model. A good testbench should notice.
+A copy of the circuit with exactly one small bug — a flipped operator, a changed constant. A
+good testbench should notice. We made 5 per testbench with a cheap model, which turned out to
+be a mistake worth knowing about (see doc 07 §7.3): five *independent* calls return the same
+edit five times.
 
 **Q: What is Pyverilog? Icarus?**
 Pyverilog reads Verilog and gives you a syntax tree, without running it — that is how we
@@ -96,16 +98,21 @@ itself one of our findings.
 > That was our first suspicion, so we tested it. We took 20 circuits from VerilogEval — the
 > benchmark AutoBench used — and selected them by structural complexity *before* running
 > anything: port counts 6 to 12, fifteen of the twenty sequential, complexity well above the
-> benchmark median. One finding in 153 analyses. We deliberately biased the sample toward
+> benchmark median. One finding — under the weak model *and* again under the strong one. We deliberately biased the sample toward
 > conditions where our tool could succeed, and it still found nothing. That makes the null
 > result stronger, not weaker.
 
 **Q: Why not run all 156 problems?**
 
-> Budget. The full sweep would have cost around $50 at the stronger model tier and we had
-> roughly $16. We ran 20, chosen by a stated structural criterion before any run, which is
-> the defensible way to subsample. Running all 156 and reporting the 20 that produced findings
-> would have been selecting on the outcome.
+> Budget. From our own telemetry, all 156 with three arms at the stronger tier costs about $44
+> and 19 hours; we spent $16.50 in total. We ran 20, chosen by a stated structural criterion
+> before any run, which is the defensible way to subsample. Running all 156 and reporting the 20
+> that produced findings would have been selecting on the outcome.
+>
+> I would flag one thing about that choice: selecting the *hardest* quintile was right for
+> testing the analyser and wrong for comparing against AutoBench, because it grades us on the
+> hard exam and them on the whole paper. We say so in the report and cost the fix — a random
+> 60-problem three-arm sweep, about $23.
 
 **Q: Your model was too good. A weaker one would make these mistakes.**
 
@@ -248,8 +255,9 @@ itself one of our findings.
 
 **Q: How much did this cost?**
 
-> About $9.20 in API calls for all 220 runs plus the pilots. The injection study was free —
-> entirely offline.
+> About $16.50 in API calls for all 280 runs plus the pilots. The injection study was free —
+> entirely offline, no model involved. The fourth sweep, which is the one that gave us the
+> AutoBench comparison, cost $7.06 of that.
 
 ---
 
@@ -274,7 +282,7 @@ run."** That is a perfectly good answer in research, and far better than guessin
 > We asked whether such faults could be caught by reading the testbench instead of running it.
 > We built a six-check static analyser, proved it works by injecting 215 known faults — 93%
 > detection, no false alarms, and it catches 30 faults that neither the compiler nor the
-> simulator can see. Then we ran it on 220 real generations across two models and two circuit
+> simulator can see. Then we ran it on 280 real generations across two models and two circuit
 > sets. It found problems on three runs in the 237 analyses where the parser could read the
 > file, and triggered exactly one repair in 260 runs — which failed to fix the defect it named. The reason is that 87% of real failures are
 > semantic — the testbench is well-formed and expects the wrong values, which is not visible in

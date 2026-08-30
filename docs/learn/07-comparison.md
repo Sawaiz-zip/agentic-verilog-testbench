@@ -26,7 +26,7 @@ This document gives you both halves.
 |---|---|---|
 | Model | GPT-4-turbo | Claude Sonnet 4.5 and gpt-4o-mini |
 | Circuits | 156 VerilogEval | 12 ours + 20 VerilogEval |
-| Runs | not stated per configuration | 220 |
+| Runs | not stated per configuration | 280 |
 | Testbench style | hybrid: Verilog driver + Python checker | self-checking Verilog |
 | Generates the circuit? | **no** (deliberately) | **yes** |
 | Parses the Verilog? | **no** | **yes** — six AST checks |
@@ -70,12 +70,13 @@ nowhere to hide. On real benchmark circuits the *same testbenches* catch only 53
 - **Different measurement.** Theirs is not a detection rate. A problem passes their Eval2 when
   the testbench's verdicts *agree with the golden testbench* on ≥80% of mutants, counted over
   all 156 problems. Ours is a raw fraction of mutants detected.
-- **Applying their rule to us** gives 2 of 20 circuits clearing 80% — **10%**, not 97%.
+- **Applying their rule to us** gives 4 of 20 circuits clearing 80% with the strong model — **20%**, not 97%. (With the weak model it was 10%.)
 
 > **If asked "your Eval2 beat theirs"** — say: "It doesn't, and the comparison is void twice
 > over. First, they measure agreement with a golden testbench at an 80% threshold across all
-> 156 problems; we measure raw detection. Applying *their* rule to our runs gives 10%, not
-> 97%. Second, our 97% is a ceiling caused by our fixture circuits being too small — we tested
+> 156 problems; we measure raw detection. Applying *their* rule to our runs gives 20%, not
+> 97% — against their 26% on sequential circuits, which is the fair comparison since ours are
+> 75% sequential. Second, our 97% is a ceiling caused by our fixture circuits being too small — we tested
 > that by regenerating the mutants with a stronger model and their own prompt, and the score
 > moved by one point. On real benchmark circuits with their published mutants, the same
 > testbenches score 53.8%. So our Eval2 measures our choice of circuits, not our testbenches."
@@ -102,10 +103,16 @@ with a *weaker* model than theirs. Roughly comparable, nothing more.
 **Their ablation cannot separate "the feedback helped" from "it got another try."** Disabling
 auto-debug also removes the regeneration it triggers, so their +8% and +10% are ambiguous.
 
-We added `retry_only` — one extra generation, zero information. And the result was
-uncomfortable for us: `hybrid` 40.9% vs `retry_only` 29.5%, **p = 0.372**. Not significant.
+We added `retry_only` — one extra generation, zero information. Two things came out of it.
 
-Without that arm we would have reported "+14 points over baseline" and been wrong to.
+**The uncomfortable half:** `hybrid` 40.9% vs `retry_only` 29.5%, **p = 0.372**. Not
+significant. Without that arm we would have reported "+14 points over baseline" and been wrong
+to.
+
+**The useful half:** `retry_only` never beats `baseline` either — **p = 1.000 in both
+samples**. The bare extra attempt is worth nothing. Since `hybrid` also gets that attempt,
+whatever separates them is *the diagnosis*, not the resampling. That is the attribution the
+arm was built to make, and a two-arm study cannot make it.
 
 ### 2. A measured localiser rather than an asserted one
 
@@ -146,7 +153,7 @@ That is **the same category of technique as our contribution**: a mechanical, pr
 fix for a structural defect.
 
 Our equivalent check, `missing_fdisplay`, fired **zero times in 237 analyses**. Our
-deterministic standardiser had something to insert in **3 of 220 runs** — and in the other 137
+deterministic standardiser had something to insert in **3 of 220 ablation runs** — and in the other 137
 sequential runs it was handed a testbench that already observed every output.
 
 **The technique did not stop working. The defect it corrects stopped occurring.**

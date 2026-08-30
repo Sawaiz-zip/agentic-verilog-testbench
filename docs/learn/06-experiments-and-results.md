@@ -109,19 +109,29 @@ compiler nor the simulator**. Static analysis caught **30 of those 33 — 91%**.
 
 ---
 
-## 6.3 Experiment 2 — the three sweeps
+## 6.3 Experiment 2 — the four sweeps
 
 ### What we ran
 
-| Sweep | Model writing the code | Circuits | Runs |
-|---|---|---|---|
-| `final_hard_r1` | `claude-sonnet-4.5` | 12 of ours | 60 |
-| `weak_model_r1` | `gpt-4o-mini` | the same 12 | 60 |
-| `verilogeval_weak` | `gpt-4o-mini` | 20 VerilogEval | 100 |
-| | | **32 circuits** | **220 runs** |
+| Sweep | Model writing the code | Circuits | Arms | Runs |
+|---|---|---|---|---|
+| `final_hard_r1` | `claude-sonnet-4.5` | 12 of ours | all 5 | 60 |
+| `weak_model_r1` | `gpt-4o-mini` | the same 12 | all 5 | 60 |
+| `verilogeval_weak` | `gpt-4o-mini` | 20 VerilogEval | all 5 | 100 |
+| `verilogeval_strong` | `claude-sonnet-4.5` | the same 20 | 3 | 60 |
+| | | **32 circuits** | | **280 runs** |
 
-Each = circuits × 5 configurations. Temperature 0.7 throughout. Prompts frozen at a tagged
-commit beforehand.
+Temperature 0.7 throughout. Prompts frozen at a tagged commit beforehand and never touched
+again.
+
+**Why each sweep exists — one variable changes at a time.** Sweeps 1→2 hold the circuits and
+change the model. Sweeps 2→3 hold the model and change the circuits. Sweep 4 fills the empty
+cell: the strong model on the hard circuits, which had never been run. That grid is what lets
+Chapter 8 rule out the alternative explanations one by one.
+
+The first three pool into the 5-arm ablation (44 runs per arm). The fourth carries only
+`baseline`, `retry_only` and `hybrid` — and keeping `retry_only` was the important call. A
+two-arm sweep would have reproduced exactly the confound we criticise AutoBench for.
 
 **The design changes one thing at a time.** Sweeps 1→2 hold circuits fixed, change the model.
 Sweeps 2→3 hold the model fixed, change the circuits.
@@ -245,7 +255,7 @@ affects whether the testbench is **right**. It does not affect whether it is **w
 
 ## 6.6 The ablation, and why we cannot claim a win
 
-Pooling all 220 runs, 44 per configuration:
+Pooling the three five-arm sweeps — 220 runs, 44 per configuration:
 
 | Mode | Eval1 | 95% confidence interval |
 |---|---|---|

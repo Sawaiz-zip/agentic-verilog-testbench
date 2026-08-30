@@ -118,11 +118,10 @@ Applied to 280 pipeline runs across two models and two circuit sets, the same lo
 reported findings on three runs in the 262 analyses in which its checks could run, and
 triggered exactly one repair in the whole study, which did not fix the defect it named. Of
 153 failing runs in the ablation, 133 compiled and then failed simulation.
-Three alternative explanations were tested and rejected: a weaker model fails far more often
-but no more structurally, twenty benchmark circuits selected for structural complexity
-produced one finding in the 64 of 153 analyses that could be parsed, and the localiser's
-correctness was established by
-measurement.
+Three alternative explanations were tested and rejected: neither a weaker nor a stronger
+generator changes the structural picture, twenty benchmark circuits selected for structural
+complexity produced one finding under each of them, and the localiser's correctness was
+established by measurement.
 
 The faults static analysis detects have largely stopped occurring in current model output.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
@@ -213,17 +212,19 @@ The localiser has almost nothing to find. Across 280 pipeline runs on two models
 circuit sets, it reported findings on three runs in the 262 analyses in which Pyverilog could
 build a syntax tree, and triggered one repair in the whole study, which did not fix the
 defect it named. The configuration whose sole purpose is to act on static findings performed
-zero repairs in 44 runs. Meanwhile 133 runs produced a testbench that compiled and then
-failed simulation, which is 87\% of all failures.
+zero repairs in 44 runs. Meanwhile, in the 220-run ablation, 133 runs produced a testbench
+that compiled and then failed simulation, which is 87\% of its failures.
 
 Both follow from one fact: language models produce testbenches that are structurally well
 formed and semantically wrong. They connect the ports and check the outputs. They misjudge
 what the outputs should be.
 
 Three alternative explanations were tested and rejected. A weaker model performs far worse at
-the task and no worse structurally, and so does a stronger one run on the harder circuits. Twenty circuits from the standard benchmark, selected
-for structural complexity before any run, produced one finding in 64 parsed analyses. The
-localiser's correctness was established by measurement rather than assumed.
+the task and no worse structurally; substituting a stronger one on the harder circuits moves
+Eval1 by 25 points and leaves the structural yield unchanged. Twenty circuits from the
+standard benchmark, selected for structural complexity before any run, produced one finding
+under each generator. The localiser's correctness was established by measurement rather than
+assumed.
 
 \section{Contributions}\label{sec:intro-contrib}
 
@@ -1251,6 +1252,10 @@ Eighty-seven percent of failures compile cleanly and then produce wrong results.
 semantic defects: the testbench is well-formed, instantiates the design correctly, drives
 its inputs and checks its outputs, and expects the wrong values.
 
+The proportion is stable when the fourth sweep is included, which matters because that sweep
+uses the stronger generator. Over all 280 runs, 171 of 192 failures compiled and then failed
+simulation, 89\%. A better generator produces fewer failures and the same kind of failure.
+
 The 133 failing runs contain 569 individual failing scenarios. Grouping them by keyword in
 the scenario name gives 95 concerning sequence or state-machine behaviour, 74 arithmetic or
 logical, 72 at a boundary or overflow condition, 68 involving reset or initialisation, and
@@ -1280,13 +1285,13 @@ its own design and the fault is the testbench's.
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{@{}l r r p{5.4cm}@{}}
+\begin{tabular}{@{}p{5.0cm} r r p{4.6cm}@{}}
 \toprule
 \textbf{Re-simulated against its own generated design} & \textbf{Runs} & \textbf{Share} & \textbf{Attribution} \\
 \midrule
-Fails there too                    & 108 & 81\% & testbench: it contradicts its own design \\
-Generated design does not compile  & 22  & 17\% & indeterminate; the design is malformed \\
-Passes there, fails against golden & 3   & 2\%  & design: the testbench is faithful to a divergent design \\
+Fails there too & 108 & 81\% & testbench: it contradicts its own design \\
+Generated design does not compile & 22 & 17\% & indeterminate; the design is malformed \\
+Passes there, fails against golden & 3 & 2\% & design: the testbench is faithful to a divergent design \\
 \bottomrule
 \end{tabular}
 \caption{Attribution of the 133 compile-then-fail runs. The alternative explanation accounts
@@ -1799,41 +1804,74 @@ area is evaluated: AutoBench reports single-run pass@1 comparisons without error
 at the variance measured here such comparisons would not support the conclusions drawn from
 them.
 
-\section{Uninformed Retry Degrades Compilation}\label{sec:res-retry}
+\section{Uninformed Retry Can Degrade Compilation}\label{sec:res-retry}
 
 The control arm was included to isolate the effect of feedback. It produced a finding of its
-own.
+own, and the fourth sweep bounds that finding to the conditions under which it holds.
 
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{@{}l c c c@{}}
+\begin{tabular}{@{}l c c c c@{}}
 \toprule
-\textbf{Mode} & \texttt{sonnet}/12 & \texttt{mini}/12 & \texttt{mini}/VerilogEval \\
+ & \multicolumn{2}{c}{\texttt{claude-sonnet-4.5}} & \multicolumn{2}{c}{\texttt{gpt-4o-mini}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{Mode} & fixtures/12 & VerilogEval/20 & fixtures/12 & VerilogEval/20 \\
 \midrule
-\texttt{baseline}        & 92\%  & 92\%  & 95\% \\
-\texttt{retry\_only}     & 100\% & 75\%  & \textbf{70\%} \\
-\texttt{compiler\_only}  & 100\% & 100\% & 90\% \\
-\texttt{pyverilog\_only} & 100\% & 83\%  & 90\% \\
-\texttt{hybrid}          & 100\% & 92\%  & 95\% \\
+\texttt{baseline}        & 92\%  & 95\%  & 92\%  & 95\% \\
+\texttt{retry\_only}     & 100\% & 100\% & 75\%  & \textbf{70\%} \\
+\texttt{compiler\_only}  & 100\% & ---   & 100\% & 90\% \\
+\texttt{pyverilog\_only} & 100\% & ---   & 83\%  & 90\% \\
+\texttt{hybrid}          & 100\% & 100\% & 92\%  & 95\% \\
 \bottomrule
 \end{tabular}
-\caption{Eval0 by configuration and sweep. Uninformed regeneration is the only
-configuration that compiles worse than the baseline.}
+\caption{Eval0 by configuration, generator and circuit set. Uninformed regeneration compiles
+worse than the baseline with the weaker generator and does not with the stronger one. Dashes
+mark arms the fourth sweep did not run.}
 \label{tab:eval0}
 \end{table}
 
-On the benchmark circuits, regenerating the testbench with no information about what was
-wrong dropped compilation from 95\% to 70\%.
+With the weaker generator on the benchmark circuits, regenerating the testbench with no
+information about what was wrong dropped compilation from 95\% to 70\%.
+
+\paragraph{The effect is specific to the weaker generator.} Repeating the same arms on the
+same circuits with \texttt{claude-sonnet-4.5} produced no degradation at all:
+\texttt{retry\_only} compiled 20 of 20 against \texttt{baseline}'s 19. The paired counts
+across all four sweeps make the pattern plain.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l l r r r@{}}
+\toprule
+\textbf{Sweep} & \textbf{Generator} & \textbf{lost} & \textbf{gained} & \textbf{McNemar} \\
+\midrule
+\texttt{final\_hard\_r1}     & \texttt{sonnet-4.5}  & 0 & 1 & $p=1.000$ \\
+\texttt{verilogeval\_strong} & \texttt{sonnet-4.5}  & 0 & 1 & $p=1.000$ \\
+\texttt{weak\_model\_r1}     & \texttt{gpt-4o-mini} & 3 & 1 & $p=0.625$ \\
+\texttt{verilogeval\_weak}   & \texttt{gpt-4o-mini} & 5 & 0 & $p=0.062$ \\
+\bottomrule
+\end{tabular}
+\caption{Circuits that compiled under \texttt{baseline} and not under \texttt{retry\_only}
+(``lost''), and the reverse (``gained''). The weaker generator loses eight circuits across two
+sweeps and gains one; the stronger loses none and gains two.}
+\label{tab:retry-eval0}
+\end{table}
+
+The claim is therefore narrower than an earlier draft of this section made it. Resampling
+without a diagnosis is not intrinsically hazardous; it is hazardous when the generator is
+unreliable enough that a fresh draw is materially worse than the one being discarded. That
+is a property of the generator, not of the retry, and it belongs with the other
+model-dependent results in Sections~\ref{sec:res-repair-fail} and~\ref{sec:res-strong}.
 
 That is a cross-arm difference of 25 points, and Section~\ref{sec:res-variance} has just
 argued that differences of that order at this sample size need to be treated carefully. The
 claim rests instead on the paired form of the same comparison, which is available because
-every circuit is run in both arms. On the twenty benchmark circuits, five compiled under
+every circuit is run in both arms. On those twenty circuits, five compiled under
 \texttt{baseline} and failed to compile under \texttt{retry\_only}; none went the other way.
 A five--nil split gives an exact McNemar $p=0.062$, and the fact that the discordance is
-entirely one-directional is the substance of the finding: uninformed regeneration never
-recovered a circuit, and lost five.
+entirely one-directional is the substance of the finding: with that generator, uninformed
+regeneration never recovered a circuit and lost five.
 
 One thing this evidence is not, and an earlier draft of this report claimed it was: it is not
 a within-run measurement. The control arm regenerates before evaluation, so the sample it
@@ -1890,14 +1928,17 @@ The 42 simulation-triggered and 8 compile-triggered repair \emph{iterations} acr
 three sweeps account for every repair the pipeline performed on the basis of a diagnosis.
 They are distributed over the 23 \emph{runs} of Table~\ref{tab:repair-success}, since a run
 may repair up to three times. The remaining 44 repair events were the control arm's
-uninformed regenerations, one per run. No repair in any sweep was triggered by a static
-finding.
+uninformed regenerations, one per run. No repair in the three ablation sweeps was triggered
+by a static finding; the single instance in the study occurred in the fourth
+(Section~\ref{sec:res-strong}) and did not succeed.
 
 Absolute pass rates vary between sweeps by a wide margin, as intended: the benchmark
 circuits are much harder, with \texttt{baseline} Eval1 falling from 67\% on the project
-fixtures to 10\% on VerilogEval. The qualitative picture does not vary. Static findings remain at or
-near zero, \texttt{pyverilog\_only} never repairs, and simulation feedback drives whatever
-improvement occurs. Chapter~\ref{ch:discussion} takes up what follows from that.
+fixtures to 10\% on VerilogEval with the weaker generator and 25\% with the stronger one. The
+qualitative picture does not vary across any of the four. Static findings remain at or near
+zero under both generators and both circuit sets, \texttt{pyverilog\_only} never repairs, and
+simulation feedback drives whatever improvement occurs. Chapter~\ref{ch:discussion} takes up
+what follows from that.
 
 \section{Eval2 and the Quality of the Mutants}\label{sec:res-eval2}
 
@@ -2139,9 +2180,9 @@ Three qualifications keep that from being a claim of superiority, and they are n
 incidental.
 
 The generators are two years apart. AutoBench used GPT-4-turbo; this sweep used
-\texttt{claude-sonnet-4.5}. Section~\ref{sec:res-strong} shows what that difference alone is
-worth on these circuits --- Eval1 moved from 10\% to 25\% at \texttt{baseline} with no change
-to the pipeline whatsoever. A large part of any Eval1 advantage here is model progress, not
+\texttt{claude-\allowbreak sonnet-4.5}. Section~\ref{sec:res-strong} shows what that
+difference alone is worth on these circuits: Eval1 moved from 10\% to 25\% at
+\texttt{baseline}, with no change to the pipeline whatsoever. A large part of any Eval1 advantage here is model progress, not
 pipeline design, and this study cannot apportion it.
 
 The subsets differ, and in both directions. Ours is harder within the benchmark, which
@@ -2361,7 +2402,7 @@ Of the five contributions listed in Section~\ref{sec:intro-contrib}, the two tha
 planned have worn best. The control arm and the variance measurement were added to make the
 ablation defensible, and they ended up producing the results most likely to be useful
 elsewhere: a demonstration that uninformed regeneration can degrade a testbench that already
-compiled, and a figure for how large a difference has to be before it means anything at this
+compiled when the generator is weak enough, and a figure for how large a difference has to be before it means anything at this
 sample size.
 
 The sixth contribution claimed in the project plan, per-node attribution of failure origin,

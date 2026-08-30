@@ -226,7 +226,7 @@ Do NOT add or remove ports
 So a mutant of the half adder might change `assign sum = a ^ b;` to `assign sum = a & b;`.
 
 **We generate 5 mutants per testbench** — but only for testbenches that got as far as Eval2,
-which means they had to pass Eval1 first. Across our three sweeps:
+which means they had to pass Eval1 first. Across the three ablation sweeps:
 
 | Sweep | Mutants | Valid | Caught |
 |---|---|---|---|

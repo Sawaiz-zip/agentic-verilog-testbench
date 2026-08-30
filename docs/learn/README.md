@@ -24,9 +24,14 @@ An AI writes test programs (testbenches) for digital circuits. Those programs ar
 wrong. The usual way to find out is to run a simulation, which is slow. We asked whether
 some mistakes could be caught by *reading* the test program instead of running it. We built
 a tool that does this, proved the tool works by deliberately breaking 215 test programs and
-checking it caught them, then ran it on 220 real AI-generated test programs — where it found
+checking it caught them, then ran it on 280 real AI-generated test programs — where it found
 almost nothing. The reason is that AI models write structurally tidy programs that test the
 wrong things, and "wrong thing" is not visible in the text.
+
+**One number to keep straight.** The tool ran 434 times but could only *read* the file in 262
+of those — Pyverilog cannot parse everything modern models write, and the fallback checks
+syntax only. So the finding is **3 hits in 262**, not 3 in 434. Quote the smaller
+denominator; it is the honest one and an examiner who checks the data will find it.
 
 ## Two distinctions you must not mix up
 
@@ -48,3 +53,12 @@ These trip people up, and your professor may probe them.
 
 Our tool handles the first kind. The project's central finding is that AI models mostly make
 the second kind.
+
+**3. "Better results" almost always means a better model, not a better pipeline.**
+
+Late in the project we re-ran the 20 benchmark circuits with a stronger model. Eval1 doubled.
+Nothing in the pipeline changed — same code, same frozen prompts, same circuits, one line of
+configuration. If you say "our results improved", the next question is "what did you change?",
+and the answer must be *the model*. Meanwhile the structural findings did **not** move, which
+is the cleanest evidence for the project's central claim: capability decides whether a
+testbench is *right*, not whether it is *well-formed*.
