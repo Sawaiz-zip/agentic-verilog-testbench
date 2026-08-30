@@ -223,9 +223,34 @@ The second works because AI testbenches bind ports to identically-named signals 
 visibly. **This one is a convention heuristic, not a proof:** a testbench naming its signals
 `sig_a` and `sig_b` would swap invisibly. Say that if asked.
 
-> **The honest conclusion:** these faults are undetectable by *the six checks as built*, not by
-> structural analysis in principle. That is in the report's future work, and it costs nothing
-> to say — it makes the boundary a measured claim instead of an assumption.
+### But would the new checks find anything real?
+
+*Movable* and *worth moving* are different questions, and the second is answerable from data we
+already have. Both candidate checks were run over the stored testbench of all **280 real runs**:
+
+| candidate check | fired on real testbenches |
+|---|---|
+| "port bound to a signal named after a different port" | **0 of 280** |
+| "sequential testbench that never waits on a clock edge" | 3 of 188 — **all three false positives** |
+
+The binding-name check found nothing because **swapped bindings never happen** in real output.
+
+The clock-edge check fired three times, all on the same circuit,
+`Prob150_review2015_fsmonehot` — and all three are wrong. That problem is a *one-hot
+next-state decoder*: it is **combinational**. Neither the reference design nor the generated
+one contains a clock. A testbench for it is **correct** to have no clock-edge wait.
+
+So why did the check fire? Because our **classifier had labelled the circuit sequential** —
+wrongly, in 1 of the 16 sequential labels it assigned on the benchmark.
+
+> **That failure is worth more than the check.** A structural check inherits the mistakes of
+> whatever stage tells it what kind of circuit it is looking at. One upstream misclassification
+> would have turned a sound check into three confident, wrong findings — in a layer whose whole
+> credibility rests on having produced **zero** false positives.
+
+**The honest conclusion:** these faults are reachable in principle, absent from real output in
+practice, and expensive to chase. Which is the same answer the six implemented checks give,
+one level further down.
 
 ---
 

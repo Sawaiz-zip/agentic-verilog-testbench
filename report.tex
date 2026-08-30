@@ -1086,6 +1086,30 @@ the in-sample fitting Section~\ref{sec:val-method} warns about. What they establ
 the boundary of the method was drawn by the checks that happened to be written, and is
 movable.
 
+\paragraph{Moving it would buy nothing.} The boundary being movable and the boundary being
+worth moving are different questions, and the second is answerable from the data already
+collected. Both candidate checks were run over the stored testbench of every one of the 280
+pipeline runs.
+
+The binding-name check fired \textbf{zero times in 280 runs}. Exchanged bindings, the fault it
+exists to catch, do not occur in this corpus at all.
+
+The clock-edge check fired three times, all three on \texttt{Prob150\_\allowbreak
+review2015\_\allowbreak fsmonehot} under different configurations --- and all three are false
+positives. That problem is a one-hot next-state decoder: it is combinational, and neither the
+reference design nor the generated one contains a clock or an edge-sensitive construct. A
+testbench for it is \emph{correct} to contain no clock-edge wait. The check fired because the
+classification stage had labelled the circuit sequential, wrongly, in 1 of the 16 sequential
+labels it assigned across the benchmark sweeps.
+
+That failure is worth more than the check. A structural check inherits the errors of whatever
+stage supplies its context; this one would have converted a single upstream misclassification
+into three confident and incorrect findings, in a layer whose entire credibility rests on
+having produced no false positives (Section~\ref{sec:loc-falsepos}). The two classes excluded
+by the negative controls are therefore reachable in principle, absent from real output in
+practice, and costly to pursue --- which is the same conclusion the six implemented checks
+reach, one level further down.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Experimental Design}\label{ch:experiment}
 % PHASE 2 · target 3.0 pp
@@ -2084,7 +2108,7 @@ more, because until it was run the stronger model had never been applied to the 
 circuits. Substituting \texttt{claude-sonnet-4.5} for \texttt{gpt-4o-mini} on those twenty
 problems raised \texttt{baseline} Eval1 from 10\% to 25\% and \texttt{hybrid} from 10\% to
 50\%, with no change to the pipeline, the prompts or the circuits. The structural yield did
-not follow: one run with findings in 77 analyses, both records
+not follow: one run with findings in 120 analyses, both records
 \texttt{port\_binding\_mismatch}, every other check silent.
 
 Both directions therefore agree. Capability determines whether a testbench is right; it does
@@ -2145,7 +2169,7 @@ work reported here.
 
 It succeeded because GPT-4-turbo omitted \texttt{\$fdisplay} often enough for a script that
 inserted it to be worth 42 percentage points. Two years later the equivalent check found
-nothing to insert across 190 analyses, and the standardiser itself, which is a direct
+nothing to insert across 262 analyses, and the standardiser itself, which is a direct
 reimplementation of the same step, fired in 3 of the 220 runs and in 3 of the 140 sequential
 ones. In the other 137 it was handed a testbench that already observed every output and
 already toggled its clock, and it returned that testbench unchanged.
@@ -2323,13 +2347,21 @@ that moved one class from 47\% to 100\% all come from the same 14 testbenches
 (Section~\ref{sec:val-method}). The instrument was tuned and measured on one corpus, so the
 figure is in-sample and should not be read as a prediction for unseen circuits.
 
+\paragraph{Classification.} The circuit-type classifier was never measured. One error is
+known: \texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot}, a combinational
+next-state decoder, is labelled sequential, which is 1 of the 16 sequential labels assigned across the benchmark
+sweeps. That label controls whether the standardiser runs and which checks apply, so its
+accuracy bounds the analysis layer's, and Section~\ref{sec:val-limits} shows what a single
+such error can do to a check that depends on it.
+
 \paragraph{Coverage.} The strongest limit on the central null result is that the localiser
-could not read 124 of the 314 testbenches it was given. Pyverilog rejects SystemVerilog
+could not read 172 of the 434 testbenches it was given. Pyverilog rejects SystemVerilog
 constructs the models emit, and the fallback provides a syntax verdict rather than an
-analysis, so in those cases no check ran. The unanalysed share is worst in the benchmark
-sweep, at 89 of 153, which is the sweep whose circuits were selected to give the localiser
-its best chance. The null therefore holds over the 190 analyses that ran, and is silent about
-the rest. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
+analysis, so in those cases no check ran. The unanalysed share is worst on the benchmark
+circuits under the weaker generator, at 89 of 153 --- the sweep whose circuits were selected
+to give the localiser its best chance --- and improves to 48 of 120 under the stronger one,
+which emits less SystemVerilog. The null therefore holds over the 262 analyses that ran, and
+is silent about the rest. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
 a larger sample and might not answer it the same way; nothing in this study excludes that.
 
 \paragraph{External.} Twelve project circuits and twenty benchmark problems, two models,
@@ -2390,10 +2422,11 @@ Establishing that any of them is wrong is not possible from the testbench text.
 \textbf{RQ2.} Static analysis localises structural faults reliably and encounters them
 rarely. It detects 93\% of injected faults, localises 93\% to the correct class and signal,
 raises no false alarms on correct input, and catches 30 of the 33 faults that neither the
-compiler nor the simulator can find. In 190 analyses of real generated testbenches it
-reported two findings; in a further 124 Pyverilog could not parse the testbench and the
-checks did not run at all. A fourth sweep substituting the stronger generator on the harder
-circuit set moved Eval1 by 25 points and left the structural yield at one run in 77 analyses,
+compiler nor the simulator can find. In 262 analyses of real generated testbenches it
+reported findings on three runs; in a further 172 Pyverilog could not parse the testbench and
+the checks did not run at all. A fourth sweep substituting the stronger generator on the
+harder circuit set moved Eval1 by 25 points and left the structural yield at one run in 120
+analyses,
 so the result is not an artefact of generator capability.
 
 \textbf{RQ3.} The half of the question concerning repair guided by static analysis is
@@ -2454,7 +2487,7 @@ compiler, and none by static analysis.
 The result that generalises furthest is not about static analysis at all. AutoBench's
 largest reported gain came from a script inserting output-display statements that
 GPT-4-turbo omitted. Two years later the equivalent check in this work fired zero times in
-190 analyses, and the deterministic standardiser built for the same purpose had something to
+262 analyses, and the deterministic standardiser built for the same purpose had something to
 insert in 3 of 220 runs. The technique did not stop working; the defect it corrects stopped
 occurring.
 Auxiliary tooling built around a generator's weaknesses is calibrated against a particular
@@ -2469,12 +2502,12 @@ case where the checks might still earn their place, and the experiment is inexpe
 pipeline is provider-agnostic and the sweep costs approximately \$0.50 at the cheaper tier.
 
 \textbf{The two classes the boundary excluded.} Section~\ref{sec:val-limits} measures two
-candidate checks that reach the negative-control classes at full recall and no false positives
-on the injection corpus. Implementing them properly means writing them before the faults they
-must catch are known, and validating them on a corpus held out from their development --- the
-discipline this study did not apply to its own six checks. That would also settle whether the
-deleted \texttt{sensitivity\_list\_error} check was a bad idea or merely a bad
-implementation.
+candidate checks that reach the negative-control classes on the injection corpus and finds
+that neither would have produced a correct finding on any of the 280 real runs. Pursuing them
+is therefore not proposed. What the exercise does suggest is a different target: the
+classification stage, whose single sequential-versus-combinational error was enough to
+generate three false positives from an otherwise sound check. A check is only as reliable as
+the context it is given, and no part of this study measures the accuracy of that context.
 
 \textbf{Semantic checking.} The defects that dominate are semantic, and static analysis
 cannot reach them from the testbench alone. It could reach some of them given the
