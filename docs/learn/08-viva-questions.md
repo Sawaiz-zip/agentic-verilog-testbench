@@ -121,6 +121,40 @@ itself one of our findings.
 > zero to one. Capability affects whether the testbench is *right*. It does not appear to
 > affect whether it is *well-formed*.
 
+**Q: Your localiser gets 93%. What did AutoBench's get?**
+
+> They don't have one. AutoBench never parses the Verilog it generates — their checks are a
+> text search, the compiler, and a targeted insertion. So there is no counterpart number. Ours
+> is a component measured in isolation; theirs are end-to-end pass rates. Different objects.
+
+**Q: Then whose idea was the localiser?**
+
+> It's the assignment. The S6.ReKI.1 description asks specifically about using Pyverilog for
+> early error localisation in LLM-generated Verilog. AutoBench is the prior work we were
+> pointed at. And the hypothesis was well-founded — AutoBench's own largest gain, 42 points on
+> sequential compilation, came from exactly this category of mechanical pre-simulation fix.
+
+**Q: If the compiler and simulator catch most of those faults anyway, what does your tool add?**
+
+> Two things, and I'd separate them. For 85% of what it catches, it adds *speed* — milliseconds
+> of reading instead of a compile-and-run cycle. For the remaining 15%, 30 faults of 215, it
+> adds *capability*: nothing else can find them. Those are almost entirely unobserved outputs
+> and missing display statements — a testbench that stops checking an output doesn't fail, it
+> passes, because it isn't looking any more.
+>
+> The finding is that in real generated testbenches those faults have essentially stopped
+> occurring. So the capability is real and the opportunity to use it is not.
+
+**Q: Are the two undetectable fault classes really undetectable?**
+
+> Not in principle — only by the six checks as built, and we measured that rather than assumed
+> it. A check for "a sequential testbench that never waits on a clock edge" catches all five
+> edge-sync faults with no false positives on clean testbenches; that's the check we deleted,
+> looking in the right place. A check for "a port bound to a signal named after a different
+> port" catches the swapped bindings, because AI testbenches bind ports to identically-named
+> signals almost always. The second is a convention heuristic rather than a proof — rename the
+> signals and it stops working. Both are in future work.
+
 **Q: Did the control arm show hybrid's feedback actually works?**
 
 > Partly, and I'll be precise about how far it goes. The control, `retry_only`, gets a second

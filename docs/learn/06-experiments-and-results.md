@@ -109,6 +109,126 @@ compiler nor the simulator**. Static analysis caught **30 of those 33 — 91%**.
 
 ---
 
+## 6.2b Reading the 93% honestly
+
+This number gets quoted a lot, so know exactly what it is and what it is not.
+
+### How it was calculated
+
+Take 14 testbenches **already known to pass**. Break each one in a single, known way — 215
+broken versions in total. Ask three tools the same question: *did you notice?*
+
+**Static analysis noticed 201 of 215 = 93%.**
+
+Two things to keep straight:
+
+- It is a **detection rate**, not "accuracy". Accuracy implies a trade-off with false alarms.
+  Those are a *separate* number: **0 findings on the 14 unbroken testbenches.** Both matter —
+  a checker that flags everything would score 100% detection and be worthless.
+- **We chose the faults.** Deliberately including two classes we knew were undetectable made
+  the number *lower*, not higher. A study containing only catchable faults measures its own
+  design rather than the method.
+
+### AutoBench has no number to compare it to
+
+If someone asks *"how does 93% compare to AutoBench?"* — **it doesn't, and that's the point.**
+
+AutoBench never parses the Verilog it produces. Their scenario check is a text search, their
+auto-debug hands the problem to the compiler, and their standardiser does a targeted
+insertion. **Reading the structure is the thing this project adds.** They report end-to-end
+pass rates; we report a component measurement. Those are different objects.
+
+### Who decided to build a localiser, then?
+
+**Your supervisor.** It is the assignment, from the official S6.ReKI.1 description:
+
+> "…investigate how **Pyverilog and/or LLM-based methods can be used for early error
+> localization** in LLM-generated Verilog — making it possible to detect, narrow down, and
+> localize errors as early as possible."
+
+AutoBench is the prior work you were pointed at. The localiser is the research question. And
+the hypothesis was well-founded: AutoBench's own biggest reported win — sequential compilation
+from 55.47% to **97.33%**, forty-two points — came from exactly this category of mechanical
+pre-simulation fix. There was published evidence it should work.
+
+### Is 93% actually good? Yes — with one large asterisk
+
+Of the **201** faults static analysis catches:
+
+| | count | share |
+|---|---|---|
+| the **compiler** catches too | 62 | 31% |
+| the **simulator** catches too | 109 | 54% |
+| **nothing else catches** | **30** | **15%** |
+
+So 85% of what the localiser finds, something else finds anyway. Its unique territory is 30
+faults — and they are concentrated:
+
+| class | only-static | of that class |
+|---|---|---|
+| `unobserved_output` | 11 | **11 of 11** |
+| `missing_fdisplay` | 8 | **8 of 8** |
+| `clock_never_toggled` | 5 | 5 of 6 |
+| `width_mismatch` | 4 | 4 of 22 |
+
+The top two rows are the argument for the whole layer. A testbench that stops checking an
+output doesn't fail — it **passes**, because it is no longer looking. No simulator can ever
+catch that, however long you run it.
+
+For the redundant 85% there is still a speed argument: reading takes milliseconds, simulating
+takes a full compile-and-run cycle. Same answer, far cheaper.
+
+> ⚠️ **Common misreading.** In the table above, `port_binding_mismatch` shows "1 of 124". That
+> does **not** mean the localiser catches 1 in 124. It catches **124 of 124 — 100%**. The 1 is
+> how many were caught by static analysis *alone*; for the other 123 the compiler or simulator
+> got there too.
+
+### Two separate problems — keep them apart
+
+1. **Even when structural faults exist, most are catchable another way.** Only 15% are uniquely
+   findable by reading.
+2. **Structural faults have almost stopped occurring.** 3 runs in 262 real analyses.
+
+They compound: a small slice of a category that has nearly vanished. And note *which* classes
+disappeared — `unobserved_output` and `missing_fdisplay`, the exact two where the localiser is
+irreplaceable, fired **zero times**. The one capability nothing else has is the one with
+nothing left to do.
+
+That is the same thing that happened to AutoBench's `$fdisplay` script. Worth 42 points in
+2024; our equivalent check fired zero times. The technique didn't break — the world moved.
+
+### What the localiser genuinely cannot catch (and whether that's permanent)
+
+Two fault classes scored **0%** by design. They are the negative controls:
+
+| class | what it does | why reading fails |
+|---|---|---|
+| `swap_bindings` | binds two same-width inputs to each other's signals | every port bound, every width right — only the *meaning* is wrong |
+| `break_edge_sync` | replaces every `@(posedge clk)` with a bare `#10` delay | structurally identical to correct code |
+
+**But "undetectable" turned out to be too strong.** Both are catchable by a check we did not
+write, and we measured it:
+
+| candidate check | recall | false positives on clean testbenches |
+|---|---|---|
+| "a sequential testbench that never waits on a clock edge" | **5 / 5** | **0 / 5** |
+| "a port bound to a signal named after a *different* port" | **7 / 7** | **0 / 11** |
+
+The first is the check we deleted (`sensitivity_list_error`), done right. It failed originally
+because it looked inside `always` blocks; AI testbenches wait on edges from `initial` blocks.
+Looking for the *event control* instead of the *block* would have worked.
+
+The second works because AI testbenches bind ports to identically-named signals almost always
+— 7 of 7 and 9 of 9 in the fixtures we checked. Swapping two of them breaks that convention
+visibly. **This one is a convention heuristic, not a proof:** a testbench naming its signals
+`sig_a` and `sig_b` would swap invisibly. Say that if asked.
+
+> **The honest conclusion:** these faults are undetectable by *the six checks as built*, not by
+> structural analysis in principle. That is in the report's future work, and it costs nothing
+> to say — it makes the boundary a measured claim instead of an assumption.
+
+---
+
 ## 6.3 Experiment 2 — the four sweeps
 
 ### What we ran

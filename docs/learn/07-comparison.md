@@ -83,6 +83,23 @@ nowhere to hide. On real benchmark circuits the *same testbenches* catch only 53
 
 ---
 
+## 7.3b The 93% has no AutoBench counterpart
+
+If asked *"AutoBench's localiser scored what?"* — **they don't have one.**
+
+They never parse the Verilog they produce. Scenario checking is a text search, auto-debug
+hands the problem to the compiler, standardisation is a targeted insertion. Reading the
+structure is what this project adds, so there is nothing on their side to compare against.
+
+> **Say:** "That comparison doesn't exist. AutoBench reports end-to-end pass rates; we report
+> a component measured in isolation by fault injection. The 93% matters not because it beats
+> anything, but because it is what makes our null result interpretable — without it, 'we found
+> nothing' would be indistinguishable from 'our tool is broken.'"
+
+See doc 06 §6.2b for how the 93% was calculated and its three qualifications.
+
+---
+
 ## 7.4 Why the Eval0 comparison is only weak
 
 Ours is 95–100%, theirs 95.7%. Tempting, but two problems:

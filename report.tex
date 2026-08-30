@@ -1045,8 +1045,46 @@ already does. What the analyser contributes there is speed, not capability.
 The two control classes were detected at zero, as designed. Swapping two same-width inputs
 leaves a testbench in which every port is bound, every signal is driven, every output is
 checked, and every width agrees. The defect is in what the testbench means, not in how it is
-built, and no amount of reading will find it. The simulator caught 78\% of those, which is
-the correct division of labour.
+built. The simulator caught 78\% of those, which is the correct division of labour.
+
+\paragraph{The boundary is narrower than ``by construction'' suggests.} That phrasing is
+accurate for the six checks as implemented and too strong as a statement about structural
+analysis in general. Two candidate checks, written after the study and measured against the
+same corpus, reach both control classes.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}p{7.2cm} r r@{}}
+\toprule
+\textbf{Candidate check} & \textbf{recall} & \textbf{false positives} \\
+\midrule
+a sequential testbench that never waits on a clock edge & 5 / 5 & 0 / 5 \\
+a port bound to a signal named after a \emph{different} port & 7 / 7 & 0 / 11 \\
+\bottomrule
+\end{tabular}
+\caption{Post-hoc checks against the two negative-control classes, scored on the injection
+corpus. False positives are counted on the unmutated testbenches of the relevant type.}
+\label{tab:candidate-checks}
+\end{table}
+
+The first is the deleted \texttt{sensitivity\_list\_error} check
+(Section~\ref{sec:loc-removed}) looking in the right place. It failed originally because it
+inspected \texttt{always} blocks; generated testbenches wait on edges from \texttt{initial}
+blocks, so the same concern expressed over event controls rather than block headers recovers
+the full class.
+
+The second exploits a convention rather than a semantic property, and that limits it.
+Generated testbenches bind ports to identically-named signals almost without exception --- 7
+of 7 and 9 of 9 in the fixtures inspected --- so exchanging two bindings breaks the convention
+visibly. A testbench naming its signals \texttt{sig\_a} and \texttt{sig\_b} would swap them
+undetectably. It is a heuristic with measured precision on this population, not a proof.
+
+Both are reported as measured possibilities rather than implemented checks: neither was part
+of the frozen analyser, and adding a check after seeing which faults it must catch is exactly
+the in-sample fitting Section~\ref{sec:val-method} warns about. What they establish is that
+the boundary of the method was drawn by the checks that happened to be written, and is
+movable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Experimental Design}\label{ch:experiment}
@@ -2429,6 +2467,14 @@ cost maintenance and return nothing.
 on two commercial models. A quantised open-weight model running on local hardware is the
 case where the checks might still earn their place, and the experiment is inexpensive: the
 pipeline is provider-agnostic and the sweep costs approximately \$0.50 at the cheaper tier.
+
+\textbf{The two classes the boundary excluded.} Section~\ref{sec:val-limits} measures two
+candidate checks that reach the negative-control classes at full recall and no false positives
+on the injection corpus. Implementing them properly means writing them before the faults they
+must catch are known, and validating them on a corpus held out from their development --- the
+discipline this study did not apply to its own six checks. That would also settle whether the
+deleted \texttt{sensitivity\_list\_error} check was a bad idea or merely a bad
+implementation.
 
 \textbf{Semantic checking.} The defects that dominate are semantic, and static analysis
 cannot reach them from the testbench alone. It could reach some of them given the
