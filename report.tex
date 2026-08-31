@@ -1181,14 +1181,18 @@ a checker on inputs that cannot trigger it is not a measurement.
 
 The third sweep uses VerilogEval~\cite{liu2023verilogeval}, which is the benchmark AutoBench
 evaluated on. Running all 156 problems was outside the project's budget, so twenty were
-selected. How they were selected determines whether the result is usable, so the procedure
-is stated in full.
+selected. How they were selected determines whether the result is usable.
 
-Every problem was scored before any run took place, using three properties of its reference
+Every problem was scored before any run took place, from three properties of its reference
 design: the number of ports, the number of distinct signal widths, and whether it contains
-edge-triggered logic. The twenty highest-scoring problems were taken. Their scores range
-from 26.4 to 41.9 against a median of 18.7 across all 156, port counts run from six to
-twelve, and fifteen of the twenty are sequential.
+edge-triggered logic. The twenty highest-scoring problems were taken, with scores from 26.4
+to 41.9 against a median of 18.7 across all 156. The weighting that combined the three
+properties into that score was not preserved, so the score itself cannot be recomputed from
+the repository. What can be recomputed is the composition of the set it produced, which is
+what the argument rests on: the twenty have six to twelve ports against a median of four
+across the other 136, and fifteen of the twenty are sequential against 58 of 136. The
+selection is verifiably biased towards structural complexity whatever weighting produced
+it.
 
 The criterion is structural complexity because structural faults are only possible where
 structure is complex. This biases the sample \emph{towards} the conditions in which the
@@ -1435,8 +1439,15 @@ fired often, the analyser would have been reading files whose defects were alrea
 It fired in 3 of 220 runs, all three in the benchmark sweep, in each case inserting a
 \texttt{\$monitor} and never a clock generator. In the other 137 sequential runs it returned
 its input unchanged, so the analyser saw the model's own output. Re-running the analyser on
-the reconstructed pre-standardisation text of those three runs produces no findings. The
-ordering therefore accounts for none of the null result.
+the reconstructed pre-standardisation text of those three runs produces no findings, which
+looks contradictory --- if the standardiser inserted a \texttt{\$monitor} then an output was
+unobserved --- and is not. The two use different sources: the standardiser takes the output
+list from the extracted specification and tests each name against the testbench text, while
+\texttt{unobserved\_output} takes the ports from the parsed design and tests the signal each
+is \emph{bound to}. A specification output that the design does not declare, or one bound to
+a differently named wire, triggers the first and not the second. The ordering therefore
+accounts for none of the null result, but the two mechanisms are not measuring quite the same
+property.
 
 The \texttt{pyverilog\_only} configuration performed zero repairs in all three sweeps. It
 is the arm whose entire purpose is to act on static findings, and across 44 runs it never
