@@ -117,18 +117,21 @@ input, and catches 30 of the 33 faults that neither the compiler nor the simulat
 
 Applied to 280 pipeline runs across two models and two circuit sets, the same localiser
 reported findings on three runs in the 262 analyses in which its checks could run, and
-triggered exactly one repair in the whole study, which did not fix the defect it named. Of
+triggered exactly one repair in the whole study; that repair cleared the finding, and a
+subsequent compiler-triggered regeneration reintroduced it. Of
 153 failing runs in the ablation, 133 compiled and then failed simulation.
 Three alternative explanations were tested and rejected: neither a weaker nor a stronger
 generator changes the structural picture, twenty benchmark circuits selected for structural
 complexity produced one finding under each of them, and the localiser's correctness was
-established by measurement.
+established by measurement. A fourth is not excluded: the design the localiser read was
+generated alongside the testbench it checked, so the null is established for that flow and
+not for one in which the design is supplied.
 
 The faults static analysis detects have largely stopped occurring in current model output.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
 arm shows that uninformed regeneration is itself worth nothing ($p=1.000$ in both samples),
 leaving informed repair ahead on 11 of 13 discordant circuits across 64 matched pairs at an
-uncorrected $p=0.023$; and
+uncorrected $p=0.022$; and
 configurations executing identical logic differ by 33 percentage points at twelve circuits
 per arm and by 6.8 over the pooled 44, which bounds what a comparison at these sample sizes
 can establish.
@@ -211,8 +214,8 @@ are invisible to the compiler and the simulator together; the localiser catches 
 
 The localiser has almost nothing to find. Across 280 pipeline runs on two models and two
 circuit sets, it reported findings on three runs in the 262 analyses in which Pyverilog could
-build a syntax tree, and triggered one repair in the whole study, which did not fix the
-defect it named. The configuration whose sole purpose is to act on static findings performed
+build a syntax tree, and triggered one repair in the whole study, which cleared the finding
+before a later regeneration undid it. The configuration whose sole purpose is to act on static findings performed
 zero repairs in 44 runs. Meanwhile, in the 220-run ablation, 133 runs produced a testbench
 that compiled and then failed simulation, which is 87\% of its failures.
 
@@ -221,8 +224,9 @@ formed and semantically wrong. They connect the ports and check the outputs. The
 what the outputs should be.
 
 Three alternative explanations were tested and rejected. A weaker model performs far worse at
-the task and no worse structurally; substituting a stronger one on the harder circuits moves
-Eval1 by 25 points and leaves the structural yield unchanged. Twenty circuits from the
+the task and no worse structurally; substituting a stronger one on the harder circuits raises
+mean Eval1 across the three shared arms from 10\% to 35\% and leaves the structural yield
+unchanged. Twenty circuits from the
 standard benchmark, selected for structural complexity before any run, produced one finding
 under each generator. The localiser's correctness was established by measurement rather than
 assumed.
@@ -1065,8 +1069,11 @@ a sequential testbench that never waits on a clock edge & 5 / 5 & 0 / 5 \\
 a port bound to a signal named after a \emph{different} port & 7 / 7 & 0 / 11 \\
 \bottomrule
 \end{tabular}
-\caption{Post-hoc checks against the two negative-control classes, scored on the injection
-corpus. False positives are counted on the unmutated testbenches of the relevant type.}
+\caption{Post-hoc checks against the two negative-control classes. They are scored on a
+re-injection over the 11 circuits for which a clean Eval1-passing driver was available,
+not over the 14 of Table~\ref{tab:injection}; that smaller corpus yields 7 swapped-binding
+faults against the study's 9, and the same 5 edge-synchronisation faults. False positives
+are counted on the unmutated testbenches of the relevant type.}
 \label{tab:candidate-checks}
 \end{table}
 
@@ -1271,8 +1278,11 @@ Fisher's test treats the two arms as independent samples, which understates the 
 available here. Every circuit is run in all five configurations, so the arms are matched.
 Comparisons are therefore also reported as McNemar exact tests on the discordant pairs, which
 use the pairing and are the more powerful test. Where the two disagree, both are given.
-Ten pairwise comparisons are computed, so an unadjusted $p<0.05$ on any single one is weak
-evidence; the Bonferroni-corrected threshold is $p<0.005$.
+Ten pairwise comparisons between arms are computed, so an unadjusted $p<0.05$ on any single
+one is weak evidence; the Bonferroni-corrected threshold within that set is $p<0.005$. Those
+ten are part of a larger family --- at least twenty tests are reported in
+Chapter~\ref{ch:results} --- and Section~\ref{sec:res-strata} applies the wider correction
+where it matters.
 
 All are computed by \texttt{scripts/analyse\_results.py}, which reads the same JSON records
 the pipeline writes. No figure in Chapter~\ref{ch:results} was transcribed by hand.
@@ -1373,7 +1383,8 @@ declaration or a non-constant expression in a width --- and they say nothing abo
 testbench either way.
 
 The conclusion that failures are overwhelmingly semantic therefore survives, but the precise
-figure should be read as 108 confirmed and 25 unresolved rather than as 133.
+figure should be read as 108 confirmed, 22 indeterminate and 3 attributed to the
+generated design, rather than as 133.
 
 \section{RQ2a: Detection Capability}\label{sec:res-rq2a}
 
@@ -1406,7 +1417,7 @@ Table~\ref{tab:yield} reports what it found.
 \end{tabular}
 \caption{Static findings on real generated testbenches. Analyses exceed runs because the
 layer runs again after each repair iteration. ``Checks ran'' counts the analyses in which
-Pyverilog produced an abstract syntax tree; in the remaining 124 the six checks did not
+Pyverilog produced an abstract syntax tree; in the remaining 172 the six checks did not
 execute (Table~\ref{tab:parsers}).}
 \label{tab:yield}
 \end{table}
@@ -1506,14 +1517,15 @@ result, and this one would have supported a conclusion the completed sweep does 
 localiser reported findings in one run. Both records come from the same
 \texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot} run, at repair iterations 1
 and 3, and both are \texttt{port\_binding\_mismatch}. Every other check remained silent, as in
-all three earlier sweeps. Capability raised Eval1 by 25 points and left the structural yield
+all three earlier sweeps. Capability raised mean Eval1 across the three shared arms from
+10\% to 35\%, and \texttt{baseline} Eval1 from 10\% to 25\%, and left the structural yield
 where it was.
 
 Parse coverage improved with the model: Pyverilog built a syntax tree for 72 of 120 analyses,
 60\%, against 42\% on the same circuits with the weaker model. The stronger generator writes
 more Verilog-2001 and less of the SystemVerilog that Pyverilog rejects
 (Section~\ref{sec:loc-parse}). The coverage limitation is therefore partly a function of the
-generator, not only of the parser --- and even at 61\% it remains the largest constraint on
+generator, not only of the parser --- and even at 60\% it remains the largest constraint on
 the null result.
 
 \paragraph{A static finding triggered a repair, once.} This sweep contains the only instance
@@ -1535,17 +1547,32 @@ Table~\ref{tab:static-repair}.
 \end{tabular}
 \caption{\texttt{Prob150\_review2015\_fsmonehot} under \texttt{hybrid}. The static finding at
 iteration 1 triggered the repair at iteration 2 --- the only static-triggered repair in 280
-runs. The defect was still present at iteration 3 and the run terminated
-\texttt{exhausted\_iters} without passing.}
+runs --- and that repair cleared the finding. The compiler-triggered regeneration at
+iteration 3 reintroduced it, and the run terminated \texttt{exhausted\_iters} without
+passing.}
 \label{tab:static-repair}
 \end{table}
 
-The model was given a correct and specific diagnosis --- \emph{port \texttt{clk} of
-\texttt{RefModule} is not connected in the testbench instance} --- and did not act on it
-effectively. This is a single observation and carries no statistical weight. It is reported
-because Section~\ref{sec:concl-rq} would otherwise have to say the static-repair path was
-never exercised at all, and it now has been: once, unsuccessfully, and in the manner
-Section~\ref{sec:res-repair-fail} describes as the diagnosis not being acted on.
+The model was given a specific diagnosis --- \emph{port \texttt{clk} of \texttt{RefModule}
+is not connected in the testbench instance} --- and it acted on it: the analysis after
+iteration 2 is a successful Pyverilog parse reporting nothing, not an empty report from a
+failed one. The repair did what it was asked to do.
+
+What defeated the run is that the two feedback sources were reading different designs. The
+localiser analyses the testbench against the design the pipeline generated
+(Section~\ref{sec:loc-principle}), while evaluation compiles it against the supplied golden
+design (Section~\ref{sec:design-harness}). For this problem the two disagree on the interface:
+the generated design declares \texttt{clk} and \texttt{reset}, the golden
+\texttt{RefModule} is a combinational next-state decoder and declares neither. Connecting
+those ports satisfies the localiser and breaks compilation; leaving them unconnected does
+the reverse. The loop alternated between the two for the remainder of its budget.
+
+This is a single observation and carries no statistical weight. It is reported because
+Section~\ref{sec:concl-rq} would otherwise have to say the static-repair path was never
+exercised at all, and because what it exercised was not only the repair but the assumption
+underneath it: that the design the localiser reads is the design the testbench will be
+judged against. Section~\ref{sec:disc-alternatives} takes up how far that assumption
+reaches.
 
 \paragraph{Arm isolation, checked on the data.} Section~\ref{sec:design-graph} claims the
 five configurations differ only in three routing functions and that this is checkable rather
@@ -1626,8 +1653,9 @@ carry the argument.
 \bottomrule
 \end{tabular}
 \caption{Unpaired and circuit-matched tests, 44 matched circuits. ``Discordant'' counts the
-circuits each arm passes and the other fails. Ten pairwise comparisons were computed; a
-Bonferroni-corrected threshold is $p<0.005$.}
+circuits each arm passes and the other fails. Ten pairwise comparisons between arms were
+computed; a Bonferroni-corrected threshold within that set is $p<0.005$, and $p<0.0025$
+across the wider family of Chapter~\ref{ch:results}.}
 \label{tab:tests}
 \end{table}
 
@@ -1661,7 +1689,7 @@ Table~\ref{tab:strata} shows, they agree.
 ablation (three sweeps)      & 44 & 6  & 1 & $p=0.125$ \\
 benchmark, stronger model    & 20 & 5  & 1 & $p=0.219$ \\
 \midrule
-\textbf{stratified}          & \textbf{64} & \textbf{11} & \textbf{2} & $\mathbf{p=0.023}$ \\
+\textbf{stratified}          & \textbf{64} & \textbf{11} & \textbf{2} & $\mathbf{p=0.022}$ \\
 \bottomrule
 \end{tabular}
 \caption{\texttt{hybrid} against \texttt{retry\_only} on circuit-matched pairs. Neither sample
@@ -1673,7 +1701,7 @@ Pooling matched pairs across strata is defensible when the effect points the sam
 and here it does, 6:1 and 5:1, before any pooling is done. Eleven circuits pass under
 \texttt{hybrid} and fail under the control; two go the other way.
 
-Three qualifications have to travel with that $p=0.023$, and they are not decoration.
+Three qualifications have to travel with that $p=0.022$, and they are not decoration.
 
 It is a post-hoc analysis. The benchmark sweep was not planned as part of the ablation. It was
 run to check the null result against a stronger generator, \texttt{hybrid} was observed to
@@ -1681,9 +1709,8 @@ lead, the control arm was then added, and the two samples were pooled afterwards
 sequence is the one this report criticises elsewhere, and naming it is the minimum owed to a
 reader.
 
-It does not survive correction. Ten pairwise comparisons are computed in
-Section~\ref{sec:res-rq3} and this is an eleventh; the Bonferroni threshold across them is
-$p<0.005$.
+It does not survive correction. This is one of at least twenty tests reported in
+Chapter~\ref{ch:results}; a Bonferroni threshold across that family is $p<0.0025$.
 
 The strata are not exchangeable. They differ in generation model and in circuit set, so a
 common underlying effect is an assumption rather than an observation.
@@ -1691,7 +1718,7 @@ common underlying effect is an assumption rather than an observation.
 What can be said, then, is narrower than the p-value suggests and stronger than either sample
 alone. Across 64 circuit-matched pairs and two generators, informed repair beat uninformed
 regeneration on 11 circuits and lost on 2; the direction is consistent and the magnitude is
-similar in both samples; and a stratified test returns $p=0.023$, which is suggestive and
+similar in both samples; and a stratified test returns $p=0.022$, which is suggestive and
 uncorrected. This work does not claim the effect is established. It claims the evidence now
 points one way rather than none, which is a change from the position in
 Section~\ref{sec:res-rq3}.
@@ -1866,7 +1893,7 @@ the full 44 runs, with nine discordant circuits split six to three. That 6.8 poi
 measured null gap at exactly the sample size the ablation is read at, and it is the number
 the eleven-point hybrid--control gap should be judged against, not the 33.
 
-Read that way the gap is roughly 1.7 times the measured null rather than half of it, which
+Read that way the gap is roughly 1.7 times the measured null rather than a third of it, which
 is why it ranks first and still fails to reach significance. Resolving it would
 require either a much larger circuit set or enough repeats to average the variance down, and
 the budget allowed neither.
@@ -2104,8 +2131,9 @@ what most of this chapter does.
 
 \section{Excluding the Alternative Explanations}\label{sec:disc-alternatives}
 
-Four explanations would account for the result without saying anything about static
-analysis. Each was anticipated and tested.
+Five explanations would account for the result without saying anything about static
+analysis. Four were anticipated and tested. The fifth was identified after the sweeps had
+run, is not excluded, and is stated last.
 
 \paragraph{The generation model was too capable.} The first sweep used
 \texttt{claude-sonnet-4.5}, a strong model, and it is reasonable to suppose that a weaker
@@ -2153,6 +2181,27 @@ cover the defect classes prior work found worth correcting, and in one case exac
 AutoBench's code standardisation step inserts missing \texttt{\$fdisplay} statements, which
 is the \texttt{missing\_fdisplay} class in Table~\ref{tab:checks}. That check fired zero
 times. Section~\ref{sec:disc-autobench} takes up what changed.
+
+\paragraph{The testbench was analysed against a design it could not disagree with.} This one
+is not excluded. The localiser reads the testbench together with the design the pipeline
+generated in the same run from the same specification
+(Section~\ref{sec:loc-principle}); evaluation, in all 280 runs, compiles the testbench
+against the supplied golden design instead (Section~\ref{sec:design-harness}). Every one of
+the six checks tests agreement between two artefacts, and in deployment those two artefacts
+were co-generated: the same model wrote both interfaces from the same port list, moments
+apart. Agreement produced that way is not the same property as agreement between a testbench
+and an independently supplied design, and it is the latter that the injection study measured
+--- Section~\ref{sec:val-method} records that the corpus was deliberately built on reference
+designs rather than generated ones. A mechanism of this shape would produce the observed null
+whether or not structural faults have stopped occurring, and the study cannot separate the
+two. The single static-triggered repair of Section~\ref{sec:res-strong} is the one place
+where the two designs visibly diverged, and there the localiser's finding was correct about
+the generated design and wrong about the design the testbench was graded against.
+
+The null result is therefore established for the co-generation flow and does not transfer to
+a flow in which the design is given. Re-running the frozen localiser over every stored
+testbench paired with its golden design would settle it, costs no model calls, and is the
+first item of Section~\ref{sec:concl-future}.
 
 \section{Why Generated Testbenches Are Structurally Sound}\label{sec:disc-why}
 
@@ -2289,9 +2338,9 @@ saturates in Section~\ref{sec:res-eval2}.
 The result should not be read as showing that pre-simulation analysis is useless in general.
 Three qualifications limit its reach.
 
-The two findings that did occur are informative about where the remaining risk sits. Both
-were port-binding errors, and the one in the benchmark sweep occurred on the most port-dense
-circuit in the selection, a twelve-port state machine. Structural errors did not vanish;
+The three findings that did occur are informative about where the remaining risk sits. All
+three were port-binding errors, and the two in the benchmark sweeps fell on the same circuit
+--- the most port-dense in the selection, a twelve-port state machine. Structural errors did not vanish;
 they became rare and concentrated in the circuits with the most structure to get wrong.
 Designs far larger than anything tested here may reach a port count at which they return.
 
@@ -2303,7 +2352,7 @@ experiment, and Section~\ref{sec:concl-future} proposes it.
 
 The cost argument also survives. The layer is deterministic, requires no model call, and
 completes in milliseconds; \texttt{pyverilog\_only} consumed 2\% fewer tokens than baseline.
-A check that costs nothing and fires twice in 190 opportunities is not obviously worth
+A check that costs nothing and fires three times in 262 analyses is not obviously worth
 removing, in the way that a smoke detector which has never sounded is not obviously worth
 removing. What the result rules out is treating it as a primary defence.
 
@@ -2317,8 +2366,13 @@ independently.
 Two consequences follow for how this kind of work is evaluated. A comparison of
 configurations at temperature 0.7 with a dozen circuits per arm cannot support a conclusion
 about a difference smaller than roughly a third of the scale, and published results in this
-area are routinely reported at that granularity without intervals. AutoBench's ablation
-gains of roughly 8\% and 10\% are of exactly the magnitude that this variance would obscure.
+area are routinely reported at that granularity without intervals. That figure is a property
+of the sample size and not of the field: Section~\ref{sec:res-variance} shows it falling to
+roughly 12 points across three arms at 44 circuits, and it must be rescaled before it is
+carried anywhere else. AutoBench reports single-run pass@1 without intervals or repeats, and
+at their 156 problems the one-arm standard deviation is roughly four points, so their 8\% and
+10\% ablation gains sit at about two standard deviations of a single draw: suggestive, but
+not separable from sampling variation without repeats.
 
 The second consequence concerns controls. Any mechanism that triggers a regeneration must be
 compared against uninformed regeneration, or the measured gain confounds the value of the
@@ -2378,6 +2432,15 @@ which emits less SystemVerilog. The null therefore holds over the 262 analyses t
 is silent about the rest. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
 a larger sample and might not answer it the same way; nothing in this study excludes that.
 
+\paragraph{Analysis target.} The localiser was validated against reference designs and
+deployed against generated ones. In all 280 runs the design it read was written by the same
+model, from the same specification, in the same run as the testbench it was checked against,
+while the score reported for that testbench came from compiling it against the golden design.
+The six checks all test agreement between two artefacts, so co-generation is a plausible
+cause of the null independent of any claim about what models get wrong.
+Section~\ref{sec:disc-alternatives} states this as the one alternative explanation the study
+does not exclude, and Section~\ref{sec:concl-future} gives the experiment that would.
+
 \paragraph{External.} Twelve project circuits and twenty benchmark problems, two models,
 one provider. The benchmark problems are drawn from HDLBits exercises and are small by
 industrial standards. Nothing here speaks to testbenches for designs of realistic size.
@@ -2428,7 +2491,10 @@ during development, and a reader is entitled to know how much and in which direc
 \section{Answers to the Research Questions}\label{sec:concl-rq}
 
 \textbf{RQ1.} Failures in LLM-generated testbenches are overwhelmingly semantic. Of 153
-failing runs, 20 failed to compile and 133 compiled and then produced wrong results. The 569
+failing runs, 20 failed to compile and 133 compiled and then produced wrong results.
+Re-simulating those 133 against the designs they were actually written for resolves 108 as
+testbench faults, attributes 3 to a divergent design, and leaves 22 indeterminate because
+the generated design does not elaborate (Section~\ref{sec:res-rq1}). The 569
 individual failing scenarios concentrate on sequence and state behaviour, boundary
 conditions, and reset and timing, all of which require knowing how the design behaves.
 Establishing that any of them is wrong is not possible from the testbench text.
@@ -2439,23 +2505,26 @@ raises no false alarms on correct input, and catches 30 of the 33 faults that ne
 compiler nor the simulator can find. In 262 analyses of real generated testbenches it
 reported findings on three runs; in a further 172 Pyverilog could not parse the testbench and
 the checks did not run at all. A fourth sweep substituting the stronger generator on the
-harder circuit set moved Eval1 by 25 points and left the structural yield at one run in 120
-analyses,
+harder circuit set raised mean Eval1 across the three shared arms from 10\% to 35\% and left
+the structural yield at one run in 120 analyses,
 so the result is not an artefact of generator capability.
 
 \textbf{RQ3.} The half of the question concerning repair guided by static analysis is
-answered only in the weakest possible sense. Across 260 runs the static path triggered
-exactly one repair, on the most port-dense circuit in the study; the model was given a
-correct diagnosis naming two unconnected ports and had not fixed them two iterations later.
-One observation supports no rate, and the honest position is that the mechanism was
-exercised once and did not work.
+answered only in the weakest possible sense. In the 108 runs whose configuration permitted a
+static finding to trigger a repair, the static path fired once, on the most port-dense
+circuit in the study. The model acted on the diagnosis and the finding cleared; a subsequent
+compiler-triggered regeneration reintroduced it, because the localiser reads the generated
+design and evaluation compiles against the golden one, and for that circuit the two declare
+different ports (Section~\ref{sec:res-strong}). One observation supports no rate, and the
+honest position is that the mechanism was exercised once, under a configuration in which it
+could not settle.
 
 On the comparison between feedback strategies the answer is qualified but no longer empty.
 Within either sample alone, no configuration is distinguishable from the no-diagnostics
 control: the ablation gives $p=0.372$ unpaired and $p=0.125$ paired, the benchmark sweep
 $p=0.219$. Across both, on 64 circuit-matched pairs, informed repair beats uninformed
-regeneration on 11 circuits and loses on 2, and a stratified test returns $p=0.023$ --- a
-post-hoc analysis that does not survive correction for the eleven comparisons made, and which
+regeneration on 11 circuits and loses on 2, and a stratified test returns $p=0.022$ --- a
+post-hoc analysis that does not survive correction for the family of tests reported, and which
 this work therefore reports as suggestive rather than established
 (Section~\ref{sec:res-strata}).
 
@@ -2510,6 +2579,15 @@ cost maintenance and return nothing.
 
 \section{Future Work}\label{sec:concl-future}
 
+\textbf{Re-analyse against the golden design.} The localiser read the generated design in
+every run while evaluation compiled against the golden one
+(Section~\ref{sec:disc-alternatives}), so the null it reports is a null about co-generated
+artefacts. Re-running the frozen localiser over every stored testbench paired with its
+reference design answers this from data already on disk, deterministically and with no model
+calls. If the yield stays near zero the central claim is materially stronger; if it rises,
+the yield was suppressed by what the localiser was shown rather than by what the models
+write. This is the first thing that should be done and the cheapest.
+
 \textbf{Smaller and locally-hosted models.} The claim that structural faults are rare rests
 on two commercial models. A quantised open-weight model running on local hardware is the
 case where the checks might still earn their place, and the experiment is inexpensive: the
@@ -2553,7 +2631,7 @@ rather than regenerating it whole, which is what exposes the pipeline to the deg
 measured in Section~\ref{sec:res-retry}.
 
 \textbf{Statistical power.} Section~\ref{sec:res-strata} leaves the central comparison
-suggestive and uncorrected at $p=0.023$ over 64 matched pairs. Settling it requires a
+suggestive and uncorrected at $p=0.022$ over 64 matched pairs. Settling it requires a
 pre-registered replication rather than more post-hoc pooling: \texttt{baseline},
 \texttt{retry\_only} and \texttt{hybrid} over a randomly drawn benchmark sample, with the
 hypothesis and the test fixed in advance. Section~\ref{sec:res-decompose} sharpens the target
