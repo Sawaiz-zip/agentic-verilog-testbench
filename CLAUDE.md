@@ -194,11 +194,39 @@ class GraphState(TypedDict):
 
 ## 8. Research Questions
 
-> **Status as of 2026-08-25** — full evidence in `docs/results.md`.
-> **RQ1 ✅ answered:** 87% of failures are semantic (133 of 153); 569 failing scenarios categorised.
-> **RQ2 ✅ answered, both halves:** the localiser detects 93% of injected faults with 0 false positives (30 invisible to compiler+simulator), but fired only 2 times in 314 analyses of real output.
-> **RQ3 ⚠️ partially:** the "informed by Pyverilog" half is unanswerable — there were almost no findings to inform it. The comparison half is answered negatively: no mode beats the control at n=44 (hybrid vs `retry_only`, p=0.372).
-> **RQ4 ✅ answered:** `hybrid` buys +14 points Eval1 for +50% tokens; `compiler_only` is the efficiency winner (+7 points for +6%); `pyverilog_only` costs ~nothing and gains nothing.
+> **Status as of 2026-08-29** — full evidence in `docs/results.md`; corrections this date in git log.
+> **RQ1 ✅ answered:** 87% of failures are semantic (133 of 153). ⚠️ **Bounded 2026-08-29:** re-simulating all 133 against their *own generated* DUT gives 108 confirmed testbench-internal (81%), 3 faithful-TB-wrong-DUT (2%), 22 indeterminate (generated DUT won't elaborate). Read as "108 confirmed, 25 unresolved". Uncategorised scenarios are **209**, not 206.
+> **RQ2 ✅ answered, both halves.** ⚠️ **Denominator corrected 2026-08-29:** Pyverilog parsed only **237 of 394** analyses; 153 fell back to Verible (syntax-only — *no structural check ran*, recorded as `parse_ok`). Quote **3 runs with findings in 237 analyses**, never 3 in 394. Worst on the weak benchmark sweep (64/153); the strong sweep reaches 61%. Detection side unchanged: 93% of 215 injected faults, 0 false positives, 30 of 33 invisible to compiler+simulator.
+> **RQ3 ⚠️ partially.** The "informed by Pyverilog" half is answered only in the weakest sense: across 280 runs the static path triggered **exactly one repair**, which failed (see fourth-sweep block below). Comparison half: within either sample no arm beats the control (p=0.125 / p=0.219); **stratified over 64 matched pairs, hybrid beats the control 11–2, p=0.023 — post hoc, uncorrected, report as suggestive.** `retry_only` never beats `baseline` (p=1.000 both samples), so the extra attempt is worth nothing and the gap sits on the diagnosis. Comparison half: hybrid vs `retry_only` gap is **11.4 points** (NOT 17 — old error), p=0.372 unpaired / **p=0.125 McNemar paired**. Arms are circuit-matched so paired tests apply; hybrid vs `pyverilog_only` reaches p=0.012 paired but fails Bonferroni and is uninformative (pyverilog_only never repaired). **Decomposition:** hybrid's 18 passes = 15 first-attempt (baseline 12, same process → noise) + **3 rescued by repair**; the mechanism is worth 6.8 points, not 13.6.
+> **RQ4 ✅ answered:** `hybrid` buys +13.6 points Eval1 for +50% tokens; `compiler_only` is the efficiency winner (+7 points for +6%); `pyverilog_only` costs ~nothing and gains nothing.
+
+### Fourth sweep — `results/verilogeval_strong` (2026-08-29/30, $7.06, 60 runs)
+
+Strong model (`claude-sonnet-4.5`) on the same 20 benchmark circuits; `baseline`, `retry_only`, `hybrid`.
+Closes the empty cell in the design (strong model had never been run on the benchmark).
+
+- **Eval1: baseline 5/20 (25%), retry_only 6/20 (30%), hybrid 10/20 (50%).** Weak model was 10% on all.
+- ✅ **The control worked.** `retry_only` vs `baseline`: **McNemar p=1.000** (and p=1.000 in the ablation). The bare extra attempt is worth ~nothing. Since hybrid also gets it, the 20-point hybrid–retry gap sits on **the diagnosis**.
+- **hybrid vs retry_only: +20 pts, 5–1 discordant, McNemar p=0.219** — not significant at n=20.
+- ⚠️ **STRATIFIED (post hoc):** hybrid vs retry_only over ablation (6–1) + strong (5–1) = **11–2 across 64 matched circuits, McNemar p=0.023**. Report as **suggestive, not established**: it is post hoc (sweep run → hybrid seen leading → control added → pooled), fails Bonferroni for 11 comparisons, and the strata differ in model and circuits. See report §7.6 `sec:res-strata`.
+- ✅ **Arm isolation verified on data:** all 15 diagnosed repairs are in `hybrid`; zero in `baseline` or `retry_only`.
+- **Structural yield unchanged: 1 run with findings in 120 analyses.** Eval1 moved 25 points, structural yield did not. This is the cleanest statement of the central finding.
+- **First and only static-triggered repair in the project** (`Prob150_review2015_fsmonehot`, hybrid): iter1 compile → findings appear → iter2 **triggered by static** → iter3 compile → *`clk`/`reset` still unconnected*, ended `exhausted_iters`. Exercised once, failed. RQ3's "informed by Pyverilog" half is no longer strictly unanswerable.
+- **Repair success may depend on the model:** 5/15 (33%) strong vs 3/23 (13%) mixed. Fisher p=0.22 — a direction, not an established difference.
+- **Parse coverage improves with the model:** 72/120 = 60% Pyverilog vs 42% on the same circuits with the weak model. Stronger model writes more Verilog-2001, less SystemVerilog.
+- **Eval2 vs AutoBench's published mutants: 100/150 = 66.7% raw**; under their ≥80% rule, hybrid clears 4/20 = **20%** (AutoBench: 44.81% total, 26.00% SEQ).
+- ⚠️ **Variance lesson:** at 9/20 circuits hybrid read 89%; finished at 50%. Nothing changed but n. Do not read a sweep in progress.
+
+**Totals across all four sweeps: 280 runs, 434 analyses, 262 parsed by Pyverilog, 3 runs with findings, 180/280 runs got ≥1 real structural analysis. Project spend ~$16.50.**
+
+### Findings added 2026-08-29 (not in the original four RQs)
+
+- **Why repairs fail.** 23 runs performed a diagnosed repair; **3 passed (13%)**. Of the 20 failures: 7 regenerated a testbench failing the *identical* scenario set (diagnosis not acted on); 13 exhausted the budget with a *different* error signature every iteration — across 14 multi-iteration runs **no signature ever repeated**. Ten of seventeen ended 1–2 scenarios short. Prior work does not report this.
+- **Eval2 ceiling is a fixture-size artefact, not a mutant artefact.** Pre-registered pilot (`specs/012-mutant-quality/PILOT_CRITERIA.md`, committed before generation): regenerating mutants with the strong model under AutoBench's own prompt, equivalent mutants filtered, gives **97.4%** vs 96.7% before — one point. The same testbenches score **53.8%** on AutoBench's *published* mutants for the benchmark circuits. Prompt structure governs diversity; model governs validity; neither governs the score. Correct pooled Eval2 is **324/335**, not 189/190 (that was one sweep).
+- **AutoBench's mutants are public** — `AutoBench/AutoBench` on GitHub, `data/HDLBits/HDLBits_data_mutants.jsonl`, 1,525 mutants covering all 156 problems (20/20 of our benchmark subset). Their Eval2 is *agreement with the golden TB at ≥80%*, not raw detection; under their rule our benchmark runs give 10%.
+- **AutoBench's Eval1 figures** (from paper Table 1, never previously cited here): **51.47% total, 64.81% CMB, 37.07% SEQ**; Eval0 95.71%; Eval2 44.81%.
+- ⚠️ **The 20-problem benchmark subset is the hardest quintile** (complexity 26.4–41.9 vs median 18.7; 75% sequential vs the benchmark's 48%). The model confound is now removed by the fourth sweep; the *selection* bias remains. Comparison is reportable but establishes no ranking (n=20, Wilson 30–70%). Weighting their numbers to a 75%-SEQ mix gives ~44%, not 51.47%.
+- **Variance floor is sample-size dependent.** 33 points is at n=12/arm (expected spread of 3 identical arms there is ~24, so 33 is a high-but-ordinary draw). At n=44 it is ~12 expected, and the *measured* null gap between `baseline` and `pyverilog_only` (identical logic) is **6.8 points**. Judge the 11.4-point gap against 6.8, not 33.
 
 
 - **RQ1.** What categories of functional errors appear most frequently in LLM-generated Verilog **testbenches**, and which of these are detectable without full simulation?
@@ -311,6 +339,8 @@ All 9 references verified correct as of session creation.
 
 - ✅ **Scope pivot confirmed** — supervisor email 2026-05-26 confirmed testbench gen + Pyverilog localisation.
 - ⚠️ **Dataset re-scoped (2026-08-24)** — the VerilogEval 156 run is **not funded** and will not be done. Evaluation uses a 12-circuit set (6 easy existing + 6 purpose-built hard) × 5 modes × 2 repeats at temp 0.7. Note the absence of a public-benchmark head-to-head as a limitation in the report.
+  - **Reopened 2026-08-29.** Measured per-run cost from telemetry is far below the earlier estimate: `baseline` \$0.074, `retry_only` \$0.108, `hybrid` \$0.103 per run at the strong tier. Full 156 × 3 modes ≈ \$44 / 19.5 h; **random 60 × 3 modes ≈ \$17 / 7.5 h**. A strong-model sweep on the existing hard-20 (`results/verilogeval_strong`, baseline + hybrid) was run this date.
+  - ⚠️ **Design constraint for any further benchmark run: it MUST include `retry_only`.** A baseline-vs-hybrid comparison without the control reproduces exactly the confound this project criticises AutoBench for (Contribution #4, report §2.6). Prefer a *random* sample with 3 arms over the full 156 with 2 arms — the current 20 are the hardest quintile and are not representative.
 - **Pyverilog robustness on LLM-generated code** — *quantified* (2026-07-15): Pyverilog parses **7/8** LLM testbenches after fixing a concat/newline bug; Verible fallback (now installed) covers the rest. Failure was structural (parse), not semantic.
 - ✅ **SEQ standardisation** — done deterministically in Python (`fdisplay_inserter.py`), no LLM.
 - **Overfitting / generalisation** — the SEQ prompt was tuned on the 8 local fixtures. Without the 156 held-out run this cannot be fully resolved; mitigate by freezing prompts before the sweep and by adding 6 circuits the prompt was never tuned on.
