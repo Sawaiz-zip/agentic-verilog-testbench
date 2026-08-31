@@ -123,9 +123,11 @@ subsequent compiler-triggered regeneration reintroduced it. Of
 Three alternative explanations were tested and rejected: neither a weaker nor a stronger
 generator changes the structural picture, twenty benchmark circuits selected for structural
 complexity produced one finding under each of them, and the localiser's correctness was
-established by measurement. A fourth is not excluded: the design the localiser read was
-generated alongside the testbench it checked, so the null is established for that flow and
-not for one in which the design is supplied.
+established by measurement. A fourth was found late and measured: the design the localiser
+read was generated alongside the testbench it checked, and re-analysing every stored
+testbench against its reference design instead raises the finding rate from 2 of 164 runs to
+7. Co-generation understated the yield by roughly a factor of three and does not account for
+it.
 
 The faults static analysis detects have largely stopped occurring in current model output.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
@@ -2183,8 +2185,9 @@ is the \texttt{missing\_fdisplay} class in Table~\ref{tab:checks}. That check fi
 times. Section~\ref{sec:disc-autobench} takes up what changed.
 
 \paragraph{The testbench was analysed against a design it could not disagree with.} This one
-is not excluded. The localiser reads the testbench together with the design the pipeline
-generated in the same run from the same specification
+was identified after the sweeps had run, and unlike the other four it is a defect in the
+experiment rather than a rival reading of it. The localiser reads the testbench together with
+the design the pipeline generated in the same run from the same specification
 (Section~\ref{sec:loc-principle}); evaluation, in all 280 runs, compiles the testbench
 against the supplied golden design instead (Section~\ref{sec:design-harness}). Every one of
 the six checks tests agreement between two artefacts, and in deployment those two artefacts
@@ -2193,15 +2196,51 @@ apart. Agreement produced that way is not the same property as agreement between
 and an independently supplied design, and it is the latter that the injection study measured
 --- Section~\ref{sec:val-method} records that the corpus was deliberately built on reference
 designs rather than generated ones. A mechanism of this shape would produce the observed null
-whether or not structural faults have stopped occurring, and the study cannot separate the
-two. The single static-triggered repair of Section~\ref{sec:res-strong} is the one place
-where the two designs visibly diverged, and there the localiser's finding was correct about
-the generated design and wrong about the design the testbench was graded against.
+whether or not structural faults have stopped occurring.
 
-The null result is therefore established for the co-generation flow and does not transfer to
-a flow in which the design is given. Re-running the frozen localiser over every stored
-testbench paired with its golden design would settle it, costs no model calls, and is the
-first item of Section~\ref{sec:concl-future}.
+It is testable without running the pipeline again, because every testbench was stored. The
+frozen localiser was re-run over all 280 of them twice: once paired with the generated
+design, reproducing deployment, and once paired with the golden design, which is the pairing
+the injection study validated. Same testbenches, same checks, same code path; only the design
+differs. Table~\ref{tab:golden-reanalysis} gives the result.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r@{}}
+\toprule
+\textbf{Design the localiser was shown} & \textbf{parsed} & \textbf{runs with a finding} \\
+\midrule
+the generated design (as deployed)      & 177 / 280 & 2 \\
+the golden design (as validated)        & 177 / 280 & \textbf{7} \\
+\bottomrule
+\end{tabular}
+\caption{The frozen localiser re-run over every stored testbench against each design in turn.
+On the 164 runs where both designs parsed, 6 runs produce a finding only against the golden
+design and 1 only against the generated one (exact McNemar $p=0.125$). Reproduced by
+\texttt{scripts/reanalyse\_against\_golden.py}.}
+\label{tab:golden-reanalysis}
+\end{table}
+
+The effect is real and it is small. Pairing the testbench with the design it is actually
+graded against roughly triples the finding rate, from 2 of 164 to 7 of 164, so co-generation
+did suppress the yield. It does not account for the null. Four percent is not a rate at which
+a layer can be a primary defence either, and the increase is concentrated rather than
+distributed: all six additional findings are the same circuit,
+\texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot}, whose generated design
+declares \texttt{clk} and \texttt{reset} where the golden \texttt{RefModule} declares neither
+--- the divergence behind the single static-triggered repair of
+Section~\ref{sec:res-strong}. Across 32 circuits only two ever produce a finding against the
+golden design.
+
+One further reading favours the layer. All seven golden-arm findings fall on runs that failed
+Eval1; not one was raised against a testbench that passed. The zero-false-positive result of
+Section~\ref{sec:val-results} was measured on injected faults, and this is the same property
+observed on real generated output.
+
+The null therefore survives with its scope corrected. It is a null about how often these
+faults occur, measured at a rate that co-generation had understated by roughly a factor of
+three, and the corrected rate still supports the conclusion the uncorrected one did.
 
 \section{Why Generated Testbenches Are Structurally Sound}\label{sec:disc-why}
 
@@ -2342,7 +2381,29 @@ The three findings that did occur are informative about where the remaining risk
 three were port-binding errors, and the two in the benchmark sweeps fell on the same circuit
 --- the most port-dense in the selection, a twelve-port state machine. Structural errors did not vanish;
 they became rare and concentrated in the circuits with the most structure to get wrong.
-Designs far larger than anything tested here may reach a port count at which they return.
+Table~\ref{tab:ports} groups the runs by the port count of their design. The direction is what
+that argument predicts and the evidence for it is thin: with three findings no relationship is
+statistically detectable, and the most that can be said is that none occurred below five ports
+and that the two benchmark findings fell on the widest interface in the study. Designs far
+larger than anything tested here may reach a port count at which these faults return; nothing
+here establishes that they do.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}l r r@{}}
+\toprule
+\textbf{DUT ports} & \textbf{runs} & \textbf{runs with a finding} \\
+\midrule
+2--4  &  70 & 0 \\
+5--8  & 136 & 1 \\
+9--14 &  74 & 2 \\
+\bottomrule
+\end{tabular}
+\caption{Findings against the port count of the design under test, over all 280 runs. The
+widest design in the study has twelve ports.}
+\label{tab:ports}
+\end{table}
 
 Smaller and locally-hosted models are the more likely case. This work tested two models from
 two commercial providers, both well beyond the capability of a model a laboratory might run
@@ -2428,18 +2489,25 @@ constructs the models emit, and the fallback provides a syntax verdict rather th
 analysis, so in those cases no check ran. The unanalysed share is worst on the benchmark
 circuits under the weaker generator, at 89 of 153 --- the sweep whose circuits were selected
 to give the localiser its best chance --- and improves to 48 of 120 under the stronger one,
-which emits less SystemVerilog. The null therefore holds over the 262 analyses that ran, and
-is silent about the rest. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
+which emits less SystemVerilog. The unread files are not a random sample of the rest: the 180
+runs whose testbench Pyverilog could read pass Eval1 at 45.6\%, and the 100 that fell back to
+Verible pass at 6.0\% (Fisher $p<0.0001$; Eval0 96.1\% against 86.0\%, $p=0.004$). The
+constructs that defeat the parser travel with testbenches that are worse in general, so the
+localiser was reading the healthier part of its own input and the null is measured there. This
+compounds with the analysis-target correction below rather than cancelling it: both say the
+layer saw the easier cases. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
 a larger sample and might not answer it the same way; nothing in this study excludes that.
 
 \paragraph{Analysis target.} The localiser was validated against reference designs and
 deployed against generated ones. In all 280 runs the design it read was written by the same
 model, from the same specification, in the same run as the testbench it was checked against,
 while the score reported for that testbench came from compiling it against the golden design.
-The six checks all test agreement between two artefacts, so co-generation is a plausible
-cause of the null independent of any claim about what models get wrong.
-Section~\ref{sec:disc-alternatives} states this as the one alternative explanation the study
-does not exclude, and Section~\ref{sec:concl-future} gives the experiment that would.
+Re-analysing every stored testbench against its golden design
+(Section~\ref{sec:disc-alternatives}) shows this understated the finding rate by roughly a
+factor of three, from 2 of 164 to 7 of 164. The correction is bounded and does not change the
+conclusion, but the figure quoted throughout Chapter~\ref{ch:results} is the deployment one
+and is the lower of the two. A pipeline given the design rather than generating it should
+expect the higher rate.
 
 \paragraph{External.} Twelve project circuits and twenty benchmark problems, two models,
 one provider. The benchmark problems are drawn from HDLBits exercises and are small by
@@ -2504,7 +2572,11 @@ rarely. It detects 93\% of injected faults, localises 93\% to the correct class 
 raises no false alarms on correct input, and catches 30 of the 33 faults that neither the
 compiler nor the simulator can find. In 262 analyses of real generated testbenches it
 reported findings on three runs; in a further 172 Pyverilog could not parse the testbench and
-the checks did not run at all. A fourth sweep substituting the stronger generator on the
+the checks did not run at all, and those unread runs are the worse ones --- they pass Eval1 at
+6.0\% against 45.6\% for the runs it could read. Two corrections bound the figure rather than
+overturn it: the localiser was shown the design generated beside the testbench rather than the
+one it was graded against, and pairing it with the reference design instead raises the rate
+from 2 of 164 runs to 7 (Section~\ref{sec:disc-alternatives}). A fourth sweep substituting the stronger generator on the
 harder circuit set raised mean Eval1 across the three shared arms from 10\% to 35\% and left
 the structural yield at one run in 120 analyses,
 so the result is not an artefact of generator capability.
@@ -2579,14 +2651,14 @@ cost maintenance and return nothing.
 
 \section{Future Work}\label{sec:concl-future}
 
-\textbf{Re-analyse against the golden design.} The localiser read the generated design in
-every run while evaluation compiled against the golden one
-(Section~\ref{sec:disc-alternatives}), so the null it reports is a null about co-generated
-artefacts. Re-running the frozen localiser over every stored testbench paired with its
-reference design answers this from data already on disk, deterministically and with no model
-calls. If the yield stays near zero the central claim is materially stronger; if it rises,
-the yield was suppressed by what the localiser was shown rather than by what the models
-write. This is the first thing that should be done and the cheapest.
+\textbf{A flow in which the design is supplied.} Re-analysing the stored testbenches against
+their golden designs (Section~\ref{sec:disc-alternatives}) triples the finding rate and
+concentrates the increase on the one circuit where the generated and reference interfaces
+diverge. That is a bound obtained after the fact; it is not the same as running the pipeline
+in a flow where the design is given rather than generated, which is the flow in which a
+localiser of this kind would be deployed and the one in which these checks have something to
+disagree with. Repeating the sweeps with the golden design supplied to generation as well as
+to evaluation is the experiment this study should have run, and it costs one sweep.
 
 \textbf{Smaller and locally-hosted models.} The claim that structural faults are rare rests
 on two commercial models. A quantised open-weight model running on local hardware is the

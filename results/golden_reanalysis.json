@@ -1,0 +1,4226 @@
+[
+  {
+    "run_id": "663122dd",
+    "task_id": "alu_1bit",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0b6f00b3",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ae0dca71",
+    "task_id": "bcd_to_7seg",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "76c39457",
+    "task_id": "priority_encoder",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b7adf44c",
+    "task_id": "dff",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d764fded",
+    "task_id": "alu_1bit",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "9bcea436",
+    "task_id": "bcd_to_7seg",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "edf8f886",
+    "task_id": "shift_register",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c71c8c85",
+    "task_id": "fifo_8x8",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7235158d",
+    "task_id": "fifo_8x8",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "03d73be5",
+    "task_id": "counter_4bit",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d64fdad6",
+    "task_id": "alu_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3258523b",
+    "task_id": "priority_encoder",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "614960fc",
+    "task_id": "alu_1bit",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8966d47d",
+    "task_id": "traffic_light_fsm",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5861d26b",
+    "task_id": "priority_encoder",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "47fe2ecd",
+    "task_id": "bcd_to_7seg",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a3298560",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "891ebe39",
+    "task_id": "traffic_light_fsm",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c3c918be",
+    "task_id": "fifo_8x8",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ebfbad6a",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "68412839",
+    "task_id": "comparator_2bit",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3c6a2efc",
+    "task_id": "fifo_8x8",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "432e3adb",
+    "task_id": "dff",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "83cf4ce2",
+    "task_id": "counter_4bit",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "97c690bf",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bb835e64",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "03c37495",
+    "task_id": "shift_register",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "80d4f2d4",
+    "task_id": "dff",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "fb2ed6ec",
+    "task_id": "priority_encoder",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d6f28796",
+    "task_id": "alu_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "00517e5e",
+    "task_id": "counter_4bit",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8d8da8bf",
+    "task_id": "priority_encoder",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "52b5f1b0",
+    "task_id": "counter_4bit",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d966a36b",
+    "task_id": "comparator_2bit",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ee80e5cb",
+    "task_id": "traffic_light_fsm",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "54fcae7d",
+    "task_id": "shift_register",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "300623a3",
+    "task_id": "alu_1bit",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "170edf9f",
+    "task_id": "shift_register",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b553dd2a",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3369c2b0",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "43bbaf26",
+    "task_id": "bcd_to_7seg",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "72aff03f",
+    "task_id": "alu_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ca6cc10e",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5fa9c975",
+    "task_id": "alu_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4bef4b5f",
+    "task_id": "counter_4bit",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cf35b74e",
+    "task_id": "comparator_2bit",
+    "sweep": "final_hard_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f4cb4f90",
+    "task_id": "traffic_light_fsm",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bcbd4e8e",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "85876ab0",
+    "task_id": "fifo_8x8",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "31e48518",
+    "task_id": "shift_register",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "353c3e9a",
+    "task_id": "alu_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c58907da",
+    "task_id": "comparator_2bit",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2da65639",
+    "task_id": "dff",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "9f80ba90",
+    "task_id": "alu_1bit",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "783cec49",
+    "task_id": "traffic_light_fsm",
+    "sweep": "final_hard_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7b216367",
+    "task_id": "dff",
+    "sweep": "final_hard_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "859d4e0b",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0025531e",
+    "task_id": "comparator_2bit",
+    "sweep": "final_hard_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b499308d",
+    "task_id": "bcd_to_7seg",
+    "sweep": "final_hard_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "088cceab",
+    "task_id": "priority_encoder",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0cd81b57",
+    "task_id": "fifo_8x8",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "13208d18",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "23498461",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7b0ee829",
+    "task_id": "counter_4bit",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "601375c6",
+    "task_id": "alu_1bit",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "00b8d3b2",
+    "task_id": "dff",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ac2d10b7",
+    "task_id": "dff",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "60437249",
+    "task_id": "alu_1bit",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5636bf60",
+    "task_id": "comparator_2bit",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a23f23f1",
+    "task_id": "bcd_to_7seg",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "289e88de",
+    "task_id": "alu_1bit",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ac8afd8a",
+    "task_id": "bcd_to_7seg",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ed08c641",
+    "task_id": "shift_register",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a3c7782b",
+    "task_id": "traffic_light_fsm",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "81eeff17",
+    "task_id": "alu_1bit",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "09c537a4",
+    "task_id": "priority_encoder",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f086037c",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d1445670",
+    "task_id": "shift_register",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7c721735",
+    "task_id": "traffic_light_fsm",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c81de302",
+    "task_id": "dff",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d94ae4a8",
+    "task_id": "fifo_8x8",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a2dae9c9",
+    "task_id": "alu_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "42cfcf81",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b749db6e",
+    "task_id": "comparator_2bit",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "446dfb09",
+    "task_id": "priority_encoder",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0d35e85b",
+    "task_id": "dff",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2f4ca0f9",
+    "task_id": "fifo_8x8",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7a19b236",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1eb00879",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "379cbcae",
+    "task_id": "priority_encoder",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "52e875f4",
+    "task_id": "traffic_light_fsm",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6fc8a15c",
+    "task_id": "shift_register",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6a9b9c67",
+    "task_id": "shift_register",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "db3abfd3",
+    "task_id": "fifo_8x8",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3a0f6b79",
+    "task_id": "fifo_8x8",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3959677a",
+    "task_id": "bcd_to_7seg",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6c4af81a",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b8bb3817",
+    "task_id": "counter_4bit",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "376a067f",
+    "task_id": "alu_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4525e44c",
+    "task_id": "counter_4bit",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "19e56191",
+    "task_id": "comparator_2bit",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4789fd8a",
+    "task_id": "alu_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "82e255b8",
+    "task_id": "shift_register",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d4e9d137",
+    "task_id": "traffic_light_fsm",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "76e15b2b",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "095f62c7",
+    "task_id": "alu_1bit",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "14c71943",
+    "task_id": "alu_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "74b14cd5",
+    "task_id": "traffic_light_fsm",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f418888b",
+    "task_id": "bcd_to_7seg",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "017d0ada",
+    "task_id": "alu_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1dd3155c",
+    "task_id": "dff",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "77e60ae8",
+    "task_id": "comparator_2bit",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch"
+      ]
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "9666b744",
+    "task_id": "fsm_sequence_detector",
+    "sweep": "weak_model_r1",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a2a4a0d5",
+    "task_id": "bcd_to_7seg",
+    "sweep": "weak_model_r1",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7ef19cde",
+    "task_id": "counter_4bit",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2f2551b3",
+    "task_id": "barrel_shifter_8bit",
+    "sweep": "weak_model_r1",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "67625825",
+    "task_id": "comparator_2bit",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7dce8f55",
+    "task_id": "priority_encoder",
+    "sweep": "weak_model_r1",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3b893483",
+    "task_id": "counter_4bit",
+    "sweep": "weak_model_r1",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "472e30fe",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5b5cffe7",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4474de4d",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "66d8c795",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b986eae8",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "aef1b480",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "12d84c8a",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "487aa94c",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "36d1eda7",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3c11911c",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "25811899",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "58fc1362",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bd192fd1",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "9de336b4",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cc938ffa",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "871f053e",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6d8680fa",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bd92eb44",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "2084ff8b",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cbd2fe41",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c8b1fd28",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f764a893",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ca028899",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2a62f86b",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8d6e5122",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b77cea6f",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "afead628",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "97b31f9c",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c1a68c54",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "45bd65ac",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a7c75e12",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a0985cbd",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5436143f",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "aaebf806",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a5c0cdf1",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "30326414",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "44a15d09",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d68ec207",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1790018f",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "94277c89",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "fd6d207b",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ce0293ee",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1b4d7963",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bf44a11e",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2b78ec75",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "110ee1b2",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "22eddf2c",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "9ec1d77f",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "fd5972d3",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "051dc8c5",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5326d4d0",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f86a3a83",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4de84b96",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a7157b28",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "dfe9dce7",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "843b76ca",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8e516c67",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ea3af6e0",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "71a96463",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f053b05a",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4abd0b0d",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5fd89253",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a7ae0835",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "218761b5",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5e1a2fff",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "46d93b5d",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "4d6806ef",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "aae1bb26",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8c056c8a",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "fafada87",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ab890ec0",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "619adb73",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ae5cd2fd",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "bdfb1ca4",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3421454b",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a459bfd8",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8cbf2d8d",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "883e8254",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7c79b449",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ca526d04",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c33ba39f",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "862e421d",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "aa45ecb6",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "dcf55bc1",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c8033e1f",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d3f92653",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "196139ad",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "ea61add5",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "e3e5ff9d",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "db8670b9",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "452a92a5",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_weak",
+    "mode": "compiler_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "17b27b3d",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_weak",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "d174fa6c",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "e72c1f14",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "879a7455",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "e7c881d7",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c02a5961",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_weak",
+    "mode": "pyverilog_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "dcbf7840",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_weak",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "81b7439e",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "e803dbcb",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_weak",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "08847804",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d6bd8c0d",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "982f3f84",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f6b49ce0",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0d14eb93",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1eb0430b",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "e0ee7917",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b3b0e8a6",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c7d82599",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8af826a9",
+    "task_id": "Prob118_history_shift",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "e27bd047",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3ed4800d",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "97364207",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3fca6fea",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "a263de3b",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b7a3a245",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "9f0835b5",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "1030ceb7",
+    "task_id": "Prob142_lemmings2",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c3124bcd",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cd72adfc",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "8c01e362",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "77de0123",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "329d2b42",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c67db702",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5a2dea29",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d81b6f6e",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch"
+      ]
+    }
+  },
+  {
+    "run_id": "d3b80eeb",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5e719fd7",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6780c2e4",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "363dfc7e",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": [
+        "port_binding_mismatch",
+        "port_binding_mismatch"
+      ]
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "012da4ea",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5bc46751",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "32f2443d",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "97fa65dd",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7bd52f0b",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2bc038e2",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7e9d115c",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "30ca8b43",
+    "task_id": "Prob140_fsm_hdlc",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "7d79e0f3",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "6f7a2a43",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "940652ba",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b5d21b1b",
+    "task_id": "Prob150_review2015_fsmonehot",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f3591761",
+    "task_id": "Prob141_count_clock",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "5ddf301b",
+    "task_id": "Prob139_2013_q2bfsm",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "137a685d",
+    "task_id": "Prob149_ece241_2013_q4",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d75c8d61",
+    "task_id": "Prob065_7420",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "d3d8c251",
+    "task_id": "Prob064_vector3",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "2d2caa31",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "75635f85",
+    "task_id": "Prob153_gshare",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "0016d66f",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "484555b2",
+    "task_id": "Prob152_lemmings3",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "b5f4adf4",
+    "task_id": "Prob127_lemmings1",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "f9811a12",
+    "task_id": "Prob081_7458",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "3de9dec7",
+    "task_id": "Prob156_review2015_fancytimer",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "455fad16",
+    "task_id": "Prob087_gates",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "c01278e4",
+    "task_id": "Prob085_shift4",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "013b7515",
+    "task_id": "Prob115_shift18",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "fa783623",
+    "task_id": "Prob151_review2015_fsm",
+    "sweep": "verilogeval_strong",
+    "mode": "retry_only",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cd59fc30",
+    "task_id": "Prob084_ece241_2013_q12",
+    "sweep": "verilogeval_strong",
+    "mode": "hybrid",
+    "eval1_pass": true,
+    "generated": {
+      "parse_ok": true,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": true,
+      "findings": []
+    }
+  },
+  {
+    "run_id": "cae52333",
+    "task_id": "Prob155_lemmings4",
+    "sweep": "verilogeval_strong",
+    "mode": "baseline",
+    "eval1_pass": false,
+    "generated": {
+      "parse_ok": false,
+      "findings": []
+    },
+    "golden": {
+      "parse_ok": false,
+      "findings": []
+    }
+  }
+]
