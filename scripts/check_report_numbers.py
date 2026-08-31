@@ -24,6 +24,9 @@ def load(dirs):
     return out
 
 recs = load(["final_hard_r1", "weak_model_r1", "verilogeval_weak"])
+# The static layer is reported over all four sweeps; the arm-level claims below
+# are scoped to the 220-run ablation sample and must not include the strong sweep.
+all_recs = recs + load(["verilogeval_strong"])
 inj = json.loads((ROOT / "results" / "injection_study_final.json").read_text())
 
 checks = []
@@ -41,10 +44,13 @@ claim("failed to compile", nocomp, rf"\b{nocomp}\b.*failed to compile|Failed to 
 claim("compiled then failed sim", simfail, rf"\b{simfail}\b")
 claim("semantic share", f"{100*simfail/(nocomp+simfail):.0f}%", r"87\\%")
 
-analyses = sum(len(r.get("static_findings") or []) for r in recs)
-hits = sum(1 for r in recs if any(f.get("error_types") for f in (r.get("static_findings") or [])))
+analyses = sum(len(r.get("static_findings") or []) for r in all_recs)
+parsed = sum(1 for r in all_recs for f in (r.get("static_findings") or [])
+             if f.get("parser_used") == "pyverilog")
+hits = sum(1 for r in all_recs if any(f.get("error_types") for f in (r.get("static_findings") or [])))
 claim("static analyses", analyses, rf"\b{analyses}\b")
-claim("runs with a finding", hits, r"two findings|2 / 220")
+claim("analyses Pyverilog parsed", parsed, rf"\b{parsed}\b")
+claim("runs with a finding", hits, rf"{hits} runs with findings|three runs in the {parsed}")
 
 pyv = [r for r in recs if r["mode"] == "pyverilog_only"]
 claim("pyverilog_only runs", len(pyv),
