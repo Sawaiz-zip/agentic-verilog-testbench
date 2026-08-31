@@ -123,11 +123,9 @@ subsequent compiler-triggered regeneration reintroduced it. Of
 Three alternative explanations were tested and rejected: neither a weaker nor a stronger
 generator changes the structural picture, twenty benchmark circuits selected for structural
 complexity produced one finding under each of them, and the localiser's correctness was
-established by measurement. A fourth was found late and measured: the design the localiser
-read was generated alongside the testbench it checked, and re-analysing every stored
-testbench against its reference design instead raises the finding rate from 2 of 164 runs to
-7. Co-generation understated the yield by roughly a factor of three and does not account for
-it.
+established by measurement. A fourth was found late and measured: the localiser read the
+design generated beside the testbench rather than the one it was graded against, which
+understated the finding rate by roughly a factor of three without accounting for it.
 
 The faults static analysis detects have largely stopped occurring in current model output.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
@@ -206,8 +204,7 @@ against feedback that requires compilation or simulation?
 
 \section{Summary of Findings}\label{sec:intro-findings}
 
-The answer to RQ2 has two halves that point in opposite directions, and stating both here is
-preferable to letting a reader discover the second at page thirty.
+The answer to RQ2 has two halves that point in opposite directions. Both are stated here.
 
 The localiser works. Measured by injecting 215 faults of known identity into testbenches
 known to pass, it detects 93\%, names the correct fault class and the correct signal in 93\%
@@ -241,8 +238,7 @@ assumed.
 loop, deterministic standardisation and per-call telemetry, which completed 280 evaluation
 runs without a harness failure.
 \item A pre-simulation static localiser for testbench--design interaction faults, together
-with the fault-injection method used to measure it. The measurement is the contribution; the
-analyser without it would be an assertion.
+with the fault-injection method used to measure it.
 \item An empirical characterisation of where LLM-generated testbenches fail, showing the
 structural classes that prior work corrects to be largely absent from current model output.
 \item A no-diagnostics control arm for ablations of this kind, which separates the value of
@@ -1299,10 +1295,9 @@ JSON records the pipeline writes, and can be regenerated from the repository.
 \section{Pipeline Reliability}\label{sec:res-reliability}
 
 The four sweeps completed 280 of 280 planned runs with no harness errors, no rate-limit
-aborts and no runs abandoned for want of credit. Reporting this first is not a formality.
-The measurements that follow are only interpretable if the machinery producing them ran to
-completion, and a sweep that silently drops a configuration would bias every rate in the
-chapter.
+aborts and no runs abandoned for want of credit. A sweep that silently drops a configuration
+would bias every rate in this chapter, so the completion figure is reported before the
+measurements that rest on it.
 
 \section{RQ1: Where Failures Originate}\label{sec:res-rq1}
 
@@ -1388,15 +1383,13 @@ The conclusion that failures are overwhelmingly semantic therefore survives, but
 figure should be read as 108 confirmed, 22 indeterminate and 3 attributed to the
 generated design, rather than as 133.
 
-\section{RQ2a: Detection Capability}\label{sec:res-rq2a}
+\section{RQ2: Detection Capability and Yield}\label{sec:res-rq2b}
 
-Chapter~\ref{ch:validation} reports the fault-injection study in full. The three figures
-carried forward here are that the localiser detected 93\% of 215 injected faults, localised
-93\% to the correct class and signal, and produced no findings on any of the 14 unmutated
-testbenches. Thirty-three faults were missed by both the compiler and the simulator; static
-analysis found 30 of them.
-
-\section{RQ2b: Yield on Generated Testbenches}\label{sec:res-rq2b}
+Chapter~\ref{ch:validation} answers the detection half in full: 93\% of 215 injected faults
+detected, 93\% localised to the correct class and signal, no findings on any of the 14
+unmutated testbenches, and 30 of the 33 faults that neither the compiler nor the simulator
+caught. This section answers the other half --- how often those faults occur in testbenches
+the pipeline actually generated.
 
 The localiser ran on every generated testbench in every sweep, in all five configurations,
 whether or not the configuration was permitted to act on the result.
@@ -1426,15 +1419,13 @@ execute (Table~\ref{tab:parsers}).}
 
 Three runs with findings in the 262 analyses where the checks could fire. Every finding was
 \texttt{port\_binding\_mismatch}, every one came from a Pyverilog analysis rather than a
-fallback, and no other check fired at any point in any sweep. The unqualified figure ---
-three runs in 434 analyses --- understates the yield by a factor of 1.66 and is not the one to
-quote.
+fallback, and no other check fired at any point in any sweep. Quoted against all 434 analyses
+the rate would understate the yield by a factor of 1.66.
 
-The corrected denominator weakens the evidence without changing its direction. A rate of three
-in 262 is still a rate at which the layer cannot be a primary defence, and the 172 unanalysed
-cases are not silently favourable to it: they are files the localiser could not read, so they
-support no conclusion either way. They do bound how strongly the null can be stated, and
-Section~\ref{sec:disc-threats} records that bound.
+A rate of three in 262 is not a rate at which the layer can be a primary defence. The 172
+unanalysed cases bound how strongly that null can be stated;
+Section~\ref{sec:disc-threats} gives the bound and what is known about which testbenches
+fall into it.
 
 One further ordering effect has to be excluded before the yield can be attributed to model
 output. The deterministic standardiser runs \emph{before} the analyser for sequential
@@ -1465,9 +1456,9 @@ produce a finding.
 \section{The Stronger Model on the Benchmark Circuits}\label{sec:res-strong}
 
 The three sweeps above leave one cell of the design empty. The stronger model was run only on
-the project fixtures; the benchmark circuits were run only with the weaker one. A reader is
-entitled to ask whether the null result on those circuits is a property of static analysis or
-of \texttt{gpt-4o-mini}. The fourth sweep answers that by running the same 20 benchmark
+the project fixtures; the benchmark circuits were run only with the weaker one, so the null
+result on those circuits could be a property of static analysis or of
+\texttt{gpt-4o-mini}. The fourth sweep separates them by running the same 20 benchmark
 problems with \texttt{claude-sonnet-4.5}, in \texttt{baseline}, \texttt{retry\_only} and
 \texttt{hybrid}. Table~\ref{tab:strong} places the two generators side by side.
 
@@ -1616,7 +1607,7 @@ can be checked rather than taken on trust. The pooled ordering is not reproduced
 single sweep: \texttt{hybrid} leads on the two project-fixture sweeps and ties at the bottom
 on the benchmark, and \texttt{compiler\_only} is the worst arm on the benchmark and the
 second best overall. Pooling across sweeps of very different difficulty is what produces the
-clean ordering in Table~\ref{tab:ablation}, and the reader should weigh it accordingly.
+clean ordering in Table~\ref{tab:ablation}.
 
 \begin{table}[H]
 \centering
@@ -1703,13 +1694,12 @@ Pooling matched pairs across strata is defensible when the effect points the sam
 and here it does, 6:1 and 5:1, before any pooling is done. Eleven circuits pass under
 \texttt{hybrid} and fail under the control; two go the other way.
 
-Three qualifications have to travel with that $p=0.022$, and they are not decoration.
+Three qualifications travel with that $p=0.022$.
 
 It is a post-hoc analysis. The benchmark sweep was not planned as part of the ablation. It was
 run to check the null result against a stronger generator, \texttt{hybrid} was observed to
 lead, the control arm was then added, and the two samples were pooled afterwards. That
-sequence is the one this report criticises elsewhere, and naming it is the minimum owed to a
-reader.
+sequence is the one this report criticises elsewhere.
 
 It does not survive correction. This is one of at least twenty tests reported in
 Chapter~\ref{ch:results}; a Bonferroni threshold across that family is $p<0.0025$.
@@ -1736,10 +1726,12 @@ them is the diagnosis and not the resampling.
 The pooled rates conceal how little of \texttt{hybrid}'s lead is attributable to repair at
 all, and the run records answer this directly.
 
-Across all three sweeps, 23 runs performed a repair on the basis of a diagnosis --- 19
-triggered by simulation output, 3 by compiler errors, 1 by both. Three of those 23 went on
-to pass Eval1. The remaining 44 repair events in the study were the control arm's uninformed
-regenerations, which carry no diagnosis by construction.
+Across all three sweeps, 23 runs performed at least one repair on the basis of a diagnosis
+--- 19 triggered by simulation output, 3 by compiler errors, 1 by both --- and three of them
+went on to pass Eval1. Those 23 runs account for 50 repair \emph{iterations}, 42 triggered by
+simulation and 8 by compilation, since a run may repair up to three times. Separately, each
+of the 44 control-arm runs performed one uninformed regeneration, which carries no diagnosis
+by construction. No repair in these three sweeps was triggered by a static finding.
 
 \begin{table}[H]
 \centering
@@ -2027,14 +2019,6 @@ the discarded pilot runs, was approximately \$9.20.
 
 \section{Consistency Across Models and Circuit Sets}\label{sec:res-consistency}
 
-The 42 simulation-triggered and 8 compile-triggered repair \emph{iterations} across the
-three sweeps account for every repair the pipeline performed on the basis of a diagnosis.
-They are distributed over the 23 \emph{runs} of Table~\ref{tab:repair-success}, since a run
-may repair up to three times. The remaining 44 repair events were the control arm's
-uninformed regenerations, one per run. No repair in the three ablation sweeps was triggered
-by a static finding; the single instance in the study occurred in the fourth
-(Section~\ref{sec:res-strong}) and did not succeed.
-
 Absolute pass rates vary between sweeps by a wide margin, as intended: the benchmark
 circuits are much harder, with \texttt{baseline} Eval1 falling from 67\% on the project
 fixtures to 10\% on VerilogEval with the weaker generator and 25\% with the stronger one. The
@@ -2222,25 +2206,21 @@ design and 1 only against the generated one (exact McNemar $p=0.125$). Reproduce
 \label{tab:golden-reanalysis}
 \end{table}
 
-The effect is real and it is small. Pairing the testbench with the design it is actually
-graded against roughly triples the finding rate, from 2 of 164 to 7 of 164, so co-generation
-did suppress the yield. It does not account for the null. Four percent is not a rate at which
-a layer can be a primary defence either, and the increase is concentrated rather than
-distributed: all six additional findings are the same circuit,
+Pairing the testbench with the design it is graded against roughly triples the finding rate,
+so co-generation did suppress the yield. It does not account for the null: 7 of 164 is still
+not a rate at which the layer can be a primary defence, and the increase is concentrated
+rather than distributed. All six additional findings are the same circuit,
 \texttt{Prob150\_\allowbreak review2015\_\allowbreak fsmonehot}, whose generated design
-declares \texttt{clk} and \texttt{reset} where the golden \texttt{RefModule} declares neither
---- the divergence behind the single static-triggered repair of
+declares \texttt{clk} and \texttt{reset} where the golden \texttt{RefModule} declares
+neither --- the divergence behind the single static-triggered repair of
 Section~\ref{sec:res-strong}. Across 32 circuits only two ever produce a finding against the
 golden design.
 
-One further reading favours the layer. All seven golden-arm findings fall on runs that failed
-Eval1; not one was raised against a testbench that passed. The zero-false-positive result of
-Section~\ref{sec:val-results} was measured on injected faults, and this is the same property
-observed on real generated output.
-
-The null therefore survives with its scope corrected. It is a null about how often these
-faults occur, measured at a rate that co-generation had understated by roughly a factor of
-three, and the corrected rate still supports the conclusion the uncorrected one did.
+Two further points. All seven golden-arm findings fall on runs that failed Eval1, none on a
+testbench that passed, which is the zero-false-positive property of
+Section~\ref{sec:val-results} observed on real output rather than injected faults. And the
+null survives with its scope corrected: co-generation understated the rate by roughly a
+factor of three, and the corrected rate supports the same conclusion.
 
 \section{Why Generated Testbenches Are Structurally Sound}\label{sec:disc-why}
 
@@ -2414,8 +2394,8 @@ experiment, and Section~\ref{sec:concl-future} proposes it.
 The cost argument also survives. The layer is deterministic, requires no model call, and
 completes in milliseconds; \texttt{pyverilog\_only} consumed 2\% fewer tokens than baseline.
 A check that costs nothing and fires three times in 262 analyses is not obviously worth
-removing, in the way that a smoke detector which has never sounded is not obviously worth
-removing. What the result rules out is treating it as a primary defence.
+removing, in the way a smoke detector that has never sounded is not. What the result rules
+out is treating it as a primary defence.
 
 \section{On Measurement Practice}\label{sec:disc-measurement}
 
@@ -2547,10 +2527,9 @@ completion of a sweep was announced on the basis of a file that the reporting sc
 creates. The cross-model hypothesis was described as confirmed on the strength of one
 finding in nine analyses, where the final count was one in seventy-nine.
 
-None of this is unusual for an empirical study; what would be unusual is a study of this
-size in which nothing of the kind occurred. It is recorded because the figures in
-Chapter~\ref{ch:results} were produced by an instrument whose measured behaviour changed
-during development, and a reader is entitled to know how much and in which direction.
+These are recorded because the figures in Chapter~\ref{ch:results} were produced by an
+instrument whose measured behaviour changed during development, and the direction and size
+of those changes bear on how the figures should be read.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}\label{ch:conclusion}

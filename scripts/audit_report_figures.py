@@ -61,7 +61,7 @@ def rep(rs):
                               for h in d.get('repair_history', []))]
     return len(a), sum(d['eval1_pass'] for d in a)
 na, np_ = rep(abl)
-chk('ablation repairs attempted', na, r'(\d+) runs performed a repair on the basis of a diagnosis')
+chk('ablation repairs attempted', na, r'(\d+) runs performed (?:at least one )?repair on the basis of a diagnosis')
 chk('ablation repairs passed', np_, r'textbf\{Total\}\s*&\s*\\textbf\{23\}\s*&\s*\\textbf\{(\d+)\}')
 sa, sp = rep(strong)
 chk('strong repairs attempted', sa, r'benchmark sweep & (\d+) &')
