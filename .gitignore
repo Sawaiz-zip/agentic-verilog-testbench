@@ -39,3 +39,8 @@ docs/Screenshot*.png
 
 # Correspondence and personal contact details — never publish.
 supervisor_email.md
+
+# Report source and learning notes — kept local, not published to the remote.
+# The built PDF (report.pdf) and its LaTeX by-products were already untracked.
+report.tex
+docs/learn/
