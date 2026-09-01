@@ -91,25 +91,35 @@ produced garbage."
 
 **How often was it needed?** Far more often than we first reported, and this matters.
 
-Of the 314 analyses, Pyverilog built a syntax tree for only **190**. In **120** it failed and
-we fell back to Verible; in 4 both failed. The catch: Verible only gives a syntax verdict, so
-in those 120 analyses **none of the six checks ran at all** — yet the record says `parse_ok`.
+Of the 434 analyses, Pyverilog built a syntax tree for only **262**. In the other **172** it
+failed and we fell back to Verible. The catch: Verible only gives a syntax verdict, so in
+those 172 analyses **none of the six checks ran at all** — yet the record says `parse_ok`.
 
-| Sweep | Analyses | Pyverilog worked | Verible fallback | Both failed |
-|---|---|---|---|---|
-| Sonnet, our circuits | 82 | 75 | 6 | 1 |
-| mini, our circuits | 79 | 51 | 25 | 3 |
-| mini, VerilogEval | 153 | **64** | **89** | 0 |
-| **Total** | **314** | **190** | **120** | **4** |
+| Sweep | Analyses | Pyverilog worked | Verible fallback |
+|---|---|---|---|
+| Sonnet, our circuits | 82 | 75 | 7 |
+| mini, our circuits | 79 | 51 | 28 |
+| mini, VerilogEval | 153 | **64** | **89** |
+| Sonnet, VerilogEval | 120 | **72** | **48** |
+| **Total** | **434** | **262** | **172** |
 
 The failures are genuine gaps in Pyverilog's language coverage — `logic` declarations, tasks
 with arguments, other SystemVerilog it does not support. They hit hardest on the big
 sequential benchmark circuits, which is exactly where we most wanted the analysis to work.
+Parse coverage improves with the generator: 60% under Sonnet against 42% under mini on the
+same circuits, because the stronger model writes more Verilog-2001 and less SystemVerilog.
 
-> **If asked about this**, the honest answer is: "Our null result holds over the 190 analyses
-> where the checks actually ran. In the other 124 the parser could not read the file, so those
-> support no conclusion either way. A localiser built on a full SystemVerilog parser would
-> answer RQ2 on a larger sample, and we cannot rule out that it would answer differently."
+**The unread files are not a random sample.** This was measured late and it matters: the 180
+runs whose testbench Pyverilog could read pass Eval1 at **45.6%**, and the 100 that fell back
+to Verible pass at **6.0%** (Fisher p<0.0001). The constructs that defeat the parser travel
+with testbenches that are worse in general, so the localiser was reading the *healthier* part
+of its own input.
+
+> **If asked about this**, the honest answer is: "Our null result holds over the 262 analyses
+> where the checks actually ran. In the other 172 the parser could not read the file — and
+> those runs fail Eval1 far more often, so the null is measured on the easier subset. A
+> localiser built on a full SystemVerilog parser would answer RQ2 on a larger sample, and we
+> cannot rule out that it would answer differently."
 
 > Practical note: installing it on an Intel Mac was awkward (the official binaries are
 > ARM-only and the Homebrew formula was removed); we used a conda-forge build.

@@ -169,11 +169,12 @@ percentage points, from a deterministic script.
 That is **the same category of technique as our contribution**: a mechanical, pre-simulation
 fix for a structural defect.
 
-Our equivalent check, `missing_fdisplay`, fired **zero times in 237 analyses**. Our
+Our equivalent check, `missing_fdisplay`, fired **zero times in 262 analyses**. Our
 deterministic standardiser had something to insert in **3 of 220 ablation runs** — and in the other 137
 sequential runs it was handed a testbench that already observed every output.
 
-**The technique did not stop working. The defect it corrects stopped occurring.**
+**The technique did not stop working. The defect it corrects — a missing output-display
+statement — did not occur once in 262 analyses.**
 
 GPT-4-turbo forgot `$fdisplay` often enough to make a script worth 42 points. Current models
 do not forget.
@@ -219,7 +220,7 @@ Be straightforward about this — it makes the rest more credible.
 > and 6.8 points over the pooled forty-four — which is larger than the gains prior work reports
 > without error bars. And we found that the mechanism responsible for their single largest improvement
 > — a script inserting missing print statements — no longer fires at all against current
-> models. The technique did not stop working; the defect it corrects stopped occurring.
+> models. The technique did not stop working; the defect it corrects had all but disappeared.
 
 ---
 

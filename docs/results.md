@@ -18,7 +18,7 @@ python scripts/render_report.py results/<sweep>  # per-sweep detail
 
 The static localiser works: it detects **93%** of injected structural faults with **zero**
 false positives, including **30 faults that neither the compiler nor the simulator can
-find**. But those faults are almost absent from real LLM output — **2 findings in 314
+find**. But those faults are almost absent from real LLM output — **3 findings in 434
 analyses** across two models and two circuit sets. **87% of real failures are semantic**
 and require simulation by definition.
 
@@ -134,7 +134,8 @@ construction and the compiler sees legal Verilog.
 | Sonnet, project circuits | 82 | **0 / 60** |
 | mini, project circuits | 79 | **1 / 60** |
 | mini, VerilogEval circuits | 153 | **1 / 100** |
-| **Total** | **314** | **2 / 220** |
+| Sonnet, VerilogEval circuits | 120 | **1 / 60** |
+| **Total** | **434** (262 parsed) | **3 / 280** |
 
 `pyverilog_only` performed **zero repairs in all three sweeps**. The single VerilogEval
 finding (`Prob150_review2015_fsmonehot`, a 12-port one-hot FSM) landed in `compiler_only`,
@@ -151,7 +152,7 @@ number of structural mistakes.
 
 ## 4. RQ3 — Can an LLM informed by static analysis repair effectively?
 
-**The informed half is unanswerable**: with 2 findings in 314 analyses there was almost
+**The informed half is near-unanswerable**: with 3 findings in 434 analyses there was almost
 nothing to inform it with. That absence is the finding.
 
 **The comparison half**, pooled over 220 runs (n=44 per mode):
@@ -215,7 +216,7 @@ Mean per run, pooled over 220 runs:
   worst cost, and not statistically separable from the control.
 - **`pyverilog_only` costs essentially nothing and gains nothing.** Static analysis is
   almost free (deterministic, no LLM call, milliseconds) — consistent with a layer that
-  fired twice in 314 analyses.
+  fired three times in 434 analyses (262 of which the parser could read).
 
 Total API expenditure for all experiments: **≈ $9.20**.
 
@@ -235,9 +236,12 @@ Eval2.
 | Static analysis | **none** | Pyverilog AST, 6 checks |
 | Control arm | **none** | `retry_only` |
 
-**Why the Eval2 comparison is void:** our testbenches caught 189 of 190 mutants (99.5%).
-That is a ceiling — it means our LLM-generated mutants are too easy, not that our
-testbenches are better. AutoBench's 44.8% implies substantially harder mutants.
+**Why the Eval2 comparison is void:** our testbenches caught 324 of 335 mutants (96.7%).
+That is a ceiling. A pre-registered pilot showed it is **the circuits, not the mutants**:
+regenerating mutants with a stronger model under AutoBench's own prompt moves the rate one
+point (97.4%), while scoring the same testbenches against AutoBench's *published* mutants on
+the benchmark circuits gives **53.8%** — a 44-point swing. Our fixtures are too small for a
+mutant to hide in.
 
 **What AutoBench actually does** for error detection: scenario-presence checking (does the
 driver text contain each named scenario), auto-debug (compiler errors fed back), and a
@@ -277,7 +281,7 @@ quantified variance floor, and cross-model evidence.
 1. **The static localiser is sound.** 93% detection, 93% localisation, 0 false positives,
    and 30 faults invisible to both compiler and simulator — measured by fault injection,
    not asserted.
-2. **Structural faults are rare in practice.** 2 findings in 314 analyses, across two
+2. **Structural faults are rare in practice.** 3 findings in 434 analyses, across two
    models and two circuit sets including the field's standard benchmark.
 3. **Failures are overwhelmingly semantic** — 133 of 153, requiring simulation by definition.
 4. **Blind retry can harm.** `retry_only` dropped Eval0 to 70% against 90–95% elsewhere.

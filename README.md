@@ -114,7 +114,7 @@ On the benchmark circuits with the strong model:
 |---|---|---|---|---|
 | ablation | 44 | 6 | 1 | p = 0.125 |
 | benchmark, strong model | 20 | 5 | 1 | p = 0.219 |
-| **stratified** | **64** | **11** | **2** | **p = 0.023** |
+| **stratified** | **64** | **11** | **2** | **p = 0.022** |
 
 ⚠️ **Read that last row carefully.** It is *post hoc* — the sweep was run, `hybrid` was seen
 leading, the control was added, and the samples pooled afterwards. It does not survive

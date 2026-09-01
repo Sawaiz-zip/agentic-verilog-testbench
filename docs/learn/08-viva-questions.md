@@ -164,7 +164,7 @@ itself one of our findings.
 >
 > The comparison now exists in two independent samples — 6:1 discordant in the ablation, 5:1 in
 > the benchmark sweep. Neither reaches significance alone. Pooled across 64 matched circuits
-> it's 11:2, stratified McNemar p=0.023.
+> it's 11:2, stratified McNemar p=0.022.
 >
 > But that pooling is post hoc — we ran the sweep, saw hybrid leading, then added the control —
 > and it doesn't survive Bonferroni for the eleven comparisons we made. So we report it as
@@ -317,8 +317,9 @@ run."** That is a perfectly good answer in research, and far better than guessin
 > We built a six-check static analyser, proved it works by injecting 215 known faults — 93%
 > detection, no false alarms, and it catches 30 faults that neither the compiler nor the
 > simulator can see. Then we ran it on 280 real generations across two models and two circuit
-> sets. It found problems on three runs in the 237 analyses where the parser could read the
-> file, and triggered exactly one repair in 260 runs — which failed to fix the defect it named. The reason is that 87% of real failures are
+> sets. It found problems on three runs in the 262 analyses where the parser could read the
+> file, and triggered exactly one repair in the 108 runs whose configuration allowed it — that
+> repair cleared the finding, and a later compiler-triggered regeneration put it back. The reason is that 87% of real failures are
 > semantic — the testbench is well-formed and expects the wrong values, which is not visible in
 > the text. We ruled out the obvious explanations: a weaker model is worse at the task but just
 > as structurally tidy, and benchmark circuits chosen for maximum complexity changed nothing.

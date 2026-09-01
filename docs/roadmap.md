@@ -1,5 +1,8 @@
 # TODO — S6.ReKI.1
 
+> ⚠️ **Historical record — superseded.** This file predates the fourth sweep (2026-08-29) and the corrections of 2026-09-01. Figures such as 314 analyses / 190 parsed / 2 findings were correct when written and are now 434 / 262 / 3. It is kept unedited as a record of what was known when. For current numbers see `docs/results.md`, `CLAUDE.md` and `report.tex`.
+
+
 Living task list. Full context in `CLAUDE.md`; status/results in `research-log.md`;
 this session's write-up in `specs/008-control-arm-and-static-evidence/NOTES.md`.
 Last updated: 2026-08-24.

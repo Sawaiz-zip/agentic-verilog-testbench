@@ -1,5 +1,8 @@
 # Report Writing Plan — S6.ReKI.1
 
+> ⚠️ **Historical record — superseded.** This file predates the fourth sweep (2026-08-29) and the corrections of 2026-09-01. Figures such as 314 analyses / 190 parsed / 2 findings were correct when written and are now 434 / 262 / 3. It is kept unedited as a record of what was known when. For current numbers see `docs/results.md`, `CLAUDE.md` and `report.tex`.
+
+
 Companion to `report-outline.md`. That document fixes *what* the report says; this one
 fixes *how and in what order it gets written*, and the rules the prose must follow.
 

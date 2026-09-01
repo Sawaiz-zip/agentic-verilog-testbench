@@ -187,7 +187,7 @@ takes a full compile-and-run cycle. Same answer, far cheaper.
 
 1. **Even when structural faults exist, most are catchable another way.** Only 15% are uniquely
    findable by reading.
-2. **Structural faults have almost stopped occurring.** 3 runs in 262 real analyses.
+2. **Structural faults have become rare, not vanished.** 3 runs in 262 real analyses.
 
 They compound: a small slice of a category that has nearly vanished. And note *which* classes
 disappeared — `unobserved_output` and `missing_fdisplay`, the exact two where the localiser is
@@ -304,7 +304,7 @@ it would not survive the first question about how the circuits were chosen.
 
 ## 6.4 The main result
 
-**Static analysis fired on three runs in the 237 analyses where its checks could actually run.**
+**Static analysis fired on three runs in the 262 analyses where its checks could actually run.**
 
 | Sweep | Analyses | Checks actually ran | Runs with a finding |
 |---|---|---|---|
@@ -338,12 +338,12 @@ That comparison now exists in two independent samples and agrees in both:
 |---|---|---|---|
 | ablation, 44 circuits | 6 | 1 | p=0.125 |
 | benchmark, 20 circuits | 5 | 1 | p=0.219 |
-| **stratified, 64** | **11** | **2** | **p=0.023** |
+| **stratified, 64** | **11** | **2** | **p=0.022** |
 
-⚠️ **Say this carefully.** The p=0.023 is *post hoc* — we ran the sweep, saw hybrid leading,
+⚠️ **Say this carefully.** The p=0.022 is *post hoc* — we ran the sweep, saw hybrid leading,
 then added the control, then pooled. It does not survive Bonferroni for the 11 comparisons
 made. The honest line is: *"directionally consistent across two independent samples, stratified
-p=0.023, reported as suggestive rather than established."* Do not say "we proved hybrid works."
+p=0.022, reported as suggestive rather than established."* Do not say "we proved hybrid works."
 
 **Eval1 moved 25 points. The structural yield did not move.** That is the cleanest single
 statement of this project's central finding: model capability controls whether a testbench is
@@ -351,16 +351,21 @@ statement of this project's central finding: model capability controls whether a
 
 Two more things from this sweep:
 
-- **A static finding triggered a repair — the only time in 260 runs.** On the 12-port one-hot
-  FSM, the localiser correctly reported `clk` and `reset` unconnected, hybrid repaired on that
-  basis, and two iterations later they were *still* unconnected. Exercised once; did not work.
+- **A static finding triggered a repair — the only time in the study.** Only `pyverilog_only`
+  and `hybrid` are allowed to act on a static finding, so the denominator is **108 runs**, not
+  280. On the 12-port one-hot FSM the localiser reported `clk` and `reset` unconnected, hybrid
+  repaired on that basis, and **the finding cleared** — the next analysis is a successful parse
+  reporting nothing. A later compiler-triggered regeneration then put the defect back. The
+  reason is that the two feedback sources were reading *different designs*: the localiser reads
+  the design we generated (which declares `clk`/`reset`), while compilation uses the golden
+  `RefModule` (which declares neither). See 6.5b.
 - **A live lesson in variance.** At 9 of 20 circuits, hybrid stood at 89%. It finished at 50%.
   Nothing changed but the sample size. If asked why you insist on error bars, tell this story.
 
-**Why two denominators?** Pyverilog could not parse 124 of the 314 files. In those we fell
+**Why two denominators?** Pyverilog could not parse 172 of the 434 files. In those we fell
 back to Verible, which only checks syntax — so no structural check ran, even though the record
-says the analysis succeeded (see doc 03). **Quote 2-in-190, not 2-in-314.** The unqualified
-figure understates the rate by a factor of 1.65 and an examiner who checks will find it.
+says the analysis succeeded (see doc 03). **Quote 3-in-262, not 3-in-434.** The unqualified
+figure understates the rate by a factor of 1.66 and an examiner who checks will find it.
 
 `pyverilog_only` — the configuration whose entire purpose is to act on static findings —
 performed **zero repairs across 44 runs**. It never had anything to act on.
@@ -395,6 +400,54 @@ This is what makes it a result rather than a failed experiment.
 **The "too capable model" explanation is refuted, and that surprised us.** The weak model is
 far worse at the job but makes the *same* structural mistakes — essentially none. Capability
 affects whether the testbench is **right**. It does not affect whether it is **well-formed**.
+
+---
+
+## 6.5b The confound we found last — and measured
+
+This is the most important thing added at the end of the project, and you should be ready to
+talk about it, because a committee will ask.
+
+**The problem.** Our pipeline generates *two* things: the design, and the testbench for it.
+Both come from the same model, from the same description, seconds apart. The localiser was
+checking the testbench against **the design the model had just written**. But the score came
+from testing the testbench against **the official benchmark design**.
+
+Why that matters: all six checks ask *"do these two files agree?"* — same port names, same
+widths. Asked about two files the same model wrote together from one port list, of course they
+agree. They were written to agree. So our null result had a rival explanation we had not
+excluded: maybe static analysis finds nothing because the faults are gone, or maybe because we
+only ever showed it two files guaranteed to match.
+
+**The test.** Deterministic, no API calls, minutes to run: re-run the frozen localiser over
+all 280 stored testbenches twice — once against the generated design, once against the golden
+one. `scripts/reanalyse_against_golden.py`.
+
+| Localiser was shown | parsed | runs with a finding |
+|---|---|---|
+| the generated design (what we deployed) | 177 / 280 | **2** |
+| the golden design (what we validated on) | 177 / 280 | **7** |
+
+**The answer: real, but small.** Paired on the 164 runs where both parsed, 6 runs are flagged
+only against golden and 1 only against generated (McNemar p=0.125). Co-generation understated
+the finding rate by roughly **3×** — but 7 in 164 is still a rate at which the layer cannot be
+a primary defence, and *all six* extra findings are the same circuit, the one where the
+generated design invented `clk`/`reset` the golden design does not have. Across 32 circuits,
+only two ever trip the checker.
+
+> **If asked:** "We found it late and we measured it rather than just declaring it. It
+> suppressed the yield by about a factor of three and does not account for the null. The
+> conclusion holds with its scope corrected: it is a null about the co-generation flow, not
+> about a flow where the design is supplied."
+
+**One bonus.** All seven golden-arm findings fall on runs that *failed* Eval1 — not one was
+raised against a testbench that passed. We had zero false positives on injected faults; this is
+the same property on real output.
+
+> ⚠️ **Why the table says 2 and section 6.4 says 3.** The sweep re-analysed after *every* repair
+> iteration; this re-analysis sees only the one testbench each run kept. The third finding was
+> raised against an intermediate testbench that best-so-far retention discarded. Both columns
+> above are counted the same way as each other, which is what the comparison needs.
 
 ---
 
@@ -486,9 +539,10 @@ Total spend on all experiments: **≈ $9.20**.
 
 ## 6.9 The one-sentence summary
 
-> We built a tool that reliably catches a kind of mistake AI models have largely stopped
-> making, and we proved that carefully enough — with a validated instrument and the
-> alternatives ruled out — that the finding is worth reporting.
+> We built a tool that reliably catches a kind of mistake that has become rare in current AI
+> output, and we proved that carefully enough — with a validated instrument, the alternatives
+> ruled out, and the one confound we found late measured rather than waved away — that the
+> finding is worth reporting.
 
 ---
 

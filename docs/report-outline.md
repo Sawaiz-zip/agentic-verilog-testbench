@@ -1,5 +1,8 @@
 # Report Outline — S6.ReKI.1
 
+> ⚠️ **Historical record — superseded.** This file predates the fourth sweep (2026-08-29) and the corrections of 2026-09-01. Figures such as 314 analyses / 190 parsed / 2 findings were correct when written and are now 434 / 262 / 3. It is kept unedited as a record of what was known when. For current numbers see `docs/results.md`, `CLAUDE.md` and `report.tex`.
+
+
 **Working document.** Structure, metrics placement, and the argument each chapter must
 carry. Every figure cited here exists in `docs/results.md` and is reproducible from
 `scripts/analyse_results.py`, `scripts/run_injection_study.py`, `scripts/render_report.py`.
