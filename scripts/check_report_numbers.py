@@ -67,7 +67,7 @@ src = {}
 for r in recs:
     for h in (r.get("repair_history") or []):
         src[h.get("feedback_source")] = src.get(h.get("feedback_source"), 0) + 1
-claim("simulation repairs", src.get("simulation"), rf"{src.get('simulation')} repairs triggered by simulation|{src.get('simulation')} repairs")
+claim("simulation repairs", src.get("simulation"), rf"{src.get('simulation')}\s*\n?repairs triggered by simulation|{src.get('simulation')}\s*\n?triggered by\s*\n?simulation")
 claim("compile repairs", src.get("compile"), rf"{src.get('compile')} by the\s*\n?compiler|8 by the compiler")
 
 # --- injection study ---------------------------------------------------------

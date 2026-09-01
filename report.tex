@@ -1910,8 +1910,7 @@ them.
 
 \section{Uninformed Retry Can Degrade Compilation}\label{sec:res-retry}
 
-The control arm was included to isolate the effect of feedback. It produced a finding of its
-own, and the fourth sweep bounds that finding to the conditions under which it holds.
+The control arm produced a finding of its own, and the fourth sweep bounds it.
 Table~\ref{tab:eval0} gives Eval0 for every arm.
 
 \begin{table}[H]
@@ -1936,59 +1935,22 @@ mark arms the fourth sweep did not run.}
 \label{tab:eval0}
 \end{table}
 
-With the weaker generator on the benchmark circuits, regenerating the testbench with no
-information about what was wrong dropped compilation from 95\% to 70\%.
+With the weaker generator on the benchmark circuits, regenerating with no information about
+what was wrong dropped compilation from 95\% to 70\%. The cross-arm gap is 25 points, which
+Section~\ref{sec:res-variance} has just argued is not by itself trustworthy at this sample
+size; the claim rests on the paired form, available because every circuit is run in both
+arms. On those twenty circuits five compiled under \texttt{baseline} and failed under
+\texttt{retry\_only} and none went the other way, an exact McNemar $p=0.062$. Across both
+weak-generator sweeps the split is eight lost to one gained; with
+\texttt{claude-sonnet-4.5} it is none lost to two gained.
 
-\paragraph{The effect is specific to the weaker generator.} Repeating the same arms on the
-same circuits with \texttt{claude-sonnet-4.5} produced no degradation at all:
-\texttt{retry\_only} compiled 20 of 20 against \texttt{baseline}'s 19. The paired counts
-across all four sweeps, in Table~\ref{tab:retry-eval0}, make the pattern plain.
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}l l r r r@{}}
-\toprule
-\textbf{Sweep} & \textbf{Generator} & \textbf{lost} & \textbf{gained} & \textbf{McNemar} \\
-\midrule
-\texttt{final\_hard\_r1}     & \texttt{sonnet-4.5}  & 0 & 1 & $p=1.000$ \\
-\texttt{verilogeval\_strong} & \texttt{sonnet-4.5}  & 0 & 1 & $p=1.000$ \\
-\texttt{weak\_model\_r1}     & \texttt{gpt-4o-mini} & 3 & 1 & $p=0.625$ \\
-\texttt{verilogeval\_weak}   & \texttt{gpt-4o-mini} & 5 & 0 & $p=0.062$ \\
-\bottomrule
-\end{tabular}
-\caption{Circuits that compiled under \texttt{baseline} and not under \texttt{retry\_only}
-(``lost''), and the reverse (``gained''). The weaker generator loses eight circuits across two
-sweeps and gains one; the stronger loses none and gains two.}
-\label{tab:retry-eval0}
-\end{table}
-
-The claim is therefore narrower than an earlier draft of this section made it. Resampling
-without a diagnosis is not intrinsically hazardous; it is hazardous when the generator is
-unreliable enough that a fresh draw is materially worse than the one being discarded. That
-is a property of the generator, not of the retry, and it belongs with the other
-model-dependent results in Sections~\ref{sec:res-repair-fail} and~\ref{sec:res-strong}.
-
-That is a cross-arm difference of 25 points, and Section~\ref{sec:res-variance} has just
-argued that differences of that order at this sample size need to be treated carefully. The
-claim rests instead on the paired form of the same comparison, which is available because
-every circuit is run in both arms. On those twenty circuits, five compiled under
-\texttt{baseline} and failed to compile under \texttt{retry\_only}; none went the other way.
-A five--nil split gives an exact McNemar $p=0.062$, and the fact that the discordance is
-entirely one-directional is the substance of the finding: with that generator, uninformed
-regeneration never recovered a circuit and lost five.
-
-One thing this evidence is not, and an earlier draft of this report claimed it was: it is not
-a within-run measurement. The control arm regenerates before evaluation, so the sample it
-discards is never compiled, and no record exists of whether it would have. The comparison is
-between arms on matched circuits, which is weaker, because the two arms draw independent
-first samples.
-
-A second attempt is not free. Where the first attempt was adequate, discarding it and
-sampling again risks a worse draw, and on harder circuits that risk is realised often
-enough to be visible. Any repair mechanism that regenerates rather than patches inherits
-this exposure, which is the reason the pipeline retains the best-scoring testbench rather
-than the most recent one.
+Resampling without a diagnosis is therefore not intrinsically hazardous. It is hazardous when
+the generator is unreliable enough that a fresh draw is materially worse than the one
+discarded, which is a property of the generator rather than of the retry. Two caveats travel
+with it: the comparison is between arms on matched circuits rather than within a run, since
+the control regenerates before evaluation and the discarded sample is never compiled; and any
+repair mechanism that regenerates rather than patches inherits the same exposure, which is
+why the pipeline retains the best-scoring testbench rather than the most recent one.
 
 \section{RQ4: Cost Against Quality}\label{sec:res-rq4}
 
@@ -2042,51 +2004,19 @@ what follows from that.
 
 Eval2 sits at 324 of 335 mutants caught, 97\%, and discriminates between no two
 configurations. A measure at ceiling is either reporting that the testbenches are excellent
-or reporting that the instrument is blunt, and the two cannot be told apart from the number
-itself. This section separates them, because the answer turns out to be neither of the
-obvious ones.
+or that the instrument is blunt, and the number alone cannot separate them.
 
-\paragraph{The mutant generator was defective.} Mutants were produced by asking the cheaper
-model, in five independent calls, for one subtle bug each. With no shared context between
-calls the model returns its most obvious candidate every time. For the \texttt{dff} fixture
-all five mutants were the same edit, \texttt{q <= \textasciitilde d}. Five mutants, one
-defect.
+The mutant generator was defective: five independent calls to the cheaper model, each asked
+for one subtle bug, return the same edit every time --- for the \texttt{dff} fixture all five
+were \texttt{q <= \textasciitilde d}. A pre-registered pilot regenerated them under
+AutoBench's own prompt, which requests ten in one response and asks for varied positions and
+edit types, with acceptance criteria fixed in advance on mutant quality alone and the
+resulting Eval2 score excluded as a criterion by design. Prompt structure governed diversity
+and the model governed validity; neither governed the score. The adopted condition, applied
+to all eleven project circuits with a passing testbench, gives 450 of 462 caught,
+\textbf{97.4\%}. The ceiling is unchanged.
 
-\paragraph{Repairing it does not move the result.} A controlled pilot regenerated the
-mutants under AutoBench's own prompt, which requests all ten in a single response and
-instructs the model to spread the edits over different positions and modification types. The
-criteria for accepting a generator were fixed in advance and concern mutant quality only:
-validity of at least 80\%, positional diversity, and an unmodified module header. The
-resulting Eval2 score was excluded as a criterion by design. Table~\ref{tab:mutant-pilot}
-gives the outcome.
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}l l l r r r@{}}
-\toprule
-\textbf{Condition} & \textbf{Model} & \textbf{Calls} & \textbf{valid} & \textbf{distinct lines} & \textbf{Eval2} \\
-\midrule
-A (as run)  & cheap  & 5 $\times$ one    & 100\% & 5  & 95.4\% \\
-B           & cheap  & 1 $\times$ ten    & 60\%  & 16 & 96.5\% \\
-C           & strong & 1 $\times$ ten    & 80\%  & 16 & 97.7\% \\
-\bottomrule
-\end{tabular}
-\caption{Mutant-generator pilot on three fixtures. Validity requires a mutant to compile and
-to be non-equivalent, meaning at least one known-good testbench distinguishes it from the
-reference. Condition B fails the 80\% threshold: the cheaper model, once asked for ten at
-once, pads with edits that change nothing (\texttt{q <= d; // added a comment}).}
-\label{tab:mutant-pilot}
-\end{table}
-
-The prompt structure governs diversity and the model governs validity, and neither governs
-the score. Condition C was adopted on the pre-registered criteria and applied to all eleven
-project circuits with a passing testbench: 462 valid mutants, 450 caught, \textbf{97.4\%}.
-The ceiling is unchanged.
-
-\paragraph{The circuits are the binding constraint.} Scoring the same testbenches against
-AutoBench's published mutants for the benchmark circuits gives a different picture entirely,
-set out in Table~\ref{tab:eval2-compare}.
+The circuits are the binding constraint, as Table~\ref{tab:eval2-compare} shows.
 
 \begin{table}[H]
 \centering
@@ -2096,7 +2026,7 @@ set out in Table~\ref{tab:eval2-compare}.
 \textbf{Mutant set and circuits} & \textbf{valid} & \textbf{caught} & \textbf{rate} \\
 \midrule
 ours, project fixtures (as run)              & 335 & 324 & 96.7\% \\
-regenerated, project fixtures (condition C)  & 462 & 450 & 97.4\% \\
+regenerated, project fixtures                & 462 & 450 & 97.4\% \\
 AutoBench's published set, benchmark circuits & 80 & 43 & \textbf{53.8\%} \\
 \bottomrule
 \end{tabular}
@@ -2105,17 +2035,13 @@ Changing the circuits moves it by forty-four.}
 \label{tab:eval2-compare}
 \end{table}
 
-Improving the mutants on our own circuits moved the rate from 96.7\% to 97.4\%. The
-difference between those circuits and the benchmark's is 44 points. The saturation is
-therefore a property of the fixture set, not of the generator: a two-port flip-flop with one
-input bit offers a mutant nowhere to hide, and any testbench that exercises the design at all
-will catch every non-equivalent edit. Eval2 requires circuits with enough state for a defect
-to escape a finite stimulus, and eleven of the fourteen project circuits do not have it.
-
-The 53.8\% is the more informative figure and the only one directly comparable to prior work,
-and Section~\ref{sec:disc-autobench-compare} places it against AutoBench's. It rests on 8
-runs across 4 circuits, which is too small to carry a pass-rate claim; what it establishes is
-that the ceiling is an artefact of the circuits rather than evidence about the testbenches.
+The saturation is therefore a property of the fixture set, not of the generator: a two-port
+flip-flop with one input bit offers a mutant nowhere to hide. Eval2 requires circuits with
+enough state for a defect to escape a finite stimulus, and eleven of the fourteen project
+circuits do not have it. The 53.8\% is the only figure directly comparable to prior work, and
+Section~\ref{sec:disc-autobench-compare} places it against AutoBench's; it rests on 8 runs
+across 4 circuits and establishes that the ceiling is an artefact of the circuits rather than
+evidence about the testbenches.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Discussion}\label{ch:discussion}
@@ -2514,8 +2440,9 @@ the quantitative claim, and stronger evidence for the qualitative one.
 
 \section{Corrections Made During the Work}\label{sec:disc-corrections}
 
-Several defects in this work were found by the work itself, and the sequence is relevant to
-how much confidence the results deserve.
+Several defects in this work were found by the work itself. They are recorded because the
+figures in Chapter~\ref{ch:results} were produced by an instrument whose measured behaviour
+changed during development.
 
 Two defects in the localiser suppressed detection rather than causing false alarms. A parse
 error caused by a missing trailing newline meant every testbench failed to parse and the
@@ -2537,10 +2464,6 @@ Two conclusions drawn during the work were retracted before they reached this re
 completion of a sweep was announced on the basis of a file that the reporting script itself
 creates. The cross-model hypothesis was described as confirmed on the strength of one
 finding in nine analyses, where the final count was one in seventy-nine.
-
-These are recorded because the figures in Chapter~\ref{ch:results} were produced by an
-instrument whose measured behaviour changed during development, and the direction and size
-of those changes bear on how the figures should be read.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
@@ -2614,92 +2537,53 @@ reasoning step was skipped.
 
 \section{Contributions in Retrospect}\label{sec:concl-contrib}
 
-Of the five contributions listed in Section~\ref{sec:intro-contrib}, the two that were not
-planned have worn best. The control arm and the variance measurement were added to make the
-ablation defensible, and they ended up producing the results most likely to be useful
-elsewhere: a demonstration that uninformed regeneration can degrade a testbench that already
-compiled when the generator is weak enough, and a figure for how large a difference has to be before it means anything at this
-sample size.
+Of the five contributions in Section~\ref{sec:intro-contrib}, the two that were not planned
+have worn best. The control arm and the variance measurement were added to make the ablation
+defensible and produced the results most likely to be useful elsewhere: that uninformed
+regeneration can degrade a testbench which already compiled, and a figure for how large a
+difference must be before it means anything at this sample size. In place of the per-node
+attribution the project plan promised, what exists is the repair-feedback breakdown --- 42
+repairs triggered by simulation, 8 by the compiler, none by static analysis.
 
-The sixth contribution claimed in the project plan, per-node attribution of failure origin,
-was not delivered. The pipeline records the stage at which failure is detected, and 70\% of
-runs attribute to the evaluation node for the straightforward reason that evaluation is
-where failure becomes visible. Recovering where a defect was introduced would require
-ground truth per node that the pipeline does not collect. What exists instead is the
-repair-feedback breakdown, which shows 42 repairs triggered by simulation, 8 by the
-compiler, and none by static analysis.
-
-The result that generalises furthest is not about static analysis at all. AutoBench's
-largest reported gain came from a script inserting output-display statements that
-GPT-4-turbo omitted. Two years later the equivalent check in this work fired zero times in
-262 analyses, and the deterministic standardiser built for the same purpose had something to
-insert in 3 of 220 runs. The technique did not stop working; the defect it corrects stopped
-occurring.
-Auxiliary tooling built around a generator's weaknesses is calibrated against a particular
-generation of models, and a component inherited from prior work without re-measurement may
-cost maintenance and return nothing.
+The result that generalises furthest is not about static analysis at all. AutoBench's largest
+reported gain came from a script inserting output-display statements that GPT-4-turbo
+omitted. Two years later the equivalent check here fired zero times in 262 analyses, and the
+deterministic standardiser built for the same purpose had something to insert in 3 of 220
+runs. The technique did not stop working; the defect it corrects stopped occurring. Auxiliary
+tooling built around a generator's weaknesses is calibrated against a particular generation of
+models, and a component inherited from prior work without re-measurement may cost maintenance
+and return nothing.
 
 \section{Future Work}\label{sec:concl-future}
 
 \textbf{A flow in which the design is supplied.} Re-analysing the stored testbenches against
-their golden designs (Section~\ref{sec:disc-alternatives}) triples the finding rate and
-concentrates the increase on the one circuit where the generated and reference interfaces
-diverge. That is a bound obtained after the fact; it is not the same as running the pipeline
-in a flow where the design is given rather than generated, which is the flow in which a
-localiser of this kind would be deployed and the one in which these checks have something to
-disagree with. Repeating the sweeps with the golden design supplied to generation as well as
-to evaluation is the experiment this study should have run, and it costs one sweep.
+their golden designs (Section~\ref{sec:disc-alternatives}) triples the finding rate, but a
+bound obtained after the fact is not the same as running the pipeline in a flow where the
+design is given rather than generated --- the flow in which a localiser of this kind would be
+deployed, and the one in which these checks have something to disagree with. That is the
+experiment this study should have run.
 
-\textbf{Smaller and locally-hosted models.} The claim that structural faults are rare rests
-on two commercial models. A quantised open-weight model running on local hardware is the
-case where the checks might still earn their place, and the experiment is inexpensive: the
-pipeline is provider-agnostic and the sweep costs approximately \$0.50 at the cheaper tier.
-
-\textbf{The two classes the boundary excluded.} Section~\ref{sec:val-limits} measures two
-candidate checks that reach the negative-control classes on the injection corpus and finds
-that neither would have produced a correct finding on any of the 280 real runs. Pursuing them
-is therefore not proposed. What the exercise does suggest is a different target: the
-classification stage, whose single sequential-versus-combinational error was enough to
-generate three false positives from an otherwise sound check. A check is only as reliable as
-the context it is given, and no part of this study measures the accuracy of that context.
+\textbf{A representative benchmark comparison.} The subset used here is the hardest quintile
+of VerilogEval, so Section~\ref{sec:disc-autobench-compare} can state no relative standing
+against AutoBench. A sweep over a randomly drawn sample, run alongside the existing hard
+subset, would separate pipeline capability from circuit difficulty.
 
 \textbf{Semantic checking.} The defects that dominate are semantic, and static analysis
 cannot reach them from the testbench alone. It could reach some of them given the
 specification: generating assertions from the structured specification the pipeline already
-extracts, and checking the testbench's expectations against those assertions, would attack
-the class that matters rather than the class that is convenient.
+extracts, and checking the testbench's expectations against them, would attack the class that
+matters rather than the class that is convenient.
 
-\textbf{A representative benchmark comparison.} The single most valuable missing experiment,
-and the cheapest. The benchmark subset here is the hardest quintile of VerilogEval and was run
-with the cheaper model, so Section~\ref{sec:disc-autobench-compare} can state no relative
-standing against AutoBench. A baseline sweep over a randomly drawn sample of the 156 at the
-stronger tier costs approximately \$2.20 by the telemetry in Section~\ref{sec:res-rq4}, and
-running both that sample and the existing hard subset would separate pipeline capability from
-circuit difficulty rather than confounding them.
-
-\textbf{Larger circuits for Eval2.} Mutant quality has been eliminated as the cause of the
-Eval2 ceiling (Section~\ref{sec:res-eval2}); circuit size has not. The measure discriminates
-on the benchmark circuits, where the same testbenches detect 53.8\%, and saturates on
-fixtures with two ports and one input bit. Re-running Eval2 over designs with enough state
-for a defect to escape a finite stimulus would make it informative, and requires no new
-tooling.
-
-\textbf{Repair that converges.} Section~\ref{sec:res-repair-fail} shows that 13 of 20 failed
-repairs exhausted their budget while producing a different error signature at every
-iteration, exchanging one corner case for another rather than converging. Two directions
-follow: retaining the failing scenarios already fixed as explicit constraints on the next
-regeneration, so that repair accumulates rather than resamples; and patching the testbench
-rather than regenerating it whole, which is what exposes the pipeline to the degradation
-measured in Section~\ref{sec:res-retry}.
+\textbf{Repair that converges.} Thirteen of 20 failed repairs exhausted their budget while
+producing a different error signature at every iteration
+(Section~\ref{sec:res-repair-fail}). Retaining the scenarios already fixed as explicit
+constraints on the next regeneration, and patching the testbench rather than regenerating it
+whole, would make repair accumulate rather than resample.
 
 \textbf{Statistical power.} Section~\ref{sec:res-strata} leaves the central comparison
-suggestive and uncorrected at $p=0.022$ over 64 matched pairs. Settling it requires a
-pre-registered replication rather than more post-hoc pooling: \texttt{baseline},
-\texttt{retry\_only} and \texttt{hybrid} over a randomly drawn benchmark sample, with the
-hypothesis and the test fixed in advance. Section~\ref{sec:res-decompose} sharpens the target
---- the mechanism rescued 3 runs in 44, so the experiment must be powered for a 7-point
-effect, not the 13.6-point raw gap. At the stronger tier a 60-problem three-arm sweep costs
-approximately \$23 by the telemetry in Section~\ref{sec:res-rq4}.
+suggestive and uncorrected. Settling it requires a pre-registered replication rather than more
+post-hoc pooling, powered for the 7-point effect that Section~\ref{sec:res-decompose}
+isolates rather than the 13.6-point raw gap.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 References
