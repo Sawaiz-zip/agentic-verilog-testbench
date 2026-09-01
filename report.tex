@@ -470,14 +470,11 @@ among several.
 
 \section{Why a Graph Rather than a Script}\label{sec:design-graph}
 
-Multi-stage LLM pipelines are usually written as imperative scripts: call the model, parse
-the reply, call it again, retry on failure. That works until the control flow acquires a
-loop. Once a repair step can send execution back to an earlier stage, the conditions
-governing that jump are scattered across the function that happens to contain them, and
-answering a question such as ``under which circumstances does this configuration
-regenerate the driver?'' means reading the whole script.
+Multi-stage LLM pipelines are usually written as imperative scripts, which works until the
+control flow acquires a loop: once a repair step can send execution back to an earlier stage,
+the conditions governing that jump are scattered across whichever function contains them.
 
-We built the pipeline as a LangGraph~\cite{langgraph} state machine instead. Every stage is
+The pipeline is built as a LangGraph~\cite{langgraph} state machine instead. Every stage is
 a node, every transition is an edge, and every conditional transition is a named routing
 function that takes the graph state and returns the name of the next node. The routing
 functions are small, pure, and testable in isolation; \texttt{should\_repair} decides
@@ -775,18 +772,15 @@ positive.
 The reason is structural, and it is why those five faults are classified as a negative
 control in Section~\ref{sec:val-injectors} rather than as a class the method failed on.
 Generated testbenches drive the design from \texttt{initial} blocks and synchronise using
-\texttt{@(posedge clk)} event controls, not from edge-triggered \texttt{always} blocks. The
-only \texttt{always} block such a testbench typically contains is its clock generator, which
-has no sensitivity list by design. Replacing an event control with a bare delay leaves a
-testbench that is structurally identical to a correct one; the defect is in when it samples,
-which is behaviour, not structure. The check was inspecting a construct the code does not
-use, in pursuit of a defect no structural check could have found.
+\texttt{@(posedge clk)} event controls, not from edge-triggered \texttt{always} blocks, so
+the check was inspecting a construct the code does not use.
 
-We removed it rather than repair it. A check with no measured recall and a history of false
-positives is worse than no check, because it consumes the repair budget on nothing. The
-gap it leaves is recorded in the test suite so that it is not rediscovered later as a bug:
-a testbench that drives a sequential design entirely with bare delays is not reported, and
-the simulator catches four in five of those.
+It was removed rather than repaired: a check with no measured recall and a history of false
+positives consumes the repair budget on nothing. The gap it leaves is recorded in the test
+suite so it is not rediscovered later as a bug --- a testbench driving a sequential design
+entirely with bare delays is not reported, and the simulator catches four in five of those.
+Section~\ref{sec:val-limits} shows the same concern expressed over event controls recovering
+the full class.
 
 \section{False Positives as the Primary Risk}\label{sec:loc-falsepos}
 
@@ -1081,11 +1075,10 @@ inspected \texttt{always} blocks; generated testbenches wait on edges from \text
 blocks, so the same concern expressed over event controls rather than block headers recovers
 the full class.
 
-The second exploits a convention rather than a semantic property, and that limits it.
-Generated testbenches bind ports to identically-named signals almost without exception --- 7
-of 7 and 9 of 9 in the fixtures inspected --- so exchanging two bindings breaks the convention
-visibly. A testbench naming its signals \texttt{sig\_a} and \texttt{sig\_b} would swap them
-undetectably. It is a heuristic with measured precision on this population, not a proof.
+The second exploits a convention rather than a semantic property: generated testbenches bind
+ports to identically-named signals almost without exception, so exchanging two bindings
+breaks the convention visibly. It is a heuristic with measured precision on this population,
+not a proof.
 
 Both are reported as measured possibilities rather than implemented checks: neither was part
 of the frozen analyser, and adding a check after seeing which faults it must catch is exactly
@@ -2257,8 +2250,7 @@ Eval1 where AutoBench reports 37.07\%, on circuits drawn from the hardest quinti
 benchmark. On Eval2 under their own rule it reaches 20\% against their 26.00\%. Compilation is
 at ceiling for both.
 
-Three qualifications keep that from being a claim of superiority, and they are not
-incidental.
+Three qualifications keep that from being a claim of superiority.
 
 The generators are two years apart. AutoBench used GPT-4-turbo; this sweep used
 \texttt{claude-\allowbreak sonnet-4.5}. Section~\ref{sec:res-strong} shows what that
@@ -2334,42 +2326,17 @@ A check that costs nothing and fires three times in 262 analyses is not obviousl
 removing, in the way a smoke detector that has never sounded is not. What the result rules
 out is treating it as a primary defence.
 
-\section{On Measurement Practice}\label{sec:disc-measurement}
-
-The variance measurement in Section~\ref{sec:res-variance} was not an intended contribution.
-It emerged because three configurations happened to execute identical logic, which made
-their disagreement a direct reading of sampling noise: 33 percentage points, twice,
-independently.
-
-Two consequences follow for how this kind of work is evaluated. A comparison of
-configurations at temperature 0.7 with a dozen circuits per arm cannot support a conclusion
-about a difference smaller than roughly a third of the scale, and published results in this
-area are routinely reported at that granularity without intervals. That figure is a property
-of the sample size and not of the field: Section~\ref{sec:res-variance} shows it falling to
-roughly 12 points across three arms at 44 circuits, and it must be rescaled before it is
-carried anywhere else. AutoBench reports single-run pass@1 without intervals or repeats, and
-at their 156 problems the one-arm standard deviation is roughly four points, so their 8\% and
-10\% ablation gains sit at about two standard deviations of a single draw: suggestive, but
-not separable from sampling variation without repeats.
-
-The second consequence concerns controls. Any mechanism that triggers a regeneration must be
-compared against uninformed regeneration, or the measured gain confounds the value of the
-diagnosis with the value of the retry. Our own \texttt{hybrid} arm illustrates the point in
-both directions: it leads the field at 40.9\%, and against the control that gap yields
-$p=0.372$. Without \texttt{retry\_only} in the design we would have reported a 14-point
-improvement over baseline and been wrong to.
-
 \section{Threats to Validity}\label{sec:disc-threats}
 
 \paragraph{Construct.} Eval2 is at ceiling at 324 of 335 mutants, 97\%, and discriminates
 between no two configurations. Section~\ref{sec:res-eval2} tests the obvious explanation and
-rejects it: regenerating the mutants with a stronger model under AutoBench's prompt, with
-equivalent mutants filtered out, gives 97.4\%. The saturation is caused by the fixture
-circuits being too small for a mutant to escape a finite stimulus, not by the generator. The
-consequence is that Eval2 carries no weight in this report's conclusions, and that the
-fixture set was the wrong instrument for it --- a design error, since the fixtures were
-chosen in Section~\ref{sec:exp-circuits} to exercise the \emph{static checks}, and their
-suitability for mutation testing was never considered. The failure categories in
+rejects it: the saturation is caused by the fixture circuits being too small for a mutant to
+escape a finite stimulus, not by the generator. Eval2 therefore carries no weight in this
+report's conclusions --- except in Section~\ref{sec:disc-autobench-compare}, where it is
+computed on AutoBench's published mutants rather than ours and is not at ceiling. The fixture
+set was the wrong instrument for it, a design error: the fixtures were chosen in
+Section~\ref{sec:exp-circuits} to exercise the \emph{static checks}, and their suitability
+for mutation testing was never considered. The failure categories in
 Section~\ref{sec:res-rq1} come from keyword matching on model-authored scenario names, and
 209 of 569 matched nothing, so they indicate shape rather than proportion.
 
@@ -2406,25 +2373,22 @@ constructs the models emit, and the fallback provides a syntax verdict rather th
 analysis, so in those cases no check ran. The unanalysed share is worst on the benchmark
 circuits under the weaker generator, at 89 of 153 --- the sweep whose circuits were selected
 to give the localiser its best chance --- and improves to 48 of 120 under the stronger one,
-which emits less SystemVerilog. The unread files are not a random sample of the rest: the 180
-runs whose testbench Pyverilog could read pass Eval1 at 45.6\%, and the 100 that fell back to
-Verible pass at 6.0\% (Fisher $p<0.0001$; Eval0 96.1\% against 86.0\%, $p=0.004$). The
-constructs that defeat the parser travel with testbenches that are worse in general, so the
-localiser was reading the healthier part of its own input and the null is measured there. This
-compounds with the analysis-target correction below rather than cancelling it: both say the
-layer saw the easier cases. A localiser built on a parser with full SystemVerilog coverage would answer RQ2 on
-a larger sample and might not answer it the same way; nothing in this study excludes that.
+which emits less SystemVerilog. The unread files are not a random sample: the 180 runs
+Pyverilog could read pass Eval1 at 45.6\%, the 100 that fell back to Verible at 6.0\% (Fisher
+$p<0.0001$). The constructs that defeat the parser travel with worse testbenches, so the null
+is measured on the healthier part of the input. A localiser built on a parser with full
+SystemVerilog coverage would answer RQ2 on a larger sample and might not answer it the same
+way.
 
 \paragraph{Analysis target.} The localiser was validated against reference designs and
 deployed against generated ones. In all 280 runs the design it read was written by the same
 model, from the same specification, in the same run as the testbench it was checked against,
 while the score reported for that testbench came from compiling it against the golden design.
 Re-analysing every stored testbench against its golden design
-(Section~\ref{sec:disc-alternatives}) shows this understated the finding rate by roughly a
-factor of three, from 2 of 164 to 7 of 164. The correction is bounded and does not change the
-conclusion, but the figure quoted throughout Chapter~\ref{ch:results} is the deployment one
-and is the lower of the two. A pipeline given the design rather than generating it should
-expect the higher rate.
+(Section~\ref{sec:disc-alternatives}) understates the finding rate by roughly a factor of
+three, 2 of 164 against 7. The figure quoted throughout Chapter~\ref{ch:results} is therefore
+the lower of the two, and a pipeline given the design rather than generating it should expect
+the higher.
 
 \paragraph{External.} Twelve project circuits and twenty benchmark problems, two models,
 one provider. The benchmark problems are drawn from HDLBits exercises and are small by
@@ -2433,10 +2397,14 @@ industrial standards. Nothing here speaks to testbenches for designs of realisti
 \paragraph{Statistical.} Forty-four runs per configuration in the ablation, and twenty in the
 benchmark sweep, leave the study underpowered for the comparison it was built to make; the
 stratified result in Section~\ref{sec:res-strata} is post-hoc and uncorrected and is reported
-as such. One
-repeat per sweep was run; the budget did not allow more. Three sweeps converging on the same
-qualitative picture is weaker evidence than three repeats of one sweep would have been for
-the quantitative claim, and stronger evidence for the qualitative one.
+as such. One repeat per sweep was run; the budget did not allow more. Three sweeps converging
+on the same qualitative picture is weaker evidence than three repeats of one sweep would have
+been for the quantitative claim, and stronger evidence for the qualitative one. The variance
+floor of Section~\ref{sec:res-variance} scales with sample size and must be rescaled before
+being carried elsewhere: at AutoBench's 156 problems the one-arm standard deviation is
+roughly four points, so their 8\% and 10\% ablation gains sit at about two standard
+deviations of a single draw --- suggestive, but not separable from sampling variation without
+repeats.
 
 \section{Corrections Made During the Work}\label{sec:disc-corrections}
 
