@@ -127,7 +127,8 @@ established by measurement. A fourth was found late and measured: the localiser 
 design generated beside the testbench rather than the one it was graded against, which
 understated the finding rate by roughly a factor of three without accounting for it.
 
-The faults static analysis detects have largely stopped occurring in current model output.
+The faults static analysis detects have become rare in current model output rather than
+vanishing.
 Two secondary results support how such claims should be evaluated: a no-diagnostics control
 arm shows that uninformed regeneration is itself worth nothing ($p=1.000$ in both samples),
 leaving informed repair ahead on 11 of 13 discordant circuits across 64 matched pairs at an
@@ -142,7 +143,6 @@ can establish.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}\label{ch:intro}
-% PHASE 6 · target 3.0 pp
 
 \section{Verification and the Cost of Testbenches}\label{sec:intro-cost}
 
@@ -269,7 +269,6 @@ follows.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Background and Related Work}\label{ch:background}
-% PHASE 5 · target 5.5 pp
 
 \section{Simulation-Based Verification}\label{sec:bg-verification}
 
@@ -460,7 +459,6 @@ measurements rather than the analyser: the second is only interpretable given th
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{System Design}\label{ch:design}
-% PHASE 1 · target 5.5 pp
 
 The pipeline takes a natural-language circuit description and returns a Verilog testbench,
 a Python checker, and a record of everything that happened on the way. This chapter
@@ -676,7 +674,6 @@ enough to do after every change.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{The Static Localiser}\label{ch:localiser}
-% PHASE 1 · target 4.0 pp
 
 \section{Design Principle and Scope}\label{sec:loc-principle}
 
@@ -869,7 +866,6 @@ against the analyses that were actually parsed rather than against every analysi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Validating the Localiser}\label{ch:validation}
-% PHASE 2 · target 4.0 pp
 
 \section{Why Pass Rates Cannot Answer RQ2}\label{sec:val-motivation}
 
@@ -1112,7 +1108,6 @@ reach, one level further down.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Experimental Design}\label{ch:experiment}
-% PHASE 2 · target 3.0 pp
 
 \section{Four Sweeps}\label{sec:exp-sweeps}
 
@@ -1284,7 +1279,6 @@ the pipeline writes. No figure in Chapter~\ref{ch:results} was transcribed by ha
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Results}\label{ch:results}
-% PHASE 3 · target 6.5 pp
 
 Every figure in this chapter is produced by \texttt{scripts/analyse\_results.py} from the
 JSON records the pipeline writes, and can be regenerated from the repository.
@@ -2038,7 +2032,6 @@ evidence about the testbenches.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Discussion}\label{ch:discussion}
-% PHASE 4 · target 5.5 pp
 
 The central result is that a localiser which detects 93\% of injected faults found defects
 on three runs in 262 analyses of real generated testbenches. A null result of that kind is only
@@ -2116,7 +2109,12 @@ It is testable without running the pipeline again, because every testbench was s
 frozen localiser was re-run over all 280 of them twice: once paired with the generated
 design, reproducing deployment, and once paired with the golden design, which is the pairing
 the injection study validated. Same testbenches, same checks, same code path; only the design
-differs. Table~\ref{tab:golden-reanalysis} gives the result.
+differs. Table~\ref{tab:golden-reanalysis} gives the result. Its generated-design column
+reads 2 where Table~\ref{tab:yield} reports 3, because the sweep analysed the testbench again
+after every repair iteration while this re-analysis sees only the one testbench each run
+retained: the third run's finding was raised against an intermediate testbench that
+best-so-far retention (Section~\ref{sec:design-repair}) then discarded. The two arms here are
+counted the same way as each other, which is what the comparison requires.
 
 \begin{table}[H]
 \centering
@@ -2190,7 +2188,8 @@ The count is worth stating because the claim rests on it. Asserting that the sta
 had nothing to do would otherwise be an inference from the absence of static findings, and
 the standardiser runs before the analyser, so that inference would be circular.
 
-The technique did not stop working. The defect it corrects stopped occurring.
+The technique did not stop working. The defect it corrects --- a missing output-display
+statement --- did not occur once in 262 analyses.
 
 That is a more useful conclusion than either a positive or a negative result on its own,
 because it generalises past this project. Auxiliary tooling built to compensate for a
@@ -2435,7 +2434,6 @@ finding in nine analyses, where the final count was one in seventy-nine.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
-% PHASE 6 · target 2.0 pp
 
 \section{Answers to the Research Questions}\label{sec:concl-rq}
 
@@ -2517,7 +2515,8 @@ The result that generalises furthest is not about static analysis at all. AutoBe
 reported gain came from a script inserting output-display statements that GPT-4-turbo
 omitted. Two years later the equivalent check here fired zero times in 262 analyses, and the
 deterministic standardiser built for the same purpose had something to insert in 3 of 220
-runs. The technique did not stop working; the defect it corrects stopped occurring. Auxiliary
+runs. The technique did not stop working; the defect it corrects had all but disappeared.
+Auxiliary
 tooling built around a generator's weaknesses is calibrated against a particular generation of
 models, and a component inherited from prior work without re-measurement may cost maintenance
 and return nothing.
