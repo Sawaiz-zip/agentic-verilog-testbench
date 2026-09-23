@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-label="Sequential compile rate versus AutoBench">
+<rect width="1280" height="620" fill="#fcfcfb"/>
+<text x="60.0" y="58.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">Sequential compile rate — does their fix still matter?</text>
+<text x="60.0" y="88.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">AutoBench's biggest single gain was a script worth +42 points. Ours fired 6 times in 188 runs.</text>
+<rect x="480" y="111" width="13" height="13" rx="3" fill="#eb6834"/>
+<text x="500.0" y="122.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">AutoBench (GPT-4-turbo, 2024)</text>
+<rect x="785.2" y="111" width="13" height="13" rx="3" fill="#2a78d6"/>
+<text x="805.2" y="122.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Ours (2026)</text>
+<text x="60.0" y="158.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#7a7974" text-anchor="start">WITH NO HELP FROM THE FIX</text>
+<text x="458.0" y="206.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="end">AutoBench, no standardisation</text>
+<path d="M480.0,176.0 H820.1 A4,4 0 0 1 824.1,180.0 V218.0 A4,4 0 0 1 820.1,222.0 H480.0 Z" fill="#eb6834"/>
+<text x="838.1" y="207.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">55.5%</text>
+<text x="458.0" y="274.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="end">Ours, standardiser never fired</text>
+<path d="M480.0,244.0 H1038.1 A4,4 0 0 1 1042.1,248.0 V286.0 A4,4 0 0 1 1038.1,290.0 H480.0 Z" fill="#2a78d6"/>
+<text x="1056.1" y="275.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">90.7%</text>
+<text x="60.0" y="338.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#7a7974" text-anchor="start">BEST CASE</text>
+<text x="458.0" y="386.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="end">AutoBench, with their script</text>
+<path d="M480.0,356.0 H1079.3 A4,4 0 0 1 1083.3,360.0 V398.0 A4,4 0 0 1 1079.3,402.0 H480.0 Z" fill="#eb6834"/>
+<text x="1097.3" y="387.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">97.3%</text>
+<text x="458.0" y="454.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="end">Ours, strong model</text>
+<path d="M480.0,424.0 H1088.1 A4,4 0 0 1 1092.1,428.0 V466.0 A4,4 0 0 1 1088.1,470.0 H480.0 Z" fill="#2a78d6"/>
+<text x="1106.1" y="455.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">98.7%</text>
+<line x1="60" y1="508" x2="1220" y2="508" stroke="#e6e5e1" stroke-width="1.5"/>
+<text x="60.0" y="542.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0b0b0b" text-anchor="start">A 2026 pipeline whose fix does nothing compiles 35 points better than a 2024 pipeline without one.</text>
+<text x="60.0" y="570.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="start">The technique did not stop working — the defect it corrects stopped happening.</text>
+<text x="60.0" y="596.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#2a78d6" text-anchor="start">Techniques in this field have a shelf life, and nobody measures it.</text>
+</svg>

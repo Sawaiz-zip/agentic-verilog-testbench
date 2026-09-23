@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="500" viewBox="0 0 1100 500" role="img" aria-label="Where hybrid's passes came from">
+<rect width="1100" height="500" fill="#fcfcfb"/>
+<text x="60.0" y="58.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">Where hybrid's 18 passes actually came from</text>
+<text x="60.0" y="88.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">Only the dark segment is the repair mechanism doing work</text>
+<rect x="300" y="119" width="13" height="13" rx="3" fill="#6da7ec"/>
+<text x="320.0" y="130.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Passed on the first attempt</text>
+<rect x="587.6" y="119" width="13" height="13" rx="3" fill="#2a78d6"/>
+<text x="607.6" y="130.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Rescued by a repair</text>
+<text x="276.0" y="212.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="600" fill="#0b0b0b" text-anchor="end">baseline</text>
+<path d="M300.0,170.0 H668.0 A4,4 0 0 1 672.0,174.0 V232.0 A4,4 0 0 1 668.0,236.0 H300.0 Z" fill="#6da7ec"/>
+<text x="316.0" y="213.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="start">12</text>
+<text x="692.0" y="213.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">= 12</text>
+<text x="276.0" y="332.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="600" fill="#0b0b0b" text-anchor="end">hybrid</text>
+<path d="M300.0,290.0 H765.0 A0,0 0 0 1 765.0,290.0 V356.0 A0,0 0 0 1 765.0,356.0 H300.0 Z" fill="#6da7ec"/>
+<text x="316.0" y="333.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="start">15</text>
+<path d="M767.0,290.0 H856.0 A4,4 0 0 1 860.0,294.0 V352.0 A4,4 0 0 1 856.0,356.0 H767.0 Z" fill="#2a78d6"/>
+<text x="813.5" y="333.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<text x="878.0" y="333.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#0b0b0b" text-anchor="start">= 18</text>
+<text x="60.0" y="426.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#52514e" text-anchor="start">15 first-attempt passes against baseline's 12 — same process, so that gap is noise.</text>
+<text x="60.0" y="454.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0b0b0b" text-anchor="start">Only 3 of the 18 were rescued by repair.</text>
+<text x="60.0" y="480.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="start">The mechanism is worth 3 circuits of 44 — about 6.8 points, not the headline 13.6.</text>
+</svg>

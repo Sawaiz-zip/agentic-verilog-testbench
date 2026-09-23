@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="900" viewBox="0 0 1340 900" role="img" aria-label="Fault injection: static analysis versus compiler and simulator">
+<rect width="1340" height="900" fill="#fcfcfb"/>
+<text x="60.0" y="58.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">215 faults injected. Three detectors scored.</text>
+<text x="60.0" y="88.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">Each bar is the share of that fault class the detector caught</text>
+<rect x="430" y="111" width="13" height="13" rx="3" fill="#2a78d6"/>
+<text x="450.0" y="122.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Static analysis (ours)</text>
+<rect x="673.6" y="111" width="13" height="13" rx="3" fill="#eb6834"/>
+<text x="693.6" y="122.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Compiler</text>
+<rect x="794.0" y="111" width="13" height="13" rx="3" fill="#1baf7a"/>
+<text x="814.0" y="122.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">Simulator</text>
+<text x="408.0" y="178.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">port renamed</text>
+<text x="408.0" y="199.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 62</text>
+<path d="M430.0,152.0 H1116.0 A4,4 0 0 1 1120.0,156.0 V163.0 A4,4 0 0 1 1116.0,167.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="165.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<path d="M430.0,170.0 H1116.0 A4,4 0 0 1 1120.0,174.0 V181.0 A4,4 0 0 1 1116.0,185.0 H430.0 Z" fill="#eb6834"/>
+<text x="1130.0" y="183.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="188.0" width="0.0" height="15" fill="#1baf7a"/>
+<text x="440.0" y="201.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<text x="408.0" y="248.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">port left unconnected</text>
+<text x="408.0" y="269.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 62</text>
+<path d="M430.0,222.0 H1116.0 A4,4 0 0 1 1120.0,226.0 V233.0 A4,4 0 0 1 1116.0,237.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="235.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="240.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="253.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,258.0 H1104.9 A4,4 0 0 1 1108.9,262.0 V269.0 A4,4 0 0 1 1104.9,273.0 H430.0 Z" fill="#1baf7a"/>
+<text x="1118.9" y="271.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">98%</text>
+<text x="408.0" y="318.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">input never driven</text>
+<text x="408.0" y="339.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 30</text>
+<path d="M430.0,292.0 H1116.0 A4,4 0 0 1 1120.0,296.0 V303.0 A4,4 0 0 1 1116.0,307.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="305.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="310.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="323.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,328.0 H1093.0 A4,4 0 0 1 1097.0,332.0 V339.0 A4,4 0 0 1 1093.0,343.0 H430.0 Z" fill="#1baf7a"/>
+<text x="1107.0" y="341.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">97%</text>
+<text x="408.0" y="388.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">wrong signal width</text>
+<text x="408.0" y="409.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 22</text>
+<path d="M430.0,362.0 H1116.0 A4,4 0 0 1 1120.0,366.0 V373.0 A4,4 0 0 1 1116.0,377.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="375.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="380.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="393.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,398.0 H990.5 A4,4 0 0 1 994.5,402.0 V409.0 A4,4 0 0 1 990.5,413.0 H430.0 Z" fill="#1baf7a"/>
+<text x="1004.5" y="411.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">82%</text>
+<text x="408.0" y="458.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">output never checked</text>
+<text x="408.0" y="479.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 19</text>
+<path d="M430.0,432.0 H1116.0 A4,4 0 0 1 1120.0,436.0 V443.0 A4,4 0 0 1 1116.0,447.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="445.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="450.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="463.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<rect x="430.0" y="468.0" width="0.0" height="15" fill="#1baf7a"/>
+<text x="440.0" y="481.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<rect x="60" y="420" width="1220" height="71" fill="none" stroke="#2a78d6" stroke-width="2" rx="8" stroke-dasharray="7 5"/>
+<text x="1266.0" y="481.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#2a78d6" text-anchor="end">← nothing else can see this one</text>
+<text x="408.0" y="528.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#0b0b0b" text-anchor="end">clock never toggles</text>
+<text x="408.0" y="549.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 6</text>
+<path d="M430.0,502.0 H1116.0 A4,4 0 0 1 1120.0,506.0 V513.0 A4,4 0 0 1 1116.0,517.0 H430.0 Z" fill="#2a78d6"/>
+<text x="1130.0" y="515.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">100%</text>
+<rect x="430.0" y="520.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="533.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,538.0 H541.0 A4,4 0 0 1 545.0,542.0 V549.0 A4,4 0 0 1 541.0,553.0 H430.0 Z" fill="#1baf7a"/>
+<text x="555.0" y="551.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">17%</text>
+<line x1="60" y1="590" x2="1280" y2="590" stroke="#e6e5e1" stroke-width="1.5"/>
+<text x="60.0" y="612.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#7a7974" text-anchor="start">NEGATIVE CONTROLS — built to be undetectable by structure</text>
+<text x="408.0" y="650.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#7a7974" text-anchor="end" font-style="italic">swapped same-width bindings</text>
+<text x="408.0" y="671.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 9</text>
+<rect x="430.0" y="624.0" width="0.0" height="15" fill="#2a78d6"/>
+<text x="440.0" y="637.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<rect x="430.0" y="642.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="655.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,660.0 H962.7 A4,4 0 0 1 966.7,664.0 V671.0 A4,4 0 0 1 962.7,675.0 H430.0 Z" fill="#1baf7a"/>
+<text x="976.7" y="673.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">78%</text>
+<text x="408.0" y="720.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#7a7974" text-anchor="end" font-style="italic">broken edge synchronisation</text>
+<text x="408.0" y="741.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#7a7974" text-anchor="end">n = 5</text>
+<rect x="430.0" y="694.0" width="0.0" height="15" fill="#2a78d6"/>
+<text x="440.0" y="707.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<rect x="430.0" y="712.0" width="0.0" height="15" fill="#eb6834"/>
+<text x="440.0" y="725.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">0%</text>
+<path d="M430.0,730.0 H978.0 A4,4 0 0 1 982.0,734.0 V741.0 A4,4 0 0 1 978.0,745.0 H430.0 Z" fill="#1baf7a"/>
+<text x="992.0" y="743.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#52514e" text-anchor="start">80%</text>
+<text x="60.0" y="798.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#2a78d6" text-anchor="start">Nothing else can see it: the testbench stops checking an output, so it passes.</text>
+<text x="60.0" y="828.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">100% of every class it was designed for (201/201) · 0 false positives on clean testbenches · 30 of the 33 faults</text>
+<text x="60.0" y="852.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start">invisible to both the compiler and the simulator. The two controls score 0, exactly as predicted — the fault set was not cherry-picked.</text>
+</svg>

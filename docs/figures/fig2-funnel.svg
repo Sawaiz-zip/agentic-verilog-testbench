@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="Run funnel: 280 runs, 259 compiled, 88 worked">
+<rect width="1200" height="520" fill="#fcfcfb"/>
+<text x="60.0" y="62.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">From 280 runs to 88 working testbenches</text>
+<text x="60.0" y="92.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">Every testbench generated, and how far each got</text>
+<text x="274.0" y="164.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="500" fill="#0b0b0b" text-anchor="end">Runs executed</text>
+<path d="M300.0,130.0 H1056.0 A4,4 0 0 1 1060.0,134.0 V200.0 A4,4 0 0 1 1056.0,204.0 H300.0 Z" fill="#1c5cab"/>
+<text x="318.0" y="177.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="start">280</text>
+<text x="274.0" y="278.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="500" fill="#0b0b0b" text-anchor="end">Compiled  (Eval0)</text>
+<path d="M300.0,244.0 H999.0 A4,4 0 0 1 1003.0,248.0 V314.0 A4,4 0 0 1 999.0,318.0 H300.0 Z" fill="#2a78d6"/>
+<text x="318.0" y="291.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="start">259</text>
+<text x="1021.0" y="290.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#52514e" text-anchor="start">92.5%</text>
+<text x="274.0" y="381.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="500" fill="#0b0b0b" text-anchor="end">Worked against the</text>
+<text x="274.0" y="403.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="500" fill="#0b0b0b" text-anchor="end">real circuit  (Eval1)</text>
+<path d="M300.0,358.0 H534.9 A4,4 0 0 1 538.9,362.0 V428.0 A4,4 0 0 1 534.9,432.0 H300.0 Z" fill="#6da7ec"/>
+<text x="318.0" y="405.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="start">88</text>
+<text x="556.9" y="404.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#52514e" text-anchor="start">31.4%</text>
+<text x="60.0" y="494.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#7a7974" text-anchor="start">31.4% is in the same range as the prior work's 37% on sequential circuits — and these are the hardest quintile of the benchmark.</text>
+</svg>

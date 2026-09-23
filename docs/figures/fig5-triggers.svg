@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="620" viewBox="0 0 1300 620" role="img" aria-label="Repair triggers across 280 runs">
+<rect width="1300" height="620" fill="#fcfcfb"/>
+<text x="60.0" y="58.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">What actually triggered every repair, across 280 runs</text>
+<text x="60.0" y="88.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">The feedback source that caused the pipeline to rewrite a testbench</text>
+<text x="446.0" y="177.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#52514e" text-anchor="end">Simulation  (ran, wrong answers)</text>
+<path d="M470.0,150.0 H1106.0 A4,4 0 0 1 1110.0,154.0 V186.0 A4,4 0 0 1 1106.0,190.0 H470.0 Z" fill="#2a78d6"/>
+<text x="1126.0" y="179.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#0b0b0b" text-anchor="start">79</text>
+<text x="446.0" y="255.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#52514e" text-anchor="end">Blind retry  (the control — no information)</text>
+<path d="M470.0,228.0 H984.5 A4,4 0 0 1 988.5,232.0 V264.0 A4,4 0 0 1 984.5,268.0 H470.0 Z" fill="#2a78d6"/>
+<text x="1004.5" y="257.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#0b0b0b" text-anchor="start">64</text>
+<text x="446.0" y="333.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#52514e" text-anchor="end">Compiler errors</text>
+<path d="M470.0,306.0 H547.0 A4,4 0 0 1 551.0,310.0 V342.0 A4,4 0 0 1 547.0,346.0 H470.0 Z" fill="#2a78d6"/>
+<text x="567.0" y="335.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#0b0b0b" text-anchor="start">10</text>
+<text x="446.0" y="411.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#0b0b0b" text-anchor="end">Static analysis  —  OUR CONTRIBUTION</text>
+<path d="M470.0,384.0 H474.1 A4,4 0 0 1 478.1,388.0 V420.0 A4,4 0 0 1 474.1,424.0 H470.0 Z" fill="#eb6834"/>
+<text x="494.1" y="413.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#0b0b0b" text-anchor="start">1</text>
+<text x="544.0" y="414.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#eb6834" text-anchor="start">one repair, in 280 runs</text>
+<line x1="60" y1="474" x2="1240" y2="474" stroke="#e6e5e1" stroke-width="1.5"/>
+<text x="60.0" y="506.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0b0b0b" text-anchor="start">This is the central finding — and it is not a broken tool.</text>
+<text x="60.0" y="536.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="start">The localiser catches 100% of every fault class it was designed for. The defects have simply become rare:</text>
+<text x="60.0" y="560.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#52514e" text-anchor="start">87% of observed failures are semantic — the wiring is perfect, the expected answer is wrong.</text>
+<text x="60.0" y="584.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#52514e" text-anchor="start">pyverilog_only, the arm that isolates our layer, repaired 0 times in 44 runs.</text>
+</svg>
