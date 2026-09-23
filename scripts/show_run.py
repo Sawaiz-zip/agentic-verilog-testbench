@@ -13,6 +13,8 @@ Usage:
   python scripts/show_run.py --list                 # what runs exist
   python scripts/show_run.py --list --failed        # only the ones that failed
   python scripts/show_run.py d6bd8c0d               # extract one run
+  python scripts/show_run.py --circuit counter_4bit # every run of one circuit
+  python scripts/show_run.py --compare              # generated vs golden, all runs
   python scripts/show_run.py d6bd8c0d -o /tmp/look  # extract somewhere specific
 
 Writes into <out>/<run_id>/:
@@ -22,6 +24,14 @@ Writes into <out>/<run_id>/:
   simulation.txt    what the simulator printed
   compiler.txt      compiler output, when compilation failed
   SUMMARY.md        what happened, and the diff-ready commands
+
+--circuit writes <out>/<task>/golden_dut.v once and a subdirectory per run, with
+a CIRCUIT.md comparing them. Each run generates its own design -- at temperature
+0.7 they differ between runs -- so there is no single generated DUT per circuit.
+
+--compare reads the port interface of every generated design against its golden
+reference. Interface only: two designs with matching ports can still behave
+differently, and that is not checked.
 
 Known limitation: intermediate testbench versions are not stored by the
 pipeline. `repair_history` keeps the trigger and error signature per iteration,
@@ -33,6 +43,7 @@ import argparse
 import glob
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).parent.parent
@@ -93,6 +104,176 @@ def cmd_list(records: dict, failed_only: bool, sweep_filter: str | None) -> None
         print(f"{r[0]:<20} {r[1]:<28} {r[2]:<15} {r[3]:<10} "
               f"{r[4]:<6} {r[5]:<17} {r[6]}")
     print(f"\n{len(rows)} runs")
+
+
+PORT_RE = re.compile(
+    r"\b(input|output|inout)\b\s*(?:wire|reg|logic)?\s*(\[[^\]]*\])?\s*([A-Za-z_]\w*)")
+
+
+def ports_of(verilog: str) -> list[tuple[str, str, str]]:
+    """(direction, width, name) for each port, read from the module header.
+
+    A regex rather than Pyverilog on purpose: this has to work on the ~40% of
+    files Pyverilog cannot parse, and a port list is shallow enough to read
+    reliably from text once comments are stripped.
+    """
+    if not (verilog or "").strip():
+        return []
+    src = re.sub(r"//[^\n]*", "", verilog)
+    src = re.sub(r"/\*.*?\*/", "", src, flags=re.S)
+    m = re.search(r"\bmodule\b[^;]*?;", src, flags=re.S)
+    head = m.group(0) if m else src
+    seen, out = set(), []
+    for direction, width, name in PORT_RE.findall(head):
+        if name in seen:
+            continue
+        seen.add(name)
+        out.append((direction, (width or "").replace(" ", ""), name))
+    return out
+
+
+def compare_ports(gen: str, gold: str) -> dict:
+    """How the generated design's interface differs from the reference."""
+    g, r = ports_of(gen), ports_of(gold)
+    gn = {n: (d, w) for d, w, n in g}
+    rn = {n: (d, w) for d, w, n in r}
+    extra = sorted(set(gn) - set(rn))
+    missing = sorted(set(rn) - set(gn))
+    changed = sorted(n for n in set(gn) & set(rn) if gn[n] != rn[n])
+    return {
+        "generated": len(g), "golden": len(r),
+        "extra": extra, "missing": missing, "changed": changed,
+        "match": not (extra or missing or changed),
+    }
+
+
+def cmd_compare(records: dict, sweep_filter: str | None) -> None:
+    """Port-level generated-vs-golden comparison across every run."""
+    rows, n_match, n_nogold = [], 0, 0
+    for run_id, (rec, sweep) in sorted(
+            records.items(), key=lambda kv: (kv[1][1], kv[1][0].get("task_id", ""))):
+        if sweep_filter and sweep != sweep_filter:
+            continue
+        _, gold = find_golden(rec)
+        if not gold:
+            n_nogold += 1
+            continue
+        c = compare_ports(rec.get("dut_rtl", ""), gold)
+        if c["match"]:
+            n_match += 1
+            continue
+        notes = []
+        if c["extra"]:
+            notes.append("invented " + ", ".join(c["extra"]))
+        if c["missing"]:
+            notes.append("missing " + ", ".join(c["missing"]))
+        if c["changed"]:
+            notes.append("width differs on " + ", ".join(c["changed"]))
+        rows.append((sweep, rec.get("task_id", "?"), rec.get("mode", "?"), run_id,
+                     "PASS" if rec.get("eval1_pass") else "fail", "; ".join(notes)))
+
+    total = n_match + len(rows)
+    print("Generated design vs golden reference — interface comparison\n")
+    print(f"{'sweep':<20} {'circuit':<28} {'mode':<15} {'run':<10} {'ev1':<5} difference")
+    print("-" * 118)
+    for r in rows:
+        print(f"{r[0]:<20} {r[1]:<28} {r[2]:<15} {r[3]:<10} {r[4]:<5} {r[5]}")
+    pct = 100 * n_match / total if total else 0
+    print(f"\n{n_match} of {total} runs match the reference interface ({pct:.1f}%)  ·  "
+          f"{len(rows)} differ")
+    if n_nogold:
+        print(f"{n_nogold} runs skipped — no golden reference on disk")
+    print("\nNote: this compares the port interface only. Two designs with identical\n"
+          "ports can still behave differently; that is not checked here.")
+
+
+def cmd_circuit(records: dict, name: str, out_dir: pathlib.Path) -> int:
+    """Extract every run of one circuit, side by side."""
+    runs = [(rid, rec, sweep) for rid, (rec, sweep) in records.items()
+            if name.lower() in rec.get("task_id", "").lower()]
+    if not runs:
+        print(f"No circuit matching '{name}'. Try --list.", file=sys.stderr)
+        return 1
+
+    tasks = sorted({r[1].get("task_id") for r in runs})
+    if len(tasks) > 1:
+        print(f"'{name}' matches several circuits: {', '.join(tasks)}", file=sys.stderr)
+        return 1
+
+    task = tasks[0]
+    dest = out_dir / task
+    dest.mkdir(parents=True, exist_ok=True)
+
+    golden_src, golden = find_golden(runs[0][1])
+    if golden:
+        write(dest / "golden_dut.v", golden)
+
+    runs.sort(key=lambda r: (r[2], r[1].get("mode", "")))
+    lines = [
+        f"# `{task}` — every run",
+        "",
+        f"Golden reference: `{golden_src or 'not found'}`  ·  **{len(runs)} runs**",
+        "",
+        "⚠️ Each run generates its **own** design. At temperature 0.7 these differ "
+        "between runs, so there is no single \"the generated DUT\" for a circuit.",
+        "",
+        "| sweep | mode | run | Eval1 | repairs | interface vs golden |",
+        "|---|---|---|---|---|---|",
+    ]
+    for rid, rec, sweep in runs:
+        sub = dest / f"{sweep}__{rec.get('mode')}__{rid}"
+        sub.mkdir(parents=True, exist_ok=True)
+        write(sub / "generated_dut.v", rec.get("dut_rtl", ""))
+        write(sub / "testbench.v", rec.get("driver_rtl", ""))
+        write(sub / "simulation.txt", rec.get("sim_output", ""))
+        write(sub / "compiler.txt", rec.get("compiler_output", ""))
+
+        c = compare_ports(rec.get("dut_rtl", ""), golden) if golden else None
+        if c is None:
+            verdict = "—"
+        elif c["match"]:
+            verdict = "✅ same ports"
+        else:
+            bits = []
+            if c["extra"]:
+                bits.append("invented `" + "`, `".join(c["extra"]) + "`")
+            if c["missing"]:
+                bits.append("missing `" + "`, `".join(c["missing"]) + "`")
+            if c["changed"]:
+                bits.append("width differs on `" + "`, `".join(c["changed"]) + "`")
+            verdict = "⚠️ " + "; ".join(bits)
+        lines.append(
+            f"| `{sweep}` | `{rec.get('mode')}` | `{rid}` | "
+            f"{'✅' if rec.get('eval1_pass') else '❌'} | {rec.get('repair_iter', 0)} | "
+            f"{verdict} |")
+
+    lines += [
+        "",
+        "## Compare",
+        "",
+        "```bash",
+        "# any run's design against the reference",
+        f"diff -u golden_dut.v <sweep>__<mode>__<run>/generated_dut.v",
+        "",
+        "# two runs' testbenches against each other",
+        "diff -u <run_a>/testbench.v <run_b>/testbench.v",
+        "```",
+        "",
+        "Per-run detail (scenarios, static-analysis trace, repair history):",
+        "",
+        "```bash",
+        "python scripts/show_run.py <run>",
+        "```",
+        "",
+    ]
+    (dest / "CIRCUIT.md").write_text("\n".join(lines))
+
+    print(f"{task} — {len(runs)} runs written to {dest}/")
+    for rid, rec, sweep in runs:
+        print(f"  {sweep}__{rec.get('mode')}__{rid}  "
+              f"{'PASS' if rec.get('eval1_pass') else 'fail'}")
+    print(f"\n  {dest}/CIRCUIT.md")
+    return 0
 
 
 def write(path: pathlib.Path, text: str) -> bool:
@@ -252,8 +433,12 @@ def main() -> int:
         description="Extract one run's Verilog artefacts for inspection.")
     ap.add_argument("run_id", nargs="?", help="run id, or a unique prefix of one")
     ap.add_argument("--list", action="store_true", help="list runs instead")
+    ap.add_argument("--circuit", default=None,
+                    help="extract every run of one circuit, side by side")
+    ap.add_argument("--compare", action="store_true",
+                    help="port-level generated-vs-golden comparison across all runs")
     ap.add_argument("--failed", action="store_true", help="with --list: only Eval1 failures")
-    ap.add_argument("--sweep", default=None, help="with --list: restrict to one sweep")
+    ap.add_argument("--sweep", default=None, help="restrict to one sweep")
     ap.add_argument("-o", "--out", default=None,
                     help="output directory (default: results/inspect)")
     args = ap.parse_args()
@@ -263,11 +448,19 @@ def main() -> int:
         print("No result records found under results/.", file=sys.stderr)
         return 1
 
+    out_dir = pathlib.Path(args.out) if args.out else ROOT / "results" / "inspect"
+
+    if args.compare:
+        cmd_compare(records, args.sweep)
+        return 0
+
+    if args.circuit:
+        return cmd_circuit(records, args.circuit, out_dir)
+
     if args.list or not args.run_id:
         cmd_list(records, args.failed, args.sweep)
         return 0
 
-    out_dir = pathlib.Path(args.out) if args.out else ROOT / "results" / "inspect"
     return cmd_show(records, args.run_id, out_dir)
 
 
