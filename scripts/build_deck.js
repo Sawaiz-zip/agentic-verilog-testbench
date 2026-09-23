@@ -413,6 +413,11 @@ const NODES = [
     stat: "188 / 92", statLabel: "sequential vs combinational,\nacross 280 runs",
     found: "It was never the problem. We never traced a single failure back to a wrong " +
            "answer here.",
+    ex: { kind: "code", cap: "counter_4bit — the description in, the verdict out",
+          lines: ["\u201Ca synchronous 4-bit up counter",
+                  "  with synchronous reset\u201D",
+                  "",
+                  "        \u2192   SEQ"] },
     notes:
       "SAY: The first step just sorts the circuit into one of two kinds. Does it remember " +
       "anything, or not? A calculator does not — two plus three is five, always. A counter " +
@@ -434,6 +439,12 @@ const NODES = [
     stat: "273 / 280", statLabel: "of the circuits it wrote match\nthe reference exactly",
     found: "The seven that differ are all the same circuit, where the AI invented a clock " +
            "pin that the real design does not have.",
+    ex: { kind: "code", cap: "what it wrote for counter_4bit — identical interface to the reference",
+          lines: ["module counter_4bit(",
+                  "  input clk,",
+                  "  input rst,",
+                  "  output [3:0] out",
+                  ");"] },
     notes:
       "SAY: This is the first thing that is ours — AutoBench never generates the design, " +
       "only the test.\n\n" +
@@ -461,6 +472,13 @@ const NODES = [
     stat: "same as theirs", statLabel: "we copied this step from\nAutoBench directly",
     found: "Plumbing that worked. Not a contribution, but the pipeline would be much " +
            "flakier without it.",
+    ex: { kind: "rows", cap: "the structured spec it produced",
+          head: ["field", "value"],
+          rows: [["inputs", "clk (1 bit), rst (1 bit)"],
+                 ["outputs", "out (4 bits)"],
+                 ["clock", "clk"],
+                 ["reset", "rst"],
+                 ["timing", "synchronous, posedge"]] },
     notes:
       "SAY: This one turns the English description into a structured checklist — the pin " +
       "names, the widths, the timing.\n\n" +
@@ -480,6 +498,14 @@ const NODES = [
     stat: "~8", statLabel: "test cases generated per run",
     found: "That number comes back later — eight test cases is a thin sample of a big " +
            "circuit.",
+    ex: { kind: "rows", cap: "the scenarios it chose for counter_4bit, and how each one did",
+          head: ["scenario", "result"],
+          rows: [["normal_increment", "FAIL"],
+                 ["reset_to_zero", "PASS"],
+                 ["wrap_around", "PASS"],
+                 ["increment_from_zero_to_five", "FAIL"],
+                 ["hold_value_on_reset", "PASS"],
+                 ["increment_to_fourteen", "FAIL"]] },
     notes:
       "SAY: Here the AI plans what to test, as a list of named situations. Reset clears " +
       "the counter. It wraps at the maximum. And so on.\n\n" +
@@ -501,6 +527,12 @@ const NODES = [
     stat: "92.5%", statLabel: "of the testbenches it wrote\ncompiled successfully",
     found: "Compiling is the easy part. Only 31% of them actually worked against the real " +
            "circuit.",
+    ex: { kind: "code", cap: "how it wires the circuit up inside the testbench",
+          lines: ["counter_4bit dut (",
+                  "  .clk(clk),",
+                  "  .rst(rst),",
+                  "  .out(out)",
+                  ");"] },
     notes:
       "SAY: This is the main event — the actual test programme, in Verilog. It feeds " +
       "inputs in, watches what comes out, and prints PASS or FAIL for each of the " +
@@ -519,6 +551,11 @@ const NODES = [
     stat: "runs in parallel", statLabel: "alongside the testbench —\nneither waits for the other",
     found: "Ours does less work than AutoBench's, because our testbench already judges " +
            "itself.",
+    ex: { kind: "code", cap: "the output it reads — one line per scenario",
+          lines: ["FAIL: normal_increment",
+                  "PASS: reset_to_zero",
+                  "PASS: wrap_around",
+                  "FAIL: increment_from_zero_to_five"] },
     notes:
       "SAY: Alongside the testbench we also generate a small Python checker. These two run " +
       "at the same time, in parallel, because neither needs the other's output — it saves " +
@@ -538,6 +575,10 @@ const NODES = [
          "still running.",
     stat: "0", statLabel: "AI calls — it is pure\ncontrol flow",
     found: "Not a research contribution. It is there so the parallel branches are safe.",
+    ex: { kind: "code", cap: "the two branches rejoin here",
+          lines: ["gen_driver   \u2510",
+                  "             \u251c\u2500\u2192  merge  \u2192  next step",
+                  "gen_checker  \u2518"] },
     notes:
       "SAY: This one does nothing — it is a waiting point. The two previous steps run in " +
       "parallel, so something has to wait for both before we continue.\n\n" +
@@ -554,6 +595,11 @@ const NODES = [
     stat: "6 / 188", statLabel: "sequential runs where it had\nanything to fix",
     found: "AutoBench's version of this step was their single biggest win — worth 42 " +
            "points. Ours does almost nothing.",
+    ex: { kind: "code", cap: "what it inserts, and how it marks its own work",
+          lines: ["// [standardised]",
+                  "$monitor(\"out = %b\", out);",
+                  "",
+                  "// it skips anything already marked"] },
     notes:
       "SAY: This step is plain Python, no AI at all. It inserts a missing print statement, " +
       "or starts a clock that was declared but never ticks. There is one correct answer to " +
@@ -577,6 +623,12 @@ const NODES = [
          "running it passes.",
     stat: "100%", statLabel: "detection on every fault class\nit was built for",
     found: "Zero false alarms on clean testbenches. This is the core contribution.",
+    ex: { kind: "rows", cap: "a real finding — Prob150, where the AI invented a clock pin",
+          head: ["field", "value"],
+          rows: [["error_type", "port_binding_mismatch"],
+                 ["affected_signal", "clk"],
+                 ["severity", "ERROR"],
+                 ["found by", "reading the code, before running"]] },
     notes:
       "SAY: This is the heart of the project. It reads the testbench and the circuit as " +
       "structure rather than as text, and runs six checks — without running anything.\n\n" +
@@ -605,6 +657,13 @@ const NODES = [
     stat: "skipped when clean", statLabel: "no AI call is made if the\nreport found nothing",
     found: "Since the reports were almost always clean, this made the static-only " +
            "configuration cheaper than doing nothing at all.",
+    ex: { kind: "code", cap: "machine report in, instruction out",
+          lines: ["unobserved_output: q",
+                  "",
+                  "        \u2193",
+                  "",
+                  "\u201Cthe output q is never printed \u2014",
+                  " add a display after each check\u201D"] },
     notes:
       "SAY: The checker produces a machine report. This step turns it into an instruction " +
       "the AI can actually act on — which signal, what is wrong, what to do.\n\n" +
@@ -622,6 +681,12 @@ const NODES = [
     stat: "26 / 102", statLabel: "repair attempts that ended\nin a working testbench",
     found: "About one in four. Repairing a testbench from an error message is harder than " +
            "it sounds.",
+    ex: { kind: "rows", cap: "the one repair our checker ever triggered, iteration by iteration",
+          head: ["attempt", "what the checker saw"],
+          rows: [["0", "clean"],
+                 ["1", "clk and reset not connected"],
+                 ["2", "clean  \u2014 the repair worked"],
+                 ["3", "the problem came back"]] },
     notes:
       "SAY: When something is wrong, this step rewrites the testbench — and it is told what " +
       "was wrong. Three things can trigger it: our checker, the compiler, or a failed run.\n\n" +
@@ -647,6 +712,11 @@ const NODES = [
     stat: "worth nothing", statLabel: "a blind second attempt did not\nbeat doing nothing at all",
     found: "Which means any real improvement has to come from the diagnosis, not from the " +
            "extra attempt.",
+    ex: { kind: "rows", cap: "the control against the plain version, over 44 circuits",
+          head: ["setting", "worked"],
+          rows: [["baseline — one attempt", "12 of 44"],
+                 ["retry_only — a blind second attempt", "13 of 44"],
+                 ["difference", "1 circuit  ·  p = 1.000"]] },
     notes:
       "SAY: This one looks strange — it rewrites the testbench and is told nothing at all " +
       "about what was wrong.\n\n" +
@@ -669,6 +739,11 @@ const NODES = [
          "with the cost and timing of every AI call.",
     stat: "92.5 / 31.4 / 95", statLabel: "compiles  ·  works  ·  catches\nbroken copies   (%)",
     found: "The last number is flattering and we treat it as a limitation, not a result.",
+    ex: { kind: "rows", cap: "one run's scorecard — counter_4bit",
+          head: ["test", "result"],
+          rows: [["Eval0  — compiles?", "pass"],
+                 ["Eval1  — works on the real circuit?", "8 of 11 scenarios"],
+                 ["Eval2  — catches broken copies?", "not reached"]] },
     notes:
       "SAY: Finally, marking. Three levels. Does it compile — 92.5 percent. Does it pass " +
       "against the real circuit — 31 percent. And does it catch deliberately broken copies " +
@@ -697,52 +772,84 @@ NODES.forEach((nd, i) => {
 
   s.addText(nd.n, {
     x: M, y: 0.52, w: 7.4, h: 0.55, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: 30, bold: true, color: nd.ours ? ACC : INK,
+    fontFace: HEAD, fontSize: 29, bold: true, color: nd.ours ? ACC : INK,
   });
-  s.addText(nd.plain + (nd.ours ? "     ★ ours" : ""), {
-    x: M, y: 1.10, w: 8.6, h: 0.4, isTextBox: true, margin: 0,
+  s.addText(nd.plain + (nd.ours ? "     \u2605 ours" : ""), {
+    x: M, y: 1.08, w: 8.6, h: 0.38, isTextBox: true, margin: 0,
     fontFace: BODY, fontSize: 16, color: nd.ours ? ACC : INK3,
   });
 
-  const lw = 7.5, y0 = 1.75;
-  card(s, M, y0, lw, 2.05, false);
-  s.addText("What it does", {
-    x: M + 0.26, y: y0 + 0.16, w: lw - 0.5, h: 0.3, isTextBox: true, margin: 0,
+  // row 1 — what it does · why we need it
+  const y0 = 1.66, hw = (W - 2 * M - 0.4) / 2, h1 = 1.72;
+  [["What it does", nd.does, M], ["Why we need it", nd.why, M + hw + 0.4]]
+    .forEach(([label, text, x]) => {
+      card(s, x, y0, hw, h1, false);
+      s.addText(label, {
+        x: x + 0.24, y: y0 + 0.14, w: hw - 0.48, h: 0.28, isTextBox: true, margin: 0,
+        fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
+      });
+      s.addText(text, {
+        x: x + 0.24, y: y0 + 0.46, w: hw - 0.48, h: 1.18, isTextBox: true, margin: 0,
+        fontFace: BODY, fontSize: 13.5, color: INK, lineSpacingMultiple: 1.14,
+        valign: "top",
+      });
+    });
+
+  // row 2 — a worked example, and what came out of it
+  const y1 = y0 + h1 + 0.32, h2 = 3.32;
+  const exw = 7.3, resw = W - 2 * M - exw - 0.4;
+
+  card(s, M, y1, exw, h2, false);
+  s.addText("Example", {
+    x: M + 0.24, y: y1 + 0.14, w: exw - 0.48, h: 0.28, isTextBox: true, margin: 0,
     fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
   });
-  s.addText(nd.does, {
-    x: M + 0.26, y: y0 + 0.52, w: lw - 0.52, h: 1.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16, valign: "top",
-  });
+  if (nd.ex && nd.ex.cap) {
+    s.addText(nd.ex.cap, {
+      x: M + 0.24, y: y1 + 0.42, w: exw - 0.48, h: 0.3, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 11.5, italic: true, color: INK3,
+    });
+  }
+  if (nd.ex && nd.ex.kind === "code") {
+    s.addText(nd.ex.lines.join("\n"), {
+      x: M + 0.3, y: y1 + 0.8, w: exw - 0.6, h: h2 - 1.0, isTextBox: true, margin: 0,
+      fontFace: "Courier New", fontSize: 14, color: INK, lineSpacingMultiple: 1.28,
+      valign: "top",
+    });
+  } else if (nd.ex && nd.ex.kind === "rows") {
+    const hdr = { bold: true, fill: { color: "E7E6E1" } };
+    const body = nd.ex.rows.map((r) => r.map((c, ci) => ({
+      text: c,
+      options: ci === 1 && (c === "FAIL" || c.indexOf("FAIL") === 0)
+        ? { bold: true, color: WARN }
+        : (ci === 1 && c === "PASS" ? { color: INK2 } : {}),
+    })));
+    s.addTable([nd.ex.head.map((h) => ({ text: h, options: hdr }))].concat(body), {
+      x: M + 0.3, y: y1 + 0.82, w: exw - 0.6, colW: [(exw - 0.6) * 0.62, (exw - 0.6) * 0.38],
+      fontFace: BODY, fontSize: 12.5, color: INK,
+      border: { type: "solid", pt: 1, color: "E2E1DC" },
+      fill: { color: PAPER }, rowH: 0.27, valign: "middle", margin: 4,
+    });
+  }
 
-  card(s, M, y0 + 2.2, lw, 2.75, false);
-  s.addText("Why we need it", {
-    x: M + 0.26, y: y0 + 2.36, w: lw - 0.5, h: 0.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
-  });
-  s.addText(nd.why, {
-    x: M + 0.26, y: y0 + 2.72, w: lw - 0.52, h: 2.1, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16, valign: "top",
-  });
-
-  const rx = M + lw + 0.4, rw = W - rx - M;
-  card(s, rx, y0, rw, 4.95, false);
+  const rx = M + exw + 0.4;
+  card(s, rx, y1, resw, h2, false);
   s.addText("What came out of it", {
-    x: rx + 0.26, y: y0 + 0.16, w: rw - 0.5, h: 0.3, isTextBox: true, margin: 0,
+    x: rx + 0.24, y: y1 + 0.14, w: resw - 0.48, h: 0.28, isTextBox: true, margin: 0,
     fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
   });
   s.addText(nd.stat, {
-    x: rx + 0.26, y: y0 + 0.58, w: rw - 0.5, h: 0.8, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: nd.stat.length > 12 ? 24 : 34, bold: true,
+    x: rx + 0.24, y: y1 + 0.52, w: resw - 0.48, h: 0.7, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: nd.stat.length > 12 ? 21 : 31, bold: true,
     color: nd.ours ? ACC : INK,
   });
   s.addText(nd.statLabel, {
-    x: rx + 0.26, y: y0 + 1.44, w: rw - 0.5, h: 0.8, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.12, valign: "top",
+    x: rx + 0.24, y: y1 + 1.26, w: resw - 0.48, h: 0.7, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 12.5, color: INK2, lineSpacingMultiple: 1.12, valign: "top",
   });
   s.addText(nd.found, {
-    x: rx + 0.26, y: y0 + 2.42, w: rw - 0.52, h: 2.4, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.16, valign: "top",
+    x: rx + 0.24, y: y1 + 2.05, w: resw - 0.48, h: 1.15, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.16, valign: "top",
   });
   s.addNotes(nd.notes);
 });
