@@ -1,0 +1,166 @@
+{
+  "baseline": {
+    "n": 12,
+    "eval0_pass_rate": 0.9166666666666666,
+    "eval1_pass_rate": 0.6666666666666666,
+    "eval2_pass_rate": 0.6666666666666666,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5883.666666666667,
+    "mean_tokens_out": 4486.0,
+    "mean_wall_clock_ms": 47431.333333333336,
+    "mean_scenarios_passed": 9.0,
+    "mean_scenarios_total": 10.75,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 1,
+        "fraction": 0.08333333333333333
+      },
+      "failed_eval1": {
+        "count": 3,
+        "fraction": 0.25
+      },
+      "success": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "none": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    }
+  },
+  "compiler_only": {
+    "n": 12,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.6666666666666666,
+    "eval2_pass_rate": 0.6666666666666666,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 6562.916666666667,
+    "mean_tokens_out": 4615.083333333333,
+    "mean_wall_clock_ms": 48576.416666666664,
+    "mean_scenarios_passed": 10.416666666666666,
+    "mean_scenarios_total": 11.166666666666666,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "success": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "none": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    }
+  },
+  "hybrid": {
+    "n": 12,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.8333333333333334,
+    "eval2_pass_rate": 0.8166666666666668,
+    "mean_repair_iter": 0.8333333333333334,
+    "mean_tokens_in": 9576.25,
+    "mean_tokens_out": 5620.333333333333,
+    "mean_wall_clock_ms": 60595.833333333336,
+    "mean_scenarios_passed": 9.5,
+    "mean_scenarios_total": 9.916666666666666,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      },
+      "success": {
+        "count": 10,
+        "fraction": 0.8333333333333334
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      },
+      "none": {
+        "count": 10,
+        "fraction": 0.8333333333333334
+      }
+    }
+  },
+  "pyverilog_only": {
+    "n": 12,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.3333333333333333,
+    "eval2_pass_rate": 0.3333333333333333,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 6183.583333333333,
+    "mean_tokens_out": 4323.416666666667,
+    "mean_wall_clock_ms": 42719.583333333336,
+    "mean_scenarios_passed": 7.25,
+    "mean_scenarios_total": 9.25,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      },
+      "success": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      },
+      "none": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      }
+    }
+  },
+  "retry_only": {
+    "n": 12,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.6666666666666666,
+    "eval2_pass_rate": 0.6666666666666666,
+    "mean_repair_iter": 1.0,
+    "mean_tokens_in": 8481.583333333334,
+    "mean_tokens_out": 6032.083333333333,
+    "mean_wall_clock_ms": 63252.5,
+    "mean_scenarios_passed": 9.833333333333334,
+    "mean_scenarios_total": 10.583333333333334,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "success": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "none": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      }
+    }
+  }
+}

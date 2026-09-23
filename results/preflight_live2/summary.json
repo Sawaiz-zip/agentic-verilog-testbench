@@ -1,0 +1,26 @@
+{
+  "hybrid": {
+    "n": 1,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 1.0,
+    "eval2_pass_rate": 1.0,
+    "mean_repair_iter": 1.0,
+    "mean_tokens_in": 11145.0,
+    "mean_tokens_out": 9058.0,
+    "mean_wall_clock_ms": 77573.0,
+    "mean_scenarios_passed": 37.0,
+    "mean_scenarios_total": 37.0,
+    "final_statuses": {
+      "success": {
+        "count": 1,
+        "fraction": 1.0
+      }
+    },
+    "failure_stages": {
+      "none": {
+        "count": 1,
+        "fraction": 1.0
+      }
+    }
+  }
+}

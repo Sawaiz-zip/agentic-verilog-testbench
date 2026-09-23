@@ -1,0 +1,182 @@
+{
+  "baseline": {
+    "n": 20,
+    "eval0_pass_rate": 0.95,
+    "eval1_pass_rate": 0.1,
+    "eval2_pass_rate": 0.09,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 6408.85,
+    "mean_tokens_out": 3801.25,
+    "mean_wall_clock_ms": 43071.2,
+    "mean_scenarios_passed": 3.0,
+    "mean_scenarios_total": 7.35,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 1,
+        "fraction": 0.05
+      },
+      "failed_eval1": {
+        "count": 17,
+        "fraction": 0.85
+      },
+      "success": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 18,
+        "fraction": 0.9
+      },
+      "none": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    }
+  },
+  "compiler_only": {
+    "n": 20,
+    "eval0_pass_rate": 0.9,
+    "eval1_pass_rate": 0.05,
+    "eval2_pass_rate": 0.05,
+    "mean_repair_iter": 0.3,
+    "mean_tokens_in": 7252.65,
+    "mean_tokens_out": 3864.75,
+    "mean_wall_clock_ms": 43928.25,
+    "mean_scenarios_passed": 2.85,
+    "mean_scenarios_total": 6.5,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 2,
+        "fraction": 0.1
+      },
+      "failed_eval1": {
+        "count": 17,
+        "fraction": 0.85
+      },
+      "success": {
+        "count": 1,
+        "fraction": 0.05
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 19,
+        "fraction": 0.95
+      },
+      "none": {
+        "count": 1,
+        "fraction": 0.05
+      }
+    }
+  },
+  "hybrid": {
+    "n": 20,
+    "eval0_pass_rate": 0.95,
+    "eval1_pass_rate": 0.1,
+    "eval2_pass_rate": 0.1,
+    "mean_repair_iter": 1.35,
+    "mean_tokens_in": 11084.55,
+    "mean_tokens_out": 5405.45,
+    "mean_wall_clock_ms": 67899.7,
+    "mean_scenarios_passed": 4.1,
+    "mean_scenarios_total": 7.25,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 7,
+        "fraction": 0.35
+      },
+      "oscillated": {
+        "count": 11,
+        "fraction": 0.55
+      },
+      "success": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 18,
+        "fraction": 0.9
+      },
+      "none": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    }
+  },
+  "pyverilog_only": {
+    "n": 20,
+    "eval0_pass_rate": 0.9,
+    "eval1_pass_rate": 0.05,
+    "eval2_pass_rate": 0.05,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 6265.25,
+    "mean_tokens_out": 3651.45,
+    "mean_wall_clock_ms": 41628.2,
+    "mean_scenarios_passed": 2.75,
+    "mean_scenarios_total": 6.95,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 2,
+        "fraction": 0.1
+      },
+      "failed_eval1": {
+        "count": 17,
+        "fraction": 0.85
+      },
+      "success": {
+        "count": 1,
+        "fraction": 0.05
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 19,
+        "fraction": 0.95
+      },
+      "none": {
+        "count": 1,
+        "fraction": 0.05
+      }
+    }
+  },
+  "retry_only": {
+    "n": 20,
+    "eval0_pass_rate": 0.7,
+    "eval1_pass_rate": 0.1,
+    "eval2_pass_rate": 0.1,
+    "mean_repair_iter": 1.0,
+    "mean_tokens_in": 8184.25,
+    "mean_tokens_out": 4387.45,
+    "mean_wall_clock_ms": 55205.45,
+    "mean_scenarios_passed": 1.65,
+    "mean_scenarios_total": 4.05,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 6,
+        "fraction": 0.3
+      },
+      "failed_eval1": {
+        "count": 12,
+        "fraction": 0.6
+      },
+      "success": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 18,
+        "fraction": 0.9
+      },
+      "none": {
+        "count": 2,
+        "fraction": 0.1
+      }
+    }
+  }
+}

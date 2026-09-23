@@ -1,0 +1,182 @@
+{
+  "baseline": {
+    "n": 12,
+    "eval0_pass_rate": 0.9166666666666666,
+    "eval1_pass_rate": 0.16666666666666666,
+    "eval2_pass_rate": 0.16666666666666666,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5579.833333333333,
+    "mean_tokens_out": 3368.9166666666665,
+    "mean_wall_clock_ms": 35191.916666666664,
+    "mean_scenarios_passed": 5.416666666666667,
+    "mean_scenarios_total": 9.333333333333334,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 1,
+        "fraction": 0.08333333333333333
+      },
+      "failed_eval1": {
+        "count": 9,
+        "fraction": 0.75
+      },
+      "success": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 10,
+        "fraction": 0.8333333333333334
+      },
+      "none": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      }
+    }
+  },
+  "compiler_only": {
+    "n": 12,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.5,
+    "eval2_pass_rate": 0.4166666666666667,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5380.416666666667,
+    "mean_tokens_out": 3285.6666666666665,
+    "mean_wall_clock_ms": 37637.916666666664,
+    "mean_scenarios_passed": 7.416666666666667,
+    "mean_scenarios_total": 9.916666666666666,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 6,
+        "fraction": 0.5
+      },
+      "failed_eval2": {
+        "count": 1,
+        "fraction": 0.08333333333333333
+      },
+      "success": {
+        "count": 5,
+        "fraction": 0.4166666666666667
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 7,
+        "fraction": 0.5833333333333334
+      },
+      "none": {
+        "count": 5,
+        "fraction": 0.4166666666666667
+      }
+    }
+  },
+  "hybrid": {
+    "n": 12,
+    "eval0_pass_rate": 0.9166666666666666,
+    "eval1_pass_rate": 0.5,
+    "eval2_pass_rate": 0.5,
+    "mean_repair_iter": 0.5833333333333334,
+    "mean_tokens_in": 7794.0,
+    "mean_tokens_out": 4080.6666666666665,
+    "mean_wall_clock_ms": 48782.25,
+    "mean_scenarios_passed": 6.166666666666667,
+    "mean_scenarios_total": 7.583333333333333,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      },
+      "oscillated": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      },
+      "success": {
+        "count": 6,
+        "fraction": 0.5
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 6,
+        "fraction": 0.5
+      },
+      "none": {
+        "count": 6,
+        "fraction": 0.5
+      }
+    }
+  },
+  "pyverilog_only": {
+    "n": 12,
+    "eval0_pass_rate": 0.8333333333333334,
+    "eval1_pass_rate": 0.3333333333333333,
+    "eval2_pass_rate": 0.26666666666666666,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5465.5,
+    "mean_tokens_out": 3070.5833333333335,
+    "mean_wall_clock_ms": 35590.666666666664,
+    "mean_scenarios_passed": 5.416666666666667,
+    "mean_scenarios_total": 7.75,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 2,
+        "fraction": 0.16666666666666666
+      },
+      "failed_eval1": {
+        "count": 6,
+        "fraction": 0.5
+      },
+      "success": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 8,
+        "fraction": 0.6666666666666666
+      },
+      "none": {
+        "count": 4,
+        "fraction": 0.3333333333333333
+      }
+    }
+  },
+  "retry_only": {
+    "n": 12,
+    "eval0_pass_rate": 0.75,
+    "eval1_pass_rate": 0.25,
+    "eval2_pass_rate": 0.25,
+    "mean_repair_iter": 1.0,
+    "mean_tokens_in": 7144.416666666667,
+    "mean_tokens_out": 4243.666666666667,
+    "mean_wall_clock_ms": 47247.916666666664,
+    "mean_scenarios_passed": 5.0,
+    "mean_scenarios_total": 7.0,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 3,
+        "fraction": 0.25
+      },
+      "failed_eval1": {
+        "count": 6,
+        "fraction": 0.5
+      },
+      "success": {
+        "count": 3,
+        "fraction": 0.25
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 9,
+        "fraction": 0.75
+      },
+      "none": {
+        "count": 3,
+        "fraction": 0.25
+      }
+    }
+  }
+}

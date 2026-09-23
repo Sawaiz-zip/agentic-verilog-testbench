@@ -1,0 +1,110 @@
+{
+  "baseline": {
+    "n": 20,
+    "eval0_pass_rate": 0.95,
+    "eval1_pass_rate": 0.25,
+    "eval2_pass_rate": 0.2,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 7506.0,
+    "mean_tokens_out": 5639.3,
+    "mean_wall_clock_ms": 47473.05,
+    "mean_scenarios_passed": 5.0,
+    "mean_scenarios_total": 8.9,
+    "final_statuses": {
+      "failed_compile": {
+        "count": 1,
+        "fraction": 0.05
+      },
+      "failed_eval1": {
+        "count": 14,
+        "fraction": 0.7
+      },
+      "failed_eval2": {
+        "count": 1,
+        "fraction": 0.05
+      },
+      "success": {
+        "count": 4,
+        "fraction": 0.2
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 16,
+        "fraction": 0.8
+      },
+      "none": {
+        "count": 4,
+        "fraction": 0.2
+      }
+    }
+  },
+  "hybrid": {
+    "n": 20,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.5,
+    "eval2_pass_rate": 0.44000000000000006,
+    "mean_repair_iter": 2.0,
+    "mean_tokens_in": 15657.25,
+    "mean_tokens_out": 8877.25,
+    "mean_wall_clock_ms": 76646.6,
+    "mean_scenarios_passed": 7.0,
+    "mean_scenarios_total": 8.5,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 10,
+        "fraction": 0.5
+      },
+      "failed_eval2": {
+        "count": 1,
+        "fraction": 0.05
+      },
+      "success": {
+        "count": 9,
+        "fraction": 0.45
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 11,
+        "fraction": 0.55
+      },
+      "none": {
+        "count": 9,
+        "fraction": 0.45
+      }
+    }
+  },
+  "retry_only": {
+    "n": 20,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.3,
+    "eval2_pass_rate": 0.3,
+    "mean_repair_iter": 1.0,
+    "mean_tokens_in": 9806.7,
+    "mean_tokens_out": 7084.3,
+    "mean_wall_clock_ms": 58981.2,
+    "mean_scenarios_passed": 4.9,
+    "mean_scenarios_total": 9.45,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 14,
+        "fraction": 0.7
+      },
+      "success": {
+        "count": 6,
+        "fraction": 0.3
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 14,
+        "fraction": 0.7
+      },
+      "none": {
+        "count": 6,
+        "fraction": 0.3
+      }
+    }
+  }
+}

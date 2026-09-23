@@ -1,0 +1,34 @@
+{
+  "hybrid": {
+    "n": 3,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.6666666666666666,
+    "eval2_pass_rate": 0.6,
+    "mean_repair_iter": 2.0,
+    "mean_tokens_in": 15312.333333333334,
+    "mean_tokens_out": 8714.666666666666,
+    "mean_wall_clock_ms": 81058.0,
+    "mean_scenarios_passed": 7.666666666666667,
+    "mean_scenarios_total": 7.666666666666667,
+    "final_statuses": {
+      "exhausted_iters": {
+        "count": 1,
+        "fraction": 0.3333333333333333
+      },
+      "success": {
+        "count": 2,
+        "fraction": 0.6666666666666666
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 1,
+        "fraction": 0.3333333333333333
+      },
+      "none": {
+        "count": 2,
+        "fraction": 0.6666666666666666
+      }
+    }
+  }
+}

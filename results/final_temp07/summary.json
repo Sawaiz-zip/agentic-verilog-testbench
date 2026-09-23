@@ -1,0 +1,122 @@
+{
+  "baseline": {
+    "n": 8,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.75,
+    "eval2_pass_rate": 0.725,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5703.5,
+    "mean_tokens_out": 3731.0,
+    "mean_wall_clock_ms": 38386.375,
+    "mean_scenarios_passed": 8.625,
+    "mean_scenarios_total": 8.875,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 2,
+        "fraction": 0.25
+      },
+      "success": {
+        "count": 6,
+        "fraction": 0.75
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 2,
+        "fraction": 0.25
+      },
+      "none": {
+        "count": 6,
+        "fraction": 0.75
+      }
+    }
+  },
+  "compiler_only": {
+    "n": 8,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.75,
+    "eval2_pass_rate": 0.75,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 5972.875,
+    "mean_tokens_out": 3861.875,
+    "mean_wall_clock_ms": 36564.0,
+    "mean_scenarios_passed": 10.5,
+    "mean_scenarios_total": 10.75,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 2,
+        "fraction": 0.25
+      },
+      "success": {
+        "count": 6,
+        "fraction": 0.75
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 2,
+        "fraction": 0.25
+      },
+      "none": {
+        "count": 6,
+        "fraction": 0.75
+      }
+    }
+  },
+  "hybrid": {
+    "n": 8,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 1.0,
+    "eval2_pass_rate": 1.0,
+    "mean_repair_iter": 0.5,
+    "mean_tokens_in": 7688.25,
+    "mean_tokens_out": 4862.875,
+    "mean_wall_clock_ms": 47641.0,
+    "mean_scenarios_passed": 9.375,
+    "mean_scenarios_total": 9.375,
+    "final_statuses": {
+      "success": {
+        "count": 8,
+        "fraction": 1.0
+      }
+    },
+    "failure_stages": {
+      "none": {
+        "count": 8,
+        "fraction": 1.0
+      }
+    }
+  },
+  "pyverilog_only": {
+    "n": 8,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.875,
+    "eval2_pass_rate": 0.85,
+    "mean_repair_iter": 0.25,
+    "mean_tokens_in": 6630.75,
+    "mean_tokens_out": 4253.625,
+    "mean_wall_clock_ms": 43782.125,
+    "mean_scenarios_passed": 11.375,
+    "mean_scenarios_total": 11.75,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 1,
+        "fraction": 0.125
+      },
+      "success": {
+        "count": 7,
+        "fraction": 0.875
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 1,
+        "fraction": 0.125
+      },
+      "none": {
+        "count": 7,
+        "fraction": 0.875
+      }
+    }
+  }
+}

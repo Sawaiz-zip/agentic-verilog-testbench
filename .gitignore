@@ -6,9 +6,19 @@ __pycache__/
 .venv/
 .uv/
 
-# Results (large, git-ignored; check in summary.json manually if needed)
-results/
+# Results. The per-run JSON records are large and stay local; the human-readable
+# views and aggregates are published so the report's numbers can be checked.
+# (Exclude contents, re-admit directories, then re-admit named files — git will
+# not descend into an excluded directory, so a bare `results/` blocks the rest.)
+results/*
 !results/.gitkeep
+!results/RESULTS.md
+!results/*/
+results/*/*
+!results/*/REPORT.md
+!results/*/summary.json
+# Scratch output from scripts/show_run.py — regenerate it, don't commit it.
+results/inspect/
 
 # Data (download separately)
 data/verilog_eval/

@@ -1,0 +1,26 @@
+{
+  "pyverilog_only": {
+    "n": 1,
+    "eval0_pass_rate": 1.0,
+    "eval1_pass_rate": 0.0,
+    "eval2_pass_rate": 0.0,
+    "mean_repair_iter": 0.0,
+    "mean_tokens_in": 4535.0,
+    "mean_tokens_out": 3708.0,
+    "mean_wall_clock_ms": 33926.0,
+    "mean_scenarios_passed": 7.0,
+    "mean_scenarios_total": 8.0,
+    "final_statuses": {
+      "failed_eval1": {
+        "count": 1,
+        "fraction": 1.0
+      }
+    },
+    "failure_stages": {
+      "evaluate": {
+        "count": 1,
+        "fraction": 1.0
+      }
+    }
+  }
+}
