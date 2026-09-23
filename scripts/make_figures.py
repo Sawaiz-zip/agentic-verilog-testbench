@@ -156,6 +156,108 @@ def write(name, content):
     print(f"  {name}.svg")
 
 
+# ── FIG-1 · architecture, theirs vs ours ─────────────────────────────────────
+
+AB_FILL, AB_EDGE = "#fdeade", "#eb6834"
+OURS_FILL, OURS_EDGE = "#e8f1fc", "#9ec5f4"
+PHASE_FILL = "#f3f3f0"
+
+
+def box(x, y, w, h, label, fill, edge, ink=INK, size=17, weight="500", dash=""):
+    d = f' stroke-dasharray="6 4"' if dash else ""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" fill="{fill}" '
+            f'stroke="{edge}" stroke-width="1.6"{d}/>\n'
+            + txt(x + 16, y + h / 2 + 6, label, size, ink, weight=weight))
+
+
+def arrow(x1, y1, x2, colour=INK3):
+    """Horizontal connector with an arrowhead at x2."""
+    return (f'<path d="M{x1},{y1} H{x2 - 9}" stroke="{colour}" stroke-width="1.6" fill="none"/>\n'
+            f'<path d="M{x2 - 9},{y1 - 4.5} L{x2},{y1} L{x2 - 9},{y1 + 4.5} Z" fill="{colour}"/>')
+
+
+def fig1(_f):
+    ROWH, BH = 48, 36
+    LX, LW = 80, 330          # AutoBench column
+    RX, RW = 700, 720         # ours column
+    top = 176
+
+    PHASES = [
+        ("PHASE 1 — WRITE THE TESTBENCH", [
+            ("Stage 0  classify", "classify", False),
+            (None, "gen_dut", True),
+            ("Stage 1  structured spec", "extract_spec", False),
+            ("Stage 2  scenario list", "gen_scenarios", False),
+            ("Stage 4  Verilog driver", "gen_driver", False),
+            ("Stage 5  Python checker", "gen_checker", False),
+            (None, "merge_generation", False),
+        ]),
+        ("PHASE 2 — CHECK IT BEFORE RUNNING ANYTHING", [
+            ("standardisation script", "standardise", False),
+            (None, "pyverilog_analysis", True),
+            (None, "error_reasoner", True),
+        ]),
+        ("PHASE 3 — FIX IT AND MARK IT", [
+            ("auto-debug + reboot ×5", "repair", False),
+            (None, "regenerate", True),
+            ("Eval0 / Eval1 / Eval2", "evaluate", False),
+        ]),
+    ]
+
+    W = 1560
+    b = [txt(60, 58, "Same problem, two architectures", 30, INK, weight="600"),
+         txt(60, 88, "Most of this is theirs, and we say so. Four things are ours.",
+             17, INK3),
+         txt(LX, 140, "AUTOBENCH   (6 stages)", 15, AB_EDGE, weight="700"),
+         txt(RX, 140, "OURS   (13 nodes, 3 phases)", 15, S1, weight="700")]
+
+    y = top
+    for pname, rows in PHASES:
+        ptop = y - 10
+        pheight = len(rows) * ROWH + 34
+        b.append(f'<rect x="{RX - 18}" y="{ptop}" width="{RW + 36}" height="{pheight}" '
+                 f'rx="10" fill="{PHASE_FILL}"/>')
+        b.append(txt(RX, ptop + 22, pname, 13, INK3, weight="700"))
+        y += 30
+        for left, right, is_new in rows:
+            if left:
+                b.append(box(LX, y, LW, BH, left, AB_FILL, AB_EDGE))
+                b.append(arrow(LX + LW, y + BH / 2, RX))
+            else:
+                b.append(txt(LX + LW - 4, y + BH / 2 + 6, "not in AutoBench", 15, INK3,
+                             anchor="end", style="italic"))
+                b.append(arrow(LX + LW + 10, y + BH / 2, RX, colour=S1))
+            if is_new:
+                b.append(box(RX, y, RW, BH, right, S1, S1, ink="#ffffff", weight="700"))
+                b.append(txt(RX + RW - 16, y + BH / 2 + 6, "★ OURS", 14, "#ffffff",
+                             anchor="end", weight="700"))
+            else:
+                b.append(box(RX, y, RW, BH, right, OURS_FILL, OURS_EDGE))
+            y += ROWH
+        y += 22
+
+    # the one thing they have that we do not
+    ty = y + 10
+    b.append(box(LX, ty, LW, BH, "scenario-presence check ×3", "#ffffff", AB_EDGE,
+                 ink=INK2, dash=True))
+    b.append(txt(RX, ty + BH / 2 + 6, "— we have no equivalent.  Listed in future work.",
+                 16, INK2, style="italic"))
+
+    fy = ty + BH + 56
+    b.append(f'<line x1="60" y1="{fy - 34}" x2="{W - 60}" y2="{fy - 34}" stroke="{GRID}" '
+             f'stroke-width="1.5"/>')
+    b.append(txt(60, fy, "We generate the circuit too · we parse the Verilog before running "
+                         "anything · we turn findings into instructions ·", 18, INK,
+                 weight="600"))
+    b.append(txt(60, fy + 26, "we added a blind-retry control arm. The rest of the talk is "
+                              "whether those four things worked.", 18, INK, weight="600"))
+    b.append(txt(60, fy + 52, "AutoBench never parses the Verilog it produces, and has no "
+                              "control arm — those two gaps are what this project builds on.",
+                 15, INK3))
+    H = fy + 78
+    write("fig1-architecture", svg(W, H, "\n".join(b), "AutoBench architecture versus ours"))
+
+
 # ── FIG-2 · the funnel ───────────────────────────────────────────────────────
 
 def fig2(f):
@@ -445,7 +547,7 @@ def main():
     print(f"Data: {f['n_runs']} runs · Eval0 {f['eval0']} · Eval1 {f['eval1']} · "
           f"triggers {dict(f['triggers'])}\n")
     print("Writing figures:")
-    fig2(f); fig3(f); fig4(f); fig5(f); fig6(f); fig7(f)
+    fig1(f); fig2(f); fig3(f); fig4(f); fig5(f); fig6(f); fig7(f)
     if args.png:
         rasterise()
     print(f"\n→ {OUT}")
