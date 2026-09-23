@@ -139,21 +139,34 @@ def summary_md(rec: dict, sweep: str, golden_src: str, written: list[str]) -> st
             out.append(f"- {'✅' if s.get('passed') else '❌'} `{s.get('name', '?')}`")
         out.append("")
 
-    out += [
-        "## Static analysis",
-        "",
-        f"- Parser used: **{pv.get('parser_used', 'none')}**"
-        + ("  ⚠️ Verible is syntax-only — none of the six structural checks ran."
-           if pv.get("parser_used") == "verible" else ""),
-        f"- Findings: **{len(findings)}**",
-        "",
-    ]
-    for f in findings:
-        if isinstance(f, dict):
-            out.append(f"  - `{f.get('error_type', '?')}` on `{f.get('signal', '?')}`")
+    # static_findings is one entry per analysis pass, not a flat list of errors.
+    out += ["## Static analysis, pass by pass", ""]
+    if findings:
+        out += ["| iteration | parser | findings |", "|---|---|---|"]
+        for p in findings:
+            if not isinstance(p, dict):
+                continue
+            errs = p.get("errors") or []
+            desc = ", ".join(
+                f"`{e.get('error_type', '?')}` on `{e.get('affected_signal', '?')}`"
+                for e in errs if isinstance(e, dict)
+            ) or "— clean —"
+            parser = p.get("parser_used", "none")
+            if not p.get("parse_ok"):
+                desc = "**parse failed**"
+            elif parser == "verible":
+                desc = "⚠️ Verible fallback — no structural check ran"
+            out.append(f"| {p.get('repair_iter', '?')} | {parser} | {desc} |")
+        out.append("")
+    else:
+        out += [f"- Parser used: **{pv.get('parser_used', 'none')}**", "- No passes recorded.", ""]
+
+    if pv.get("parser_used") == "verible":
+        out += ["> ⚠️ Verible gives a syntax verdict only. None of the six structural "
+                "checks ran on this run, although the record says `parse_ok`.", ""]
 
     if rh:
-        out += ["", "## Repair history", ""]
+        out += ["## Repair history", ""]
         for r in rh:
             if not isinstance(r, dict):
                 continue
@@ -167,7 +180,8 @@ def summary_md(rec: dict, sweep: str, golden_src: str, written: list[str]) -> st
             ]
         out += [
             "> ⚠️ The testbench produced at each iteration is **not stored** — only the "
-            "final retained version. A per-iteration code diff cannot be reconstructed.",
+            "final retained version. A per-iteration code diff cannot be reconstructed; "
+            "the table above is the closest available trace.",
             "",
         ]
 
