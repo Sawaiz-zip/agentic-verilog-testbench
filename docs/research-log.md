@@ -2,7 +2,7 @@
 
 > **For future Claude sessions:** Update this file as work progresses. Read `CLAUDE.md` first for full project context.
 
-**Last updated:** 2026-08-24 (session: results audit → 4 measurement fixes + `retry_only` control arm)
+**Last updated:** 2026-09-23 (session: raw-data re-derivation, run inspector, results published as Markdown)
 
 ---
 
@@ -16,10 +16,25 @@
 | Feature 003 — DUT-gen + temp + results | ✅ Done | gen_dut node (description→DUT); configurable temperature (Constitution v1.1.0); human-readable run summary; offline test suite 36 pass / 1 live-skip |
 | Phase 3 — Repair loop (Wks 10–13) | ✅ Done | repair_node + 3-source feedback (static/compile/sim); 4 ablation modes distinct; oscillation + exhaustion termination. |
 | Phase 3b — SEQ support | ✅ Done | Deterministic $monitor/clock standardiser (Python-only, idempotent); merge_generation fan-in barrier; SEQ→standardise routing (CMB skips); dff/counter/shift_register fixtures; 60 tests pass. |
-| Phase 4 — Evaluation (Wks 14–16) | 🟡 Re-planned after audit | First sweeps (8 fixtures × 4 modes, temp 0.7 + temp 0) were run, then **audited and found unsafe to report** — see § 2026-08-24. Fixed. Now on a 5-day plan: hard circuits → error injection → 120-run sweep. |
-| Phase 5 — Writing (Wks 17–20) | ⚪ Not started | Exposé already done |
+| Phase 4 — Evaluation (Wks 14–16) | ✅ Done | **Four sweeps, 280 runs, ~$16.50.** Eval0 92.5%, Eval1 31.4%, Eval2 415/437 valid. Fault-injection study (215 faults: 93% detection, 93% localisation, 0 false positives). Control arm `retry_only` throughout. Earlier temp-0 / 8-fixture sweeps audited and superseded — see § 2026-08-24. |
+| Phase 5 — Writing (Wks 17–20) | ✅ Done | Report: 48 pages, clean 3-pass build, 0 warnings, 28/28 figures traced to raw JSON, 22/22 claims traced to source. Verification scripts in `scripts/`. Exposé done earlier. |
 
 **Provider: OpenRouter (paid).** `.env` → `LLM_STRONG_MODEL=anthropic/claude-sonnet-4.5`, `LLM_CHEAP_MODEL=openai/gpt-4o-mini`, `LLM_TEMPERATURE=0.7`.
+
+**Headline results (all re-derived from the 280 raw records, 2026-09-23):**
+
+| | |
+|---|---|
+| Eval0 / Eval1 | 259/280 (92.5%) · 88/280 (31.4%) |
+| Eval2 (valid mutants, four sweeps) | 415/437 (95.0%) — a ceiling, reported as a limitation |
+| Repairs attempted / succeeded | 102 · 26 (25.5%) |
+| Repair triggers | simulation 79 · blind 64 · compile 10 · **static 1** |
+| Localiser, fault injection | 93% detection · 93% localisation · 0 false positives over 215 faults |
+| `hybrid` vs the control | +11.4 pts, **p = 0.372 — not significant** |
+
+**The result, in one line:** the localiser is sound and measured, but the structural defects it
+detects have become rare in current-model output — it triggered **one** repair in 280 runs, and
+`pyverilog_only` repaired **zero** times in 44.
 
 **Scope decisions (2026-08-24, supervisor):**
 - **No VerilogEval 156 run** — not funded. A smaller, deliberately *harder* circuit set with repeats replaces it.
@@ -68,6 +83,129 @@ Legend: ✅ done · 🟢 on track · 🟡 partial · 🔴 blocked · ⚪ not sta
 - **17/17 unit tests pass** (8 pyverilog_runner including 3 SEQ tests, 6 error_taxonomy, 3 config)
 - **T107 gate PASSED:** half_adder pipeline → success with Phase 2 active; error_reasoner correctly makes 0 LLM calls on clean TB
 - **T108 gate PASSED:** buggy TB with wrong port → 2 PORT_BINDING_MISMATCH errors flagged
+
+---
+
+## 🆕 Session 2026-09-23 — Everything re-derived from the raw records
+
+No new runs. Every figure below was recomputed directly from the 280 stored JSON records and
+cross-checked with a 12-assertion script; all pass. Several were not previously written down
+anywhere, and two corrected a misreading.
+
+### Figures established (or established for the first time)
+
+| Quantity | Value |
+|---|---|
+| Eval0 pooled | **259/280 (92.5%)** — CMB 96.7%, SEQ 90.4% |
+| Eval0 by tier, SEQ | **strong 98.7%** (77/78) · weak 84.5% (93/110) |
+| Eval1 pooled | **88/280 (31.4%)** |
+| Eval2 pooled, **all four sweeps** | **415/437 valid (95.0%)** |
+| Eval2, three-sweep subtotal (the figure the report quotes) | 324/335 |
+| Runs that entered a repair | **102**; of those, **26 succeeded (25.5%)** |
+| Repair triggers, project-wide | simulation **79** · blind **64** · compile **10** · **static 1** |
+| `eval_dut_source` across all records | **496 golden / 19 generated** — all 19 generated are pre-sweep dev smoke tests |
+| Standardiser firings | **6 of 188** sequential runs |
+
+### New measurement 1 — how far the generated design diverges from golden
+
+Previously unmeasured; earlier sessions could only cite `Prob150` as a worked example. Added
+`scripts/show_run.py --compare`, which reads the port interface of every generated design
+against its reference:
+
+- **273 of 280 runs (97.5%) match the golden interface.**
+- **All 7 that differ are `Prob150_review2015_fsmonehot`**, and every one invents a clock
+  (`clk` plus some of `reset`/`rst`/`rst_n`). Under both models and all five modes — so it is
+  that problem's description, not sampling noise. All 7 fail Eval1.
+- ⚠️ **Interface only.** No equivalence check was run; this bounds the structural side of the
+  co-generation concern and says nothing about the behaviour of the other 273.
+
+This localises a concern that had been stated as a general threat to a single circuit.
+
+### New measurement 2 — the compile rate, and whether the shelf-life claim holds
+
+The claim "AutoBench's standardiser is obsolete because the defect vanished" had never been
+tested against our own compile rate. The test: **what do we compile at when the standardiser
+does nothing?** It never fired on 182 of 188 sequential runs, and those compile at **90.7%** —
+against AutoBench's un-standardised sequential **55.5%**. Even the weak model reaches 84.5%
+unaided. The claim holds.
+
+Direct answer to "did we beat their compile rate": **at comparable model strength yes**
+(98.7% vs 97.3% SEQ, 98.3% vs 95.7% total, on the hardest quintile of their benchmark);
+**pooled no** (90.4% SEQ), because half our runs used a cheap model they never tested.
+
+⚠️ **Open item.** A missing `$fdisplay` causes a *functional* failure, not a *compile* failure,
+so it is not obvious how inserting one lifts **Eval0** by 42 points. Either their standardisation
+script does more structural normalisation than our summary of the paper records, or the gain has
+another cause. "Same technique, opposite outcome" only holds if it really is the same technique.
+**Resolve from the paper before the report leans on this.**
+
+### ⚠️ New limitation found — the ablation cannot attribute hybrid's margin to static analysis
+
+Verified in `pipeline/nodes/repair.py:184-188`. `compiler_only` repairs **only** on an Eval0
+failure; `hybrid` repairs on Eval0 **or** Eval1. So `hybrid` is the **only** arm that can act on
+simulation feedback — and simulation drove **79 of the 90** informed repairs, against static
+analysis's **1**.
+
+`hybrid` therefore differs from the other repair arms in **two ways at once**: it adds the static
+layer *and* it adds Eval1 feedback. Its margin cannot be credited to static analysis, and there
+is **no `simulation_only` arm** to separate them. This is a genuine gap in the ablation design
+and is now stated in the learning docs rather than left for an examiner to find.
+
+### Per-mode decomposition — corrects a natural misreading
+
+"Repaired" in the results tables means **attempted a second try**, not **was successfully
+fixed**. Over the three sweeps containing all five modes (44 runs per mode):
+
+| mode | passed | passed first try | attempted repair | repair→pass | repair→fail |
+|---|---|---|---|---|---|
+| `baseline` | 12 | 12 | 0 | 0 | 0 |
+| `retry_only` | **13** | 0 | **44** | 13 | 31 |
+| `compiler_only` | 15 | 15 | 2 | 0 | 2 |
+| `pyverilog_only` | 9 | 9 | 0 | 0 | 0 |
+| `hybrid` | **18** | 15 | **21** | **3** | 18 |
+
+Two things this makes explicit:
+
+- `retry_only` attempting 44 repairs does **not** mean 44 worked — only **13** did. Every run
+  makes a blind second attempt by definition; most still fail.
+- **Of `hybrid`'s 18 passes, 15 were first-attempt and only 3 were rescued by repair.** The
+  repair mechanism is worth **3 circuits of 44 ≈ 6.8 points**, not the headline 13.6.
+- `pyverilog_only` never repaired, so it ran effectively the same logic as `baseline` — and still
+  finished **3 circuits apart** (9 vs 12). That is the variance floor in its most intuitive form:
+  `hybrid`'s 5-circuit lead over the control must be judged against a 3-circuit noise floor.
+
+### Tooling and repository hygiene
+
+- **`scripts/show_run.py`** — extracts a run's artefacts as real files (`generated_dut.v`,
+  `golden_dut.v`, `testbench.v`, simulator and compiler output, a `SUMMARY.md`). Modes:
+  `--list`, `<run_id>`, `--circuit <name>`, `--compare`. Never modifies the records.
+- Its per-iteration static-analysis table makes the `Prob150` story legible in four rows: clean →
+  findings on `clk`/`reset` → **clean after the static-triggered repair** → findings return when
+  a later compile-triggered regeneration undoes it.
+- **`results/RESULTS.md`** — index over all four sweeps: headline Eval0/1/2, the compile-rate
+  comparison against AutoBench, Eval1 by mode and sweep, repair triggers, parser coverage, cost,
+  and the limitations the data itself records.
+- **`results/verilogeval_strong/REPORT.md`** — was missing; the other three sweeps had one.
+- **`.gitignore` fixed.** A bare `results/` blocks negation patterns, because git will not descend
+  into an excluded directory. Now excludes contents, re-admits directories, then re-admits
+  `REPORT.md` and `summary.json`. The human-readable views are published (76 KB); the 690 per-run
+  JSONs and `results/inspect/` stay local.
+
+### ⚠️ Known gap in this log
+
+Entries jump from **2026-08-25** to this session. The fourth sweep (`results/verilogeval_strong`,
+2026-08-29/30), the co-generation re-analysis (`results/golden_reanalysis.json`, 2026-09-01), the
+mutant-quality pilot and the report build are **recorded in `CLAUDE.md` §8 but never logged here**.
+`CLAUDE.md` is authoritative for that period.
+
+### Learning docs updated (local only — `docs/learn/` is git-ignored)
+
+Doc 01 (`.v` vs `.sv`, and why SystemVerilog is what defeats Pyverilog) · doc 02 (four-sweep Eval2
+totals; Eval1 gates Eval2 completely) · doc 03 (Verible was our own pre-emptive decision,
+2026-05-20, not prescribed) · doc 05 (rewritten for a non-specialist reader; AutoBench comparison
+per node; §5.4 rebuilt around plain circuit counts) · doc 06 (repair results, compile rates) ·
+doc 07 (53.8% is an 8-run probe; the "did you catch fewer mutants" answer; interface comparison) ·
+doc 08 (eight new viva answers).
 
 ---
 
