@@ -212,8 +212,8 @@ function progress(s, idx, total) {
       fontFace: HEAD, fontSize: 34, bold: true, color: i === 0 ? ACC : INK,
     });
     s.addText(t, {
-      x: x + 0.24, y: y + 0.92, w: cw - 0.48, h: 0.95, isTextBox: true, margin: 0,
-      fontFace: BODY, fontSize: 15, color: INK,
+      x: x + 0.24, y: y + 0.92, w: cw - 0.48, h: 1.9, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 15, color: INK, valign: "top",
     });
     s.addText(sub, {
       x: x + 0.24, y: y + 3.08, w: cw - 0.48, h: 0.42, isTextBox: true, margin: 0,
@@ -622,8 +622,8 @@ NODES.forEach((nd, i) => {
     fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
   });
   s.addText(nd.does, {
-    x: M + 0.26, y: y0 + 0.5, w: lw - 0.52, h: 1.2, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16,
+    x: M + 0.26, y: y0 + 0.52, w: lw - 0.52, h: 1.3, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16, valign: "top",
   });
 
   card(s, M, y0 + 2.2, lw, 2.75, false);
@@ -632,8 +632,8 @@ NODES.forEach((nd, i) => {
     fontFace: BODY, fontSize: 12, bold: true, charSpacing: 1.2, color: INK3,
   });
   s.addText(nd.why, {
-    x: M + 0.26, y: y0 + 2.7, w: lw - 0.52, h: 2.0, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16,
+    x: M + 0.26, y: y0 + 2.72, w: lw - 0.52, h: 2.1, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 15, color: INK, lineSpacingMultiple: 1.16, valign: "top",
   });
 
   const rx = M + lw + 0.4, rw = W - rx - M;
@@ -648,12 +648,12 @@ NODES.forEach((nd, i) => {
     color: nd.ours ? ACC : INK,
   });
   s.addText(nd.statLabel, {
-    x: rx + 0.26, y: y0 + 1.42, w: rw - 0.5, h: 0.75, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.12,
+    x: rx + 0.26, y: y0 + 1.44, w: rw - 0.5, h: 0.8, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.12, valign: "top",
   });
   s.addText(nd.found, {
-    x: rx + 0.26, y: y0 + 2.45, w: rw - 0.52, h: 2.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.16,
+    x: rx + 0.26, y: y0 + 2.42, w: rw - 0.52, h: 2.4, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.16, valign: "top",
   });
   s.addNotes(nd.notes);
 });

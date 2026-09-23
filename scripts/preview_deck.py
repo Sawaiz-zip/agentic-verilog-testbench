@@ -2,16 +2,21 @@
 """
 Render a .pptx to SVG/PNG by reading its packed XML, for visual QA.
 
-This exists because the usual route -- LibreOffice, or driving PowerPoint over
-AppleScript -- is unavailable here. It reads the geometry the deck actually
-contains rather than the generator's intent, so it catches the defects that
-matter for layout review: overlapping shapes, text running outside its box,
-misalignment, elements off the slide.
+Two routes:
 
-It is NOT a faithful renderer. Fonts are approximated, so judge geometry and
-overlap from these images, not typography.
+  --powerpoint   the real thing. Drives PowerPoint over AppleScript to export a
+                 PDF, then rasterises it. Needs Automation permission for the
+                 app that owns this terminal (System Settings > Privacy &
+                 Security > Automation). Note PowerPoint's sandbox refuses /tmp
+                 and wants an HFS-style path, which this handles.
 
-    python scripts/preview_deck.py docs/presentation.pptx
+  (default)      a fallback that reads the packed XML and draws the geometry the
+                 deck actually contains. Useful when PowerPoint is unavailable:
+                 it catches overlapping shapes, text outside its box,
+                 misalignment and elements off the slide. Fonts are
+                 approximated, so judge geometry from it, not typography.
+
+    python scripts/preview_deck.py docs/presentation.pptx --powerpoint
     python scripts/preview_deck.py docs/presentation.pptx --slides 4-8
 """
 
@@ -172,12 +177,51 @@ def render(z, slide_name, media, w_in, h_in, rels):
             f'viewBox="0 0 {W:.0f} {H:.0f}">\n' + "\n".join(body) + "\n</svg>\n")
 
 
+def via_powerpoint(deck: pathlib.Path, out: pathlib.Path) -> int:
+    """Export through PowerPoint itself, then rasterise. The real render."""
+    pdf = deck.parent / "_qa_deck.pdf"
+    script = f'''
+tell application "Microsoft PowerPoint"
+  repeat while (count of presentations) > 0
+    close presentation 1 saving no
+  end repeat
+  open POSIX file "{deck}"
+  save presentation 1 in ((POSIX file "{pdf}") as string) as save as PDF
+  return (count of slides of presentation 1)
+end tell'''
+    r = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+    if r.returncode != 0:
+        msg = r.stderr.strip()
+        print(f"PowerPoint export failed: {msg}", file=sys.stderr)
+        if "-1743" in msg:
+            print("Grant Automation permission to the app that owns this terminal:\n"
+                  "  System Settings > Privacy & Security > Automation > "
+                  "<your terminal or IDE> > Microsoft PowerPoint", file=sys.stderr)
+        return 1
+    out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("slide-*"):
+        old.unlink()
+    subprocess.run(["pdftoppm", "-jpeg", "-r", "100", str(pdf), str(out / "slide")],
+                   check=True)
+    pdf.unlink(missing_ok=True)
+    shots = sorted(out.glob("slide-*.jpg"))
+    print(f"{r.stdout.strip()} slides rendered via PowerPoint -> {out}")
+    for s in shots:
+        print(" ", s)
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("deck")
     ap.add_argument("--out", default="/tmp/deckpreview")
     ap.add_argument("--slides", default=None, help="e.g. 4-8 or 12")
+    ap.add_argument("--powerpoint", action="store_true",
+                    help="render via PowerPoint instead of the XML fallback")
     args = ap.parse_args()
+
+    if args.powerpoint:
+        return via_powerpoint(pathlib.Path(args.deck).resolve(), pathlib.Path(args.out))
 
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
