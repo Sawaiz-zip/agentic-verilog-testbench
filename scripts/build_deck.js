@@ -694,11 +694,16 @@ function takeaway(s, text, colour) {
     ["48", "pages of report"],
   ];
   facts.forEach(([v, l], i) => stat(s, M + i * 2.9, 4.6, 2.7, v, l, "6FA8E8", true, 34));
-  s.addText("github.com/Sawaiz-zip/agentic-verilog-testbench      ·      " +
-            "results/RESULTS.md traces every number in this talk to its raw data", {
-    x: M, y: 6.5, w: W - 2 * M, h: 0.4, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, color: "A8B6CE",
+  s.addText("github.com/Sawaiz-zip/agentic-verilog-testbench", {
+    x: M, y: 6.4, w: 7.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, bold: true, color: "8FB4E8",
   });
+  s.addText("results/RESULTS.md traces every number in this talk to its raw records", {
+    x: M, y: 6.74, w: 7.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 12, color: "A8B6CE",
+  });
+  s.addImage({ path: path.join(ROOT, "docs/figures/shots/results-md.jpg"),
+               x: 8.5, y: 1.5, w: 4.13, h: 2.06 });
 }
 
 // ════════════════════════════ BACKUP SLIDES ══════════════════════════════════
@@ -845,7 +850,9 @@ function backup(id, heading, sub) {
 
 { // B8 — repository
   const { s, y } = backup("B8", "Where everything lives", "github.com/Sawaiz-zip/agentic-verilog-testbench");
-  table(s, M, y, W - 2 * M, [
+  s.addImage({ path: path.join(ROOT, "docs/figures/shots/repo-tree.jpg"),
+               x: 7.55, y: y, w: 5.08, h: 2.53 });
+  table(s, M, y, 6.6, [
     [{ text: "Path", options: { bold: true, fill: { color: CARD } } },
      { text: "Contents", options: { bold: true, fill: { color: CARD } } }],
     ["pipeline/", "the 13 nodes, graph, state, LLM wrapper, analysis and eval modules"],
@@ -854,7 +861,9 @@ function backup(id, heading, sub) {
     ["results/RESULTS.md", "every number in this talk, traceable to the raw records"],
     ["results/<sweep>/", "one JSON per run: both artefacts, every call, findings, repair history"],
     ["tests/", "201 offline tests, zero API tokens"],
-  ], [3.4, W - 2 * M - 3.4], false);
+  ], [2.5, 4.1], false);
+  s.addImage({ path: path.join(ROOT, "docs/figures/shots/results-md.jpg"),
+               x: 7.55, y: y + 2.72, w: 5.08, h: 2.53 });
   takeaway(s, "python scripts/show_run.py <run_id> extracts any run's Verilog as real files " +
               "— generated design, golden design, testbench, simulator output.");
 }
