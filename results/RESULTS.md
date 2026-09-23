@@ -58,6 +58,47 @@ published mutants on real benchmark circuits. See `docs/learn/07-comparison.md`.
 
 ---
 
+## Eval0 — compile rate, and how it compares to AutoBench
+
+| Slice | SEQ | CMB | Total |
+|---|---|---|---|
+| Strong model (`claude-sonnet-4.5`) | **98.7%** (77/78) | 97.6% (41/42) | **98.3%** (118/120) |
+| Weak model (`gpt-4o-mini`) | 84.5% (93/110) | 96.0% (48/50) | 88.1% (141/160) |
+| **Pooled** | **90.4%** (170/188) | **96.7%** (89/92) | **92.5%** (259/280) |
+
+**Against AutoBench** (Qiu et al., GPT-4-turbo, 156 circuits):
+
+| Sequential Eval0 | Rate |
+|---|---|
+| AutoBench **without** their standardisation script | **55.5%** |
+| AutoBench **with** it — their headline, and their largest single gain | **97.3%** |
+| **Ours with the standardiser inert** (the 182 SEQ runs it never touched) | **90.7%** |
+| Ours, strong model, all modes | **98.7%** |
+| Ours, strong model, `hybrid` | **100%** (22/22) |
+| Ours, pooled over both models | 90.4% |
+
+**At comparable model strength we match or slightly exceed them** — 98.7% vs 97.3% sequential,
+98.3% vs 95.7% overall — and on harder circuits, since our benchmark subset is the hardest
+quintile. **Pooled we do not**: 90.4% sequential is ~7 points behind, entirely because half our
+runs used a cheap model they never tested.
+
+**The deterministic standardiser (pipeline node 8) is not what earns this.** It fired on only
+**6 of 188** sequential runs. The other 182 are effectively un-standardised and still compile at
+**90.7%** — 35 points above AutoBench's un-standardised 55.5%. Even the weak model reaches
+84.5% unaided. The defect class their script existed to fix has largely disappeared from
+current models; the same technique now has almost nothing to do.
+
+> ⚠️ **Unverified mechanism.** A missing `$fdisplay` causes a *functional* failure, not a
+> *compile* failure, so it is not obvious how inserting one lifts Eval0 by 42 points. Either
+> their script does more structural normalisation than our summary of the paper records, or the
+> gain has another cause. Resolve this from the paper before leaning on "same technique,
+> opposite outcome" in the report.
+
+Note `retry_only` has the **worst** sequential compile rate of any mode (81.8%) — consistent
+with the separate finding that a blind extra attempt can make the output worse.
+
+---
+
 ## Eval1 by mode and sweep
 
 The primary result. Each cell is "testbenches that passed / testbenches run".
