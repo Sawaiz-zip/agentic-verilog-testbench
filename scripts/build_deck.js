@@ -192,6 +192,59 @@ function progress(s, idx, total) {
   );
 }
 
+// ── 1b · What a testbench is ─────────────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "BACKGROUND");
+  const y = title(s, "What is a testbench?",
+                  "The thing this project gets an AI to write", false);
+  const cw = (W - 2 * M - 0.5) / 2;
+
+  card(s, M, y, cw, 3.4, false);
+  s.addText("The circuit  —  the DUT", {
+    x: M + 0.26, y: y + 0.18, w: cw - 0.5, h: 0.36, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 19, bold: true, color: INK,
+  });
+  s.addText("A design written in Verilog, a hardware description language. Not a programme " +
+            "that runs line by line: a description of wires and gates that all operate at " +
+            "once, and eventually becomes silicon.\n\n" +
+            "Engineers call it the DUT — the device under test.", {
+    x: M + 0.26, y: y + 0.62, w: cw - 0.52, h: 2.6, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 15, color: INK2, lineSpacingMultiple: 1.2, valign: "top",
+  });
+
+  card(s, M + cw + 0.5, y, cw, 3.4, false);
+  s.addText("The testbench", {
+    x: M + cw + 0.76, y: y + 0.18, w: cw - 0.5, h: 0.36, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 19, bold: true, color: ACC,
+  });
+  s.addText("A second piece of Verilog whose only job is to test the first. It feeds " +
+            "inputs in, watches what comes out, compares that against what should have come " +
+            "out, and prints PASS or FAIL.\n\n" +
+            "Writing these by hand is most of the work in verification — which is why people " +
+            "want an AI to do it.", {
+    x: M + cw + 0.76, y: y + 0.62, w: cw - 0.52, h: 2.6, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 15, color: INK2, lineSpacingMultiple: 1.2, valign: "top",
+  });
+
+  takeaway(s, "A testbench is itself a test — and a test can be written badly. It can run, " +
+              "report success, and have checked almost nothing.");
+  s.addNotes(
+    "SAY: Two words I will use throughout, before anything else.\n\n" +
+    "A circuit — the DUT, device under test — is a hardware design in Verilog. Verilog is " +
+    "not a programming language in the usual sense. It does not run line by line; it " +
+    "describes wires and gates operating simultaneously, and it eventually becomes actual " +
+    "silicon.\n\n" +
+    "A testbench is a second piece of Verilog whose only job is to test the first. Feed " +
+    "inputs in, watch the outputs, compare against what should have happened, print PASS or " +
+    "FAIL.\n\n" +
+    "Writing these by hand is most of the work in verification. That is why people want an " +
+    "AI to do it — and this project is about the mistakes it makes when it does.\n\n" +
+    "THE BOX: a testbench is itself a test, and a test can be written badly. It can run " +
+    "happily, report success, and have checked almost nothing. Hold onto that one."
+  );
+}
+
 // ── 2 · The problem ──────────────────────────────────────────────────────────
 {
   const s = slide(false);
@@ -230,6 +283,42 @@ function progress(s, idx, total) {
     "PASSES. It is not looking any more. So simulation can never find that particular " +
     "mistake. That is the gap this project goes after.\n\n" +
     "This one sentence is the reason the whole project exists. Pause after it."
+  );
+}
+
+// ── 2b · The research questions ──────────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "WHAT WE SET OUT TO ANSWER");
+  const y = title(s, "Four questions", null, false);
+  [["RQ1", "What kinds of mistake does an AI actually make when it writes a testbench — " +
+           "and which of them can be found without running anything?"],
+   ["RQ2", "How much can reading the code, rather than running it, narrow those mistakes down?"],
+   ["RQ3", "Can the AI use that diagnosis to fix its own testbench — and is that better " +
+           "than just letting the compiler tell it?"],
+   ["RQ4", "What does it cost, and is it worth it?"],
+  ].forEach(([q, txt], i) => {
+    const yy = y + i * 1.28;
+    card(s, M, yy, W - 2 * M, 1.12, false);
+    s.addText(q, {
+      x: M + 0.3, y: yy + 0.3, w: 1.0, h: 0.5, isTextBox: true, margin: 0,
+      fontFace: HEAD, fontSize: 24, bold: true, color: ACC,
+    });
+    s.addText(txt, {
+      x: M + 1.35, y: yy + 0.18, w: W - 2 * M - 1.7, h: 0.78, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 16, color: INK, lineSpacingMultiple: 1.15, valign: "middle",
+    });
+  });
+  s.addNotes(
+    "SAY: Four questions drive the project.\n\n" +
+    "One — what kinds of mistake does an AI actually make, and which can you find without " +
+    "running anything?\n\n" +
+    "Two — how far can reading the code narrow a mistake down?\n\n" +
+    "Three — can the AI use that diagnosis to fix itself, and is it better than just " +
+    "letting the compiler tell it?\n\n" +
+    "Four — what does it cost, and is it worth it?\n\n" +
+    "I come back to all four at the end with the answers. Do not answer them now — just " +
+    "plant them. Thirty seconds."
   );
 }
 
@@ -660,177 +749,429 @@ NODES.forEach((nd, i) => {
 
 // ═══════════════════════════════ RESULTS ═════════════════════════════════════
 
-// ── Does the localiser work ──────────────────────────────────────────────────
+// ── 1 · Does the checker work ───────────────────────────────────────────────
 {
   const s = slide(false);
-  kicker(s, "RESULTS  ·  1 OF 5");
-  title(s, "Does the checker actually work?", null, false);
-  figure(s, "fig3-injection", 1340 / 900, 0.4, 1.3, 8.7, 5.75);
-  const x = 9.4, cw = W - x - M;
-  [["100%", "of every fault class it\nwas built for", ACC],
-   ["0", "false alarms on\nclean testbenches", INK],
-   ["30", "of the 33 faults nothing\nelse could see", ACC],
-  ].forEach(([v, l, c], i) => stat(s, x, 1.5 + i * 1.62, cw, v, l, c, false, 40));
-  s.addText("The two greyed rows are deliberately undetectable — we put them in so nobody " +
-            "has to take our word that the fault set was fair.", {
-    x, y: 6.3, w: cw, h: 0.95, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 12, italic: true, color: INK3,
-  });
+  kicker(s, "RESULTS  ·  1 OF 6");
+  const y = title(s, "Does the checker actually work?",
+                  "We broke 215 testbenches in known ways and scored three things against them",
+                  false);
+  const hdr = { bold: true, fill: { color: CARD } };
+  const YES = { text: "finds all", options: { bold: true, color: ACC } };
+  const NO = { text: "finds none", options: { color: INK3 } };
+  table(s, M, y, W - 2 * M, [
+    [{ text: "The mistake we injected", options: hdr },
+     { text: "How many", options: hdr },
+     { text: "Our checker", options: hdr },
+     { text: "The compiler", options: hdr },
+     { text: "Running it", options: hdr }],
+    ["a pin renamed so it does not exist", "62", YES,
+     { text: "finds all", options: {} }, NO],
+    ["a pin left unconnected", "62", YES, NO, { text: "finds 98%", options: {} }],
+    ["an input never given a value", "30", YES, NO, { text: "finds 97%", options: {} }],
+    ["a signal of the wrong width", "22", YES, NO, { text: "finds 82%", options: {} }],
+    [{ text: "an output nobody ever checks", options: { bold: true } },
+     { text: "19", options: { bold: true } }, YES,
+     { text: "FINDS NONE", options: { bold: true, color: WARN } },
+     { text: "FINDS NONE", options: { bold: true, color: WARN } }],
+    ["a clock that never ticks", "6", YES, NO, { text: "finds 17%", options: {} }],
+    [{ text: "two same-width signals swapped   (control)", options: { italic: true, color: INK3 } },
+     { text: "9", options: { color: INK3 } },
+     { text: "finds none", options: { color: INK3 } },
+     { text: "finds none", options: { color: INK3 } },
+     { text: "finds 78%", options: { color: INK3 } }],
+    [{ text: "broken clock synchronisation   (control)", options: { italic: true, color: INK3 } },
+     { text: "5", options: { color: INK3 } },
+     { text: "finds none", options: { color: INK3 } },
+     { text: "finds none", options: { color: INK3 } },
+     { text: "finds 80%", options: { color: INK3 } }],
+  ], [5.0, 1.25, 1.85, 1.85, W - 2 * M - 9.95], false);
+
+  takeaway(s, "The bold row is the one that matters: if the testbench stops checking an " +
+              "output, running it PASSES — nothing else can see that. The last two rows are " +
+              "controls, built to be impossible to spot from structure.", INK);
   s.addNotes(
-    "SAY: To test the checker we deliberately broke 215 testbenches in known ways, and " +
-    "scored three things against them: our checker, the compiler, and the simulator.\n\n" +
-    "It caught 100 percent of every kind of fault it was built for, with no false alarms.\n\n" +
-    "POINT AT THE BOXED ROW: this is the one that matters. Nineteen faults where the " +
-    "testbench stops checking an output. Our checker finds all of them. The compiler finds " +
-    "none. The simulator finds none — because the test passes.\n\n" +
-    "The two greyed rows at the bottom are controls — faults we built to be undetectable " +
-    "by structure, like swapping two signals of the same width. Our checker scores zero on " +
-    "them, exactly as predicted. We included them so nobody has to take our word that the " +
-    "fault set was not stacked in our favour.\n\n" +
-    "This is the strongest slide in the talk. Take your time."
+    "SAY: To test the checker we deliberately broke 215 testbenches in known ways and " +
+    "scored three things against them: our checker, the compiler, and actually running it.\n\n" +
+    "Our checker finds all of every kind it was built for. No false alarms on clean " +
+    "testbenches.\n\n" +
+    "POINT AT THE BOLD ROW: this is the one that matters. Nineteen cases where the " +
+    "testbench stops checking an output. We find all of them. The compiler finds none. " +
+    "Running it finds none — because the test passes. It is not looking any more.\n\n" +
+    "The last two rows are controls. We built those faults to be impossible to spot from " +
+    "structure — swapping two signals of the same width, for instance. Our checker scores " +
+    "zero on them, exactly as predicted. We put them in so nobody has to take our word that " +
+    "the fault set was fair.\n\n" +
+    "This is the strongest slide in the talk. Take your time on it."
   );
 }
 
-// ── The overall numbers ──────────────────────────────────────────────────────
+// ── 2 · The three scores ────────────────────────────────────────────────────
 {
   const s = slide(false);
-  kicker(s, "RESULTS  ·  2 OF 5");
-  title(s, "What came out of 280 runs", null, false);
-  figure(s, "fig2-funnel", 1200 / 520, 0.5, 1.5, 7.8, 3.7);
-  const x = 8.7, cw = W - x - M;
-  s.addText("Read it honestly", {
-    x, y: 1.7, w: cw, h: 0.4, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: 18, bold: true, color: INK,
+  kicker(s, "RESULTS  ·  2 OF 6");
+  const y = title(s, "The three scores, and how they compare",
+                  "Ours across 280 runs, against AutoBench's published figures", false);
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M, y, W - 2 * M, [
+    [{ text: "", options: hdr }, { text: "What it asks", options: hdr },
+     { text: "Ours", options: hdr }, { text: "AutoBench", options: hdr },
+     { text: "Read it as", options: hdr }],
+    [{ text: "Eval0", options: { bold: true } }, "does the testbench compile?",
+     { text: "92.5%", options: { bold: true } }, "95.7%",
+     { text: "level — 98.7% on our strong model", options: { color: INK2 } }],
+    [{ text: "Eval1", options: { bold: true } }, "does it pass against the real circuit?",
+     { text: "31.4%", options: { bold: true, color: ACC } }, "51.5%   ·   37.1% clocked",
+     { text: "comparable — ours are mostly clocked", options: { color: INK2 } }],
+    [{ text: "Eval2", options: { bold: true } }, "does it catch deliberately broken copies?",
+     { text: "95%", options: { bold: true } }, "44.8%",
+     { text: "NOT comparable — different rule", options: { color: WARN, bold: true } }],
+    [{ text: "Eval2", options: { bold: true, color: INK2 } },
+     { text: "…scored under AutoBench's own rule", options: { color: INK2 } },
+     { text: "20%", options: { bold: true } }, "26.0% clocked",
+     { text: "comparable — no ranking at n=20", options: { color: INK2 } }],
+  ], [1.3, 4.35, 1.5, 2.7, W - 2 * M - 9.85], false);
+
+  const cw = (W - 2 * M - 0.5) / 2;
+  const cy = y + 3.35;
+  card(s, M, cy, cw, 1.9, false);
+  s.addText("Why our Eval2 is not a win", {
+    x: M + 0.26, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: WARN,
   });
-  body(s, x, 2.2, cw,
-       "Nearly everything compiles. Under a third actually works.\n\n" +
-       "These are the hardest fifth of the benchmark and mostly clocked circuits — the " +
-       "prior work reports 37% on those, so we are in the same range.", false, 14);
-  takeaway(s, "Four sweeps, two different AI models, 32 circuits, about sixteen dollars " +
-              "of compute. Every number in this talk comes out of these runs.");
+  s.addText("95% is a ceiling — our own test circuits are too small for a bug to hide in. " +
+            "We checked: better broken copies moved the score one point, bigger circuits " +
+            "moved it forty-four. So it measures our choice of circuits, not our testbenches.", {
+    x: M + 0.26, y: cy + 0.5, w: cw - 0.52, h: 1.3, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
+  card(s, M + cw + 0.5, cy, cw, 1.9, false);
+  s.addText("Why the rest is a fair comparison", {
+    x: M + cw + 0.76, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: ACC,
+  });
+  s.addText("Our 20 benchmark circuits are the hardest fifth of theirs, and three quarters " +
+            "are clocked — the hard case. Where the measures line up we are in the same " +
+            "range, with a newer model, on harder circuits.", {
+    x: M + cw + 0.76, y: cy + 0.5, w: cw - 0.52, h: 1.3, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
   s.addNotes(
-    "SAY: Across four sweeps we ran 280 of these. Nearly everything compiles — 92 " +
-    "percent. Under a third actually works against the real circuit.\n\n" +
-    "I am not going to dress that number up. These are the hardest fifth of the benchmark " +
-    "and mostly clocked circuits, which are the hard case. The prior work reports 37 " +
-    "percent on clocked circuits, so we are in the same range as them.\n\n" +
-    "IF ASKED about cost: about sixteen dollars and fifty cents in total, across every " +
-    "experiment in the project."
+    "SAY: All three scores side by side with theirs.\n\n" +
+    "Eval0, does it compile — level. 92.5 against their 95.7, and our strong model alone " +
+    "reaches 98.7.\n\n" +
+    "Eval1, does it actually work — 31 against their 51. But their 51 is across all " +
+    "circuits; on clocked circuits, which is what ours mostly are, they report 37. " +
+    "Comparable.\n\n" +
+    "Eval2 — careful with this row. Ours says 95, theirs says 44.8, and that looks like we " +
+    "win by miles. We do not. They measure something different: a problem only counts as " +
+    "passed if the testbench agrees with a reference testbench on 80 percent of the broken " +
+    "copies. Apply their rule to us and we get 20 percent against their 26 on clocked " +
+    "circuits. At twenty circuits that establishes no ranking either way.\n\n" +
+    "IF ASKED why our 95 is so high: our own circuits are too small for a bug to hide in, " +
+    "and we tested that rather than assuming it."
   );
 }
 
-// ── The five settings ────────────────────────────────────────────────────────
+// ── 3 · Five settings ───────────────────────────────────────────────────────
 {
   const s = slide(false);
-  kicker(s, "RESULTS  ·  3 OF 5");
-  title(s, "Five settings, compared", null, false);
-  figure(s, "fig4-ablation", 1260 / 700, 0.4, 1.32, 8.5, 5.3);
-  const x = 9.2, cw = W - x - M;
-  s.addText("What each one is", {
-    x, y: 1.5, w: cw, h: 0.4, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: 18, bold: true, color: INK,
-  });
-  bullets(s, x, 2.0, cw, [
-    "baseline — one attempt, no repair",
-    "retry_only — a second attempt, told nothing",
-    "compiler_only — repairs compile errors",
-    "pyverilog_only — repairs what our checker finds",
-    "hybrid — all of the above",
-  ], false, 13);
-  card(s, x, 4.8, cw, 1.6, false);
-  s.addText("Our version leads — but the honest comparison is against the blind retry, " +
-            "not against doing nothing.", {
-    x: x + 0.24, y: 4.98, w: cw - 0.48, h: 1.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, bold: true, color: INK,
-  });
-  s.addNotes(
-    "SAY: We ran the same pipeline five different ways. The only thing that changes is " +
-    "when it is allowed to try again.\n\n" +
-    "Our full version gets 18 circuits out of 44. The plain one gets 12. That is six " +
-    "circuits better and it looks like a clear win.\n\n" +
-    "But the fair comparison is against the blind retry, which gets 13 — so five, not six.\n\n" +
-    "AND NOW THE IMPORTANT BIT, POINT AT THE BRACKET: these two arms at the top ran " +
-    "effectively the same logic, because our checker never fired in that setting. They " +
-    "still came out three circuits apart. So three circuits of difference happens by " +
-    "chance alone.\n\n" +
-    "A five-circuit lead against a three-circuit noise floor is not a significant result, " +
-    "and we report it as not significant rather than claiming the win.\n\n" +
-    "Building that control arm is what caught our own overclaim. That is the part I am " +
-    "most confident about in this project."
-  );
-}
+  kicker(s, "RESULTS  ·  3 OF 6");
+  const y = title(s, "Five settings, compared",
+                  "Same pipeline every time — the only thing that changes is when it may " +
+                  "try again", false);
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M, y, W - 2 * M, [
+    [{ text: "Setting", options: hdr }, { text: "What it is allowed to do", options: hdr },
+     { text: "Circuits that worked", options: hdr }],
+    ["pyverilog_only", "try again if our checker complained", "9  of 44"],
+    ["baseline", "nothing — one attempt only", "12  of 44"],
+    [{ text: "retry_only", options: { bold: true, color: WARN } },
+     { text: "try again, told nothing at all     ← the control", options: { bold: true } },
+     { text: "13  of 44", options: { bold: true } }],
+    ["compiler_only", "try again if it did not compile", "15  of 44"],
+    [{ text: "hybrid", options: { bold: true, color: ACC } },
+     { text: "try again for any of those reasons     ← ours", options: { bold: true } },
+     { text: "18  of 44", options: { bold: true } }],
+  ], [2.6, 6.8, W - 2 * M - 9.4], false);
 
-// ── What triggered every repair ──────────────────────────────────────────────
-{
-  const s = slide(false);
-  kicker(s, "RESULTS  ·  4 OF 5");
-  title(s, "What actually triggered every repair", null, false);
-  figure(s, "fig5-triggers", 1300 / 620, 0.4, 1.35, 8.7, 4.55);
-  const x = 9.4, cw = W - x - M;
-  card(s, x, 1.45, cw, 4.5, false);
-  s.addText("Not a broken tool", {
-    x: x + 0.26, y: 1.66, w: cw - 0.5, h: 0.44, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: 18, bold: true, color: ACC,
+  const cw = (W - 2 * M - 0.5) / 2;
+  const cy = y + 3.0;
+  card(s, M, cy, cw, 2.05, false);
+  s.addText("The three comparisons", {
+    x: M + 0.26, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: INK3,
   });
   s.addText([
-    { text: "The previous slides showed it catches everything it was built for.\n\n",
-      options: {} },
-    { text: "The mistakes it looks for have become rare.\n\n",
-      options: { bold: true, color: INK } },
-    { text: "Almost all the failures we see now are about meaning, not structure — the " +
-            "wiring is perfect and the expected answer is wrong. No structural check can " +
-            "catch that.", options: {} },
+    { text: "ours 18  vs  baseline 12", options: { bold: true, color: INK } },
+    { text: "   +6 — looks like a clear win\n", options: {} },
+    { text: "ours 18  vs  the control 13", options: { bold: true, color: INK } },
+    { text: "   +5 — the fair test\n", options: {} },
+    { text: "pyverilog_only 9  vs  baseline 12", options: { bold: true, color: WARN } },
+    { text: "   −3 — and these two ran the same logic", options: {} },
   ], {
-    x: x + 0.3, y: 2.2, w: cw - 0.6, h: 3.4, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.18,
+    x: M + 0.26, y: cy + 0.52, w: cw - 0.52, h: 1.5, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.4, valign: "top",
+  });
+  card(s, M + cw + 0.5, cy, cw, 2.05, false);
+  s.addText("What that means", {
+    x: M + cw + 0.76, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: INK3,
+  });
+  s.addText("The bottom pair never actually repaired anything, so they ran the same logic " +
+            "— and still landed three circuits apart. Three circuits of difference happens " +
+            "by luck alone.\n\n" +
+            "So a five-circuit lead is not a result. We report it as not significant.", {
+    x: M + cw + 0.76, y: cy + 0.52, w: cw - 0.52, h: 1.5, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, bold: true, color: INK, lineSpacingMultiple: 1.2,
+    valign: "top",
   });
   s.addNotes(
-    "SAY: This is the central finding of the project, and I want to state it plainly.\n\n" +
-    "Across 280 runs, our layer triggered exactly one repair. Simulation feedback " +
-    "triggered 79. The compiler triggered 10.\n\n" +
-    "DO NOT APOLOGISE HERE. Deliver it as a discovery:\n\n" +
-    "This is not a broken tool. The previous slide showed it catches 100 percent of what " +
-    "it is built for, with no false alarms. The mistakes it looks for have simply become " +
-    "rare in what current models produce. Almost all the failures we see now are about " +
-    "meaning rather than structure — the wiring is perfect and the expected answer is " +
-    "wrong — and no structural check can catch that.\n\n" +
-    "We could only establish that because we measured the tool separately from the " +
-    "pipeline. Without that, this would just look like something that did not work.\n\n" +
-    "IF ASKED whether our full version's lead proves the checker helps: no, and I would " +
-    "not claim it. That setting is also the only one that gets simulation feedback, which " +
-    "drove almost all the repairs. We cannot separate the two, and that is in the report."
+    "SAY: We ran the same pipeline five ways. The only thing that changes is when it is " +
+    "allowed to try again.\n\n" +
+    "Our full version gets 18 circuits out of 44. The plain one gets 12. Six better, looks " +
+    "like a clear win.\n\n" +
+    "But the fair comparison is against the blind retry — the control — which gets 13. So " +
+    "five, not six.\n\n" +
+    "AND NOW THE IMPORTANT BIT: look at the bottom pair of that comparison list. Those two " +
+    "settings never actually repaired anything, because our checker never fired. So they " +
+    "ran effectively identical logic. They still came out three circuits apart.\n\n" +
+    "That means three circuits of difference happens by pure luck. A five-circuit lead " +
+    "against a three-circuit noise floor is not a result, and we report it as not " +
+    "significant rather than claiming the win.\n\n" +
+    "Building that control is what caught our own overclaim. It is the part of this project " +
+    "I am most confident about."
   );
 }
 
-// ── Their fix vs ours ────────────────────────────────────────────────────────
+// ── 4 · What triggered every repair ─────────────────────────────────────────
 {
   const s = slide(false);
-  kicker(s, "RESULTS  ·  5 OF 5");
-  title(s, "Why the mistakes disappeared", null, false);
-  figure(s, "fig6-compile", 1280 / 660, 0.4, 1.3, 8.6, 4.6);
-  const x = 9.3, cw = W - x - M;
-  s.addText("The proof", {
-    x, y: 1.6, w: cw, h: 0.4, isTextBox: true, margin: 0,
-    fontFace: HEAD, fontSize: 18, bold: true, color: INK,
+  kicker(s, "RESULTS  ·  4 OF 6");
+  const y = title(s, "What actually triggered every repair",
+                  "Every rewrite the pipeline performed, across all 280 runs", false);
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M, y, 8.6, [
+    [{ text: "What caused the rewrite", options: hdr }, { text: "Times", options: hdr }],
+    ["Simulation — it ran and got the wrong answers", "79"],
+    ["Blind retry — no information at all (the control)", "64"],
+    ["Compiler errors", "10"],
+    [{ text: "Our static checker", options: { bold: true, color: WARN } },
+     { text: "1", options: { bold: true, color: WARN } }],
+  ], [6.5, 2.1], false);
+
+  card(s, M, y + 2.35, 8.6, 1.5, false);
+  s.addText("And the setting that isolates our checker on its own repaired zero times in " +
+            "44 runs. It never found anything to act on.", {
+    x: M + 0.26, y: y + 2.55, w: 8.1, h: 1.1, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 15, bold: true, color: INK, valign: "top",
   });
-  body(s, x, 2.1, cw,
-       "AutoBench's cleanup script was worth 42 points to them in 2024.\n\n" +
-       "Ours fired six times in 188 runs — and the runs it never touched still compile far " +
-       "better than theirs did without it.", false, 14);
-  takeaway(s, "A fix can stop being valuable because the thing it fixed stopped happening. " +
-              "Techniques here have a shelf life, and nobody measures it.", ACC);
+
+  const x = M + 9.05, cw = W - x - M;
+  card(s, x, y, cw, 3.85, false);
+  s.addText("Not a broken tool", {
+    x: x + 0.26, y: y + 0.2, w: cw - 0.5, h: 0.4, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 18, bold: true, color: ACC,
+  });
+  s.addText("The last slide showed it catches everything it was built for.\n\n" +
+            "The mistakes it looks for have become rare.\n\n" +
+            "Almost all the failures we see now are about meaning, not structure — the " +
+            "wiring is perfect and the expected answer is wrong.", {
+    x: x + 0.3, y: y + 0.7, w: cw - 0.6, h: 3.0, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.2, valign: "top",
+  });
   s.addNotes(
-    "SAY: So why did the mistakes disappear? Here is the evidence.\n\n" +
-    "AutoBench's cleanup script — the same idea as ours — was their biggest single win. It " +
-    "took their compile rate from 55 percent to 97.\n\n" +
-    "Ours fired six times in 188 runs. And here is the proof that it is the models and not " +
-    "us: the runs where our script never fired at all still compile at 90.7 percent, " +
-    "against their 55.5 without theirs.\n\n" +
-    "So a pipeline whose cleanup step does nothing compiles 35 points better than a 2024 " +
-    "pipeline without one.\n\n" +
-    "THE LINE TO LAND: a fix can stop being valuable because the thing it fixed stopped " +
-    "happening. Techniques in this field have a shelf life and nobody measures it. That is " +
-    "a finding about the field, not just about our pipeline."
+    "SAY: This is the central finding, and I want to state it plainly.\n\n" +
+    "Across 280 runs, our layer triggered exactly one repair. Simulation triggered 79. The " +
+    "compiler triggered 10. And the setting that isolates our checker on its own repaired " +
+    "zero times in 44 runs.\n\n" +
+    "DO NOT APOLOGISE HERE. Deliver it as a discovery:\n\n" +
+    "This is not a broken tool. The previous slide showed it catches everything it was " +
+    "built for, with no false alarms. The mistakes it looks for have simply become rare in " +
+    "what current models produce.\n\n" +
+    "We could only establish that because we measured the tool separately from the " +
+    "pipeline. Without that, this would just look like something that did not work.\n\n" +
+    "IF ASKED whether our full version's lead proves the checker helps: no, and I would not " +
+    "claim it. That setting is also the only one that gets simulation feedback, which drove " +
+    "almost all the repairs. We cannot separate the two, and that is in the report."
+  );
+}
+
+// ── 5 · Why the mistakes disappeared ────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "RESULTS  ·  5 OF 6");
+  const y = title(s, "Why the mistakes we look for disappeared", null, false);
+  const cw = (W - 2 * M - 0.5) / 2;
+
+  card(s, M, y, cw, 2.15, false);
+  s.addText("Structural mistakes  —  mostly gone", {
+    x: M + 0.26, y: y + 0.18, w: cw - 0.5, h: 0.36, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 17, bold: true, color: INK3,
+  });
+  s.addText("A pin wired to the wrong name. A three-bit signal in a four-bit port. These " +
+            "are local, repetitive patterns — the same shapes appear in millions of code " +
+            "examples. Getting them right is pattern matching.", {
+    x: M + 0.26, y: y + 0.62, w: cw - 0.52, h: 1.4, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
+
+  card(s, M + cw + 0.5, y, cw, 2.15, false);
+  s.addText("Meaning mistakes  —  still there", {
+    x: M + cw + 0.76, y: y + 0.18, w: cw - 0.5, h: 0.36, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 17, bold: true, color: ACC,
+  });
+  s.addText("Expecting the counter to read 7 when it should read 8. To get that right you " +
+            "have to work out what the circuit does over several clock cycles. That is " +
+            "reasoning about behaviour, not recall of a pattern.", {
+    x: M + cw + 0.76, y: y + 0.62, w: cw - 0.52, h: 1.4, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
+
+  s.addText("Model progress solved the pattern half and left the reasoning half.", {
+    x: M, y: y + 2.35, w: W - 2 * M, h: 0.44, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 21, bold: true, color: INK, align: "center",
+  });
+
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M + 1.6, y + 2.88, W - 2 * M - 3.2, [
+    [{ text: "Sequential compile rate", options: hdr }, { text: "", options: hdr }],
+    ["AutoBench, without their cleanup script  (2024)", "55.5%"],
+    ["AutoBench, with it  — their single biggest win", "97.3%"],
+    [{ text: "Ours, on the 182 runs where our script never fired",
+       options: { bold: true, color: ACC } },
+     { text: "90.7%", options: { bold: true, color: ACC } }],
+    ["Ours, strong model", "98.7%"],
+  ], [7.1, 2.0], false);
+
+  s.addText("A pipeline whose cleanup step does nothing compiles 35 points better than a " +
+            "2024 pipeline without one. It is the models, not us.", {
+    x: M + 1.6, y: y + 5.35, w: W - 2 * M - 3.2, h: 0.5, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, bold: true, color: ACC, align: "center",
+  });
+  s.addNotes(
+    "SAY: So why did the mistakes disappear? I want to separate what we measured from what " +
+    "we think explains it.\n\n" +
+    "WHAT WE MEASURED: 87 percent of the failures we see are about meaning, not structure. " +
+    "And our checker fired once in 280 runs.\n\n" +
+    "WHAT WE THINK EXPLAINS IT — interpretation, not measurement: structural correctness is " +
+    "local and repetitive. A port list, a signal width, wiring up an instance — those exact " +
+    "shapes appear in millions of code examples, so getting them right is pattern matching, " +
+    "and that is what these models became very good at.\n\n" +
+    "Meaning is different. To know a counter should read 8 rather than 7 you have to work " +
+    "out what the circuit does over several clock cycles. That is reasoning about behaviour " +
+    "over time, and it is much harder.\n\n" +
+    "So model progress solved the pattern half and left the reasoning half — and our tool " +
+    "was built for the pattern half.\n\n" +
+    "THE EVIDENCE IT IS THE MODELS AND NOT US — point at the table: AutoBench had the same " +
+    "kind of cleanup step and it was their biggest single win, worth 42 points. On the 182 " +
+    "runs where ours never fired at all we still compile at 90.7 percent, against their " +
+    "55.5 without theirs.\n\n" +
+    "BE HONEST IF PUSHED: the measurements are solid. The explanation is a reasonable " +
+    "reading of them, not something we ran an experiment on."
+  );
+}
+
+// ── 6 · Cost ────────────────────────────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "RESULTS  ·  6 OF 6");
+  const y = title(s, "What it costs, and whether it is worth it",
+                  "RQ4 — mean per run, pooled over 220 runs", false);
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M, y, W - 2 * M, [
+    [{ text: "Setting", options: hdr }, { text: "Cost vs baseline", options: hdr },
+     { text: "Time", options: hdr }, { text: "Worked", options: hdr },
+     { text: "Verdict", options: hdr }],
+    ["pyverilog_only", "−2%", "40 s", "20.5%",
+     { text: "costs nothing, gains nothing", options: { color: INK2 } }],
+    ["baseline", "—", "42 s", "27.3%", { text: "the floor", options: { color: INK2 } }],
+    [{ text: "compiler_only", options: { bold: true, color: ACC } },
+     { text: "+6%", options: { bold: true } }, "43 s",
+     { text: "34.1%", options: { bold: true } },
+     { text: "best value — 7 points for 6%", options: { bold: true, color: ACC } }],
+    ["retry_only", "+29%", "55 s", "29.5%", { text: "the control", options: { color: INK2 } }],
+    [{ text: "hybrid  (ours)", options: { bold: true } }, "+50%", "61 s",
+     { text: "40.9%", options: { bold: true } },
+     { text: "best score, worst cost, not significant", options: { color: INK2 } }],
+  ], [2.6, 3.0, 1.2, 1.5, W - 2 * M - 8.3], false);
+
+  const cw = (W - 2 * M - 0.5) / 3;
+  const cy = y + 3.15;
+  [["~$16.50", "every experiment in the\nproject, end to end"],
+   ["~$0.10", "per generated testbench\nat the strong tier"],
+   ["~4 h", "total compute across\nall 280 runs"],
+  ].forEach(([v, l], i) => {
+    const x = M + i * (cw + 0.25);
+    card(s, x, cy, cw, 1.65, false);
+    stat(s, x + 0.28, cy + 0.22, cw - 0.56, v, l, i === 0 ? ACC : INK, false, 32);
+  });
+  s.addNotes(
+    "SAY: Question four was cost. This is the answer.\n\n" +
+    "Our full version buys the best score, at fifty percent more tokens and fifty percent " +
+    "more time — and as we saw, not significantly better than the control.\n\n" +
+    "The value winner is compiler feedback: seven points for six percent more tokens. If " +
+    "you only do one thing, do that.\n\n" +
+    "And our own layer costs essentially nothing — it is deterministic, milliseconds, no " +
+    "model call. It is actually slightly cheaper than doing nothing, because we skip the " +
+    "reasoning step when the report comes back clean.\n\n" +
+    "So the cost answer is nuanced: our layer is nearly free and nearly useless against " +
+    "current models. Those are not in tension — free means there is little reason to remove " +
+    "it, in case a weaker or older model is the one generating.\n\n" +
+    "The whole project cost about sixteen dollars fifty."
+  );
+}
+
+// ── The four questions, answered ────────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "THE ANSWERS");
+  const y = title(s, "Back to the four questions", null, false);
+  [["RQ1", "What mistakes, and which are findable without running?",
+    "Six kinds. 87% of real failures are about meaning, not structure.", "answered"],
+   ["RQ2", "How far can reading the code narrow them down?",
+    "Completely, for what it targets — every class, no false alarms.", "answered"],
+   ["RQ3", "Can the AI repair itself from that diagnosis?",
+    "Rarely — the diagnosis almost never fires. Simulation does the work.",
+    "answered, negative"],
+   ["RQ4", "What does it cost, and is it worth it?",
+    "Our layer is nearly free. Compiler feedback is the best value.", "answered"],
+  ].forEach(([q, ques, ans, verdict], i) => {
+    const yy = y + i * 1.2;
+    card(s, M, yy, W - 2 * M, 1.05, false);
+    s.addText(q, {
+      x: M + 0.28, y: yy + 0.27, w: 0.95, h: 0.5, isTextBox: true, margin: 0,
+      fontFace: HEAD, fontSize: 22, bold: true, color: ACC,
+    });
+    s.addText(ques, {
+      x: M + 1.25, y: yy + 0.15, w: 4.9, h: 0.75, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 13, color: INK3, lineSpacingMultiple: 1.1, valign: "middle",
+    });
+    s.addText(ans, {
+      x: M + 6.3, y: yy + 0.15, w: 4.2, h: 0.75, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 14, bold: true, color: INK,
+      lineSpacingMultiple: 1.1, valign: "middle",
+    });
+    s.addText(verdict, {
+      x: W - M - 1.9, y: yy + 0.15, w: 1.65, h: 0.75, isTextBox: true, margin: 0,
+      fontFace: BODY, fontSize: 12, italic: true,
+      color: verdict.indexOf("negative") >= 0 ? WARN : INK3, valign: "middle",
+    });
+  });
+  takeaway(s, "All four answered. One of them negatively — and that is the one worth " +
+              "reporting.", ACC);
+  s.addNotes(
+    "SAY: Back to the four questions.\n\n" +
+    "One — what mistakes, and which are findable without running. Six kinds, and we now " +
+    "know 87 percent of real failures are about meaning rather than structure.\n\n" +
+    "Two — how far can reading the code narrow them down. Completely, for what it targets. " +
+    "Every class it was built for, no false alarms.\n\n" +
+    "Three — can the AI repair itself from that diagnosis. Rarely, because the diagnosis " +
+    "almost never fires. Simulation feedback does essentially all the repair work. That is " +
+    "a negative answer and it is the most interesting thing in the project.\n\n" +
+    "Four — cost. Our layer is nearly free; compiler feedback is the best value.\n\n" +
+    "All four answered. One negatively — and a negative answer with a validated instrument " +
+    "behind it is worth more than a positive one without."
   );
 }
 
