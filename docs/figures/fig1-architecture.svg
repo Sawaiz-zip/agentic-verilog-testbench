@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1136" viewBox="0 0 1560 1136" role="img" aria-label="AutoBench architecture versus ours">
+<rect width="1560" height="1136" fill="#fcfcfb"/>
+<text x="60.0" y="58.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#0b0b0b" text-anchor="start">Same problem, two architectures</text>
+<text x="60.0" y="88.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#7a7974" text-anchor="start">Most of this is theirs, and we say so. Four things are ours.</text>
+<text x="80.0" y="140.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#eb6834" text-anchor="start">AUTOBENCH   (6 stages)</text>
+<text x="700.0" y="140.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#2a78d6" text-anchor="start">OURS   (13 nodes, 3 phases)</text>
+<rect x="682" y="166" width="756" height="370" rx="10" fill="#f3f3f0"/>
+<text x="700.0" y="188.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#7a7974" text-anchor="start">PHASE 1 — WRITE THE TESTBENCH</text>
+<rect x="80" y="206" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="230.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Stage 0  classify</text>
+<path d="M410,224.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,219.5 L700,224.0 L691,228.5 Z" fill="#7a7974"/>
+<rect x="700" y="206" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="230.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">classify</text>
+<text x="406.0" y="278.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="end" font-style="italic">not in AutoBench</text>
+<path d="M420,272.0 H691" stroke="#2a78d6" stroke-width="1.6" fill="none"/>
+<path d="M691,267.5 L700,272.0 L691,276.5 Z" fill="#2a78d6"/>
+<rect x="700" y="254" width="720" height="36" rx="7" fill="#2a78d6" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="716.0" y="278.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">gen_dut</text>
+<text x="1404.0" y="278.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="end">★ OURS</text>
+<rect x="80" y="302" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="326.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Stage 1  structured spec</text>
+<path d="M410,320.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,315.5 L700,320.0 L691,324.5 Z" fill="#7a7974"/>
+<rect x="700" y="302" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="326.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">extract_spec</text>
+<rect x="80" y="350" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="374.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Stage 2  scenario list</text>
+<path d="M410,368.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,363.5 L700,368.0 L691,372.5 Z" fill="#7a7974"/>
+<rect x="700" y="350" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="374.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">gen_scenarios</text>
+<rect x="80" y="398" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="422.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Stage 4  Verilog driver</text>
+<path d="M410,416.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,411.5 L700,416.0 L691,420.5 Z" fill="#7a7974"/>
+<rect x="700" y="398" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="422.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">gen_driver</text>
+<rect x="80" y="446" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="470.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Stage 5  Python checker</text>
+<path d="M410,464.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,459.5 L700,464.0 L691,468.5 Z" fill="#7a7974"/>
+<rect x="700" y="446" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="470.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">gen_checker</text>
+<text x="406.0" y="518.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="end" font-style="italic">not in AutoBench</text>
+<path d="M420,512.0 H691" stroke="#2a78d6" stroke-width="1.6" fill="none"/>
+<path d="M691,507.5 L700,512.0 L691,516.5 Z" fill="#2a78d6"/>
+<rect x="700" y="494" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="518.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">merge_generation</text>
+<rect x="682" y="554" width="756" height="178" rx="10" fill="#f3f3f0"/>
+<text x="700.0" y="576.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#7a7974" text-anchor="start">PHASE 2 — CHECK IT BEFORE RUNNING ANYTHING</text>
+<rect x="80" y="594" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="618.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">standardisation script</text>
+<path d="M410,612.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,607.5 L700,612.0 L691,616.5 Z" fill="#7a7974"/>
+<rect x="700" y="594" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="618.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">standardise</text>
+<text x="406.0" y="666.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="end" font-style="italic">not in AutoBench</text>
+<path d="M420,660.0 H691" stroke="#2a78d6" stroke-width="1.6" fill="none"/>
+<path d="M691,655.5 L700,660.0 L691,664.5 Z" fill="#2a78d6"/>
+<rect x="700" y="642" width="720" height="36" rx="7" fill="#2a78d6" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="716.0" y="666.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">pyverilog_analysis</text>
+<text x="1404.0" y="666.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="end">★ OURS</text>
+<text x="406.0" y="714.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="end" font-style="italic">not in AutoBench</text>
+<path d="M420,708.0 H691" stroke="#2a78d6" stroke-width="1.6" fill="none"/>
+<path d="M691,703.5 L700,708.0 L691,712.5 Z" fill="#2a78d6"/>
+<rect x="700" y="690" width="720" height="36" rx="7" fill="#2a78d6" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="716.0" y="714.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">error_reasoner</text>
+<text x="1404.0" y="714.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="end">★ OURS</text>
+<rect x="682" y="750" width="756" height="178" rx="10" fill="#f3f3f0"/>
+<text x="700.0" y="772.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#7a7974" text-anchor="start">PHASE 3 — FIX IT AND MARK IT</text>
+<rect x="80" y="790" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="814.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">auto-debug + reboot ×5</text>
+<path d="M410,808.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,803.5 L700,808.0 L691,812.5 Z" fill="#7a7974"/>
+<rect x="700" y="790" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="814.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">repair</text>
+<text x="406.0" y="862.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="end" font-style="italic">not in AutoBench</text>
+<path d="M420,856.0 H691" stroke="#2a78d6" stroke-width="1.6" fill="none"/>
+<path d="M691,851.5 L700,856.0 L691,860.5 Z" fill="#2a78d6"/>
+<rect x="700" y="838" width="720" height="36" rx="7" fill="#2a78d6" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="716.0" y="862.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">regenerate</text>
+<text x="1404.0" y="862.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="end">★ OURS</text>
+<rect x="80" y="886" width="330" height="36" rx="7" fill="#fdeade" stroke="#eb6834" stroke-width="1.6"/>
+<text x="96.0" y="910.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">Eval0 / Eval1 / Eval2</text>
+<path d="M410,904.0 H691" stroke="#7a7974" stroke-width="1.6" fill="none"/>
+<path d="M691,899.5 L700,904.0 L691,908.5 Z" fill="#7a7974"/>
+<rect x="700" y="886" width="720" height="36" rx="7" fill="#e8f1fc" stroke="#9ec5f4" stroke-width="1.6"/>
+<text x="716.0" y="910.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#0b0b0b" text-anchor="start">evaluate</text>
+<rect x="80" y="966" width="330" height="36" rx="7" fill="#ffffff" stroke="#eb6834" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="96.0" y="990.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#52514e" text-anchor="start">scenario-presence check ×3</text>
+<text x="700.0" y="990.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#52514e" text-anchor="start" font-style="italic">— we have no equivalent.  Listed in future work.</text>
+<line x1="60" y1="1024" x2="1500" y2="1024" stroke="#e6e5e1" stroke-width="1.5"/>
+<text x="60.0" y="1058.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#0b0b0b" text-anchor="start">We generate the circuit too · we parse the Verilog before running anything · we turn findings into instructions ·</text>
+<text x="60.0" y="1084.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#0b0b0b" text-anchor="start">we added a blind-retry control arm. The rest of the talk is whether those four things worked.</text>
+<text x="60.0" y="1110.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#7a7974" text-anchor="start">AutoBench never parses the Verilog it produces, and has no control arm — those two gaps are what this project builds on.</text>
+</svg>
