@@ -1009,7 +1009,28 @@ NODES.forEach((nd, i) => {
     valign: "top",
   });
   s.addNotes(
-    "NOT ON SLIDE: 44 is 12 of our circuits on the strong model, the same 12 on the weak one, and 20 benchmark circuits — so 44 runs per setting, 220 in these three sweeps.\n\nThe statistics: ours versus the control is McNemar p = 0.372. The control versus plain is p = 1.000, which is the useful one — a blind extra attempt is worth nothing, so any real gain has to sit on the diagnosis.\n\nIF ASKED about the noise floor: those two settings ran identical logic because our checker never fired, and still landed three circuits apart. That is the measurement."
+    "WHERE 44 COMES FROM\n"
+    + "· 12 of our circuits on the strong model\n"
+    + "· the same 12 on the weak model\n"
+    + "· 20 benchmark circuits on the weak model\n"
+    + "· = 44 runs per setting, 220 across these three sweeps\n"
+    + "· the fourth sweep ran only three of the five, so it is not in this table\n\n"
+    + "WHAT EACH SETTING MAY DO\n"
+    + "· baseline — one attempt, never repairs\n"
+    + "· retry_only — always rewrites once, told nothing. The control\n"
+    + "· compiler_only — rewrites only if it did not compile\n"
+    + "· pyverilog_only — rewrites only if our checker complained\n"
+    + "· hybrid — rewrites for any of those three reasons\n\n"
+    + "WHY pyverilog_only IS LOWEST\n"
+    + "· it repaired 0 times in all 44 runs — the checker never complained\n"
+    + "· so it ran the same logic as baseline and should have scored the same\n"
+    + "· 9 against baseline\u2019s 12 is therefore luck. That is the noise floor\n\n"
+    + "THE STATISTICS\n"
+    + "· ours vs the control: McNemar p = 0.372, not significant\n"
+    + "· control vs baseline: p = 1.000 — a blind extra attempt is worth nothing\n"
+    + "· so any real gain must sit on the diagnosis, not the extra try\n\n"
+    + "THIS SLIDE ANSWERS \u2018which setting wins\u2019. The next answers \u2018what caused "
+    + "the repairs\u2019. Say that as you move — they are easy to conflate."
   );
 }
 
@@ -1050,7 +1071,26 @@ NODES.forEach((nd, i) => {
     fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.2, valign: "top",
   });
   s.addNotes(
-    "DISCLOSE THIS BEFORE THEY FIND IT: our full version is also the only setting that can act on simulation feedback, which drove 79 of the 90 informed repairs. So its lead cannot be credited to our checker, and there is no simulation-only arm to separate them. That is a gap in our design and it is in the report. Volunteering it reads as confidence; being caught on it does not.\n\nNOT ON SLIDE: 102 runs attempted a repair and 26 succeeded, about one in four.\n\nDo not apologise here. It is a discovery, not a failure."
+    "THIS SLIDE COUNTS REPAIRS. The last one counted circuits that worked. Different "
+    + "question, same experiment.\n\n"
+    + "WHAT EACH TRIGGER MEANS\n"
+    + "· simulation — it compiled and ran, but scenarios came out wrong. The failing "
+    + "scenario names go back to the model\n"
+    + "· blind retry — no information at all. The control, always fires once by definition\n"
+    + "· compiler — iverilog refused the file; the error text goes back\n"
+    + "· static — our checker found a structural problem before anything ran\n\n"
+    + "IF THEY SPOT THE 0 AND THE 1 — looks contradictory, is not:\n"
+    + "· pyverilog_only repaired 0 times, in the three sweeps it ran in\n"
+    + "· the one static-triggered repair was in hybrid, in the fourth sweep\n"
+    + "· pyverilog_only was not in that fourth sweep at all\n"
+    + "· both numbers are true and describe different runs\n\n"
+    + "DID THE 79 SIMULATION REPAIRS HELP? The previous slide is the answer — hybrid is the "
+    + "only setting that can act on them and it leads, 18 against 12, but not significantly. "
+    + "And only 3 of those 18 came from a repair; the other 15 passed first time.\n\n"
+    + "DISCLOSE BEFORE THEY FIND IT: hybrid is also the only setting with simulation "
+    + "feedback, so its lead cannot be credited to our checker. No simulation-only arm exists "
+    + "to separate them. It is in the report.\n\n"
+    + "102 runs attempted a repair, 26 succeeded. About one in four."
   );
 }
 
@@ -1146,7 +1186,17 @@ NODES.forEach((nd, i) => {
     stat(s, x + 0.28, cy + 0.22, cw - 0.56, v, l, i === 0 ? ACC : INK, false, 32);
   });
   s.addNotes(
-    "NOT ON SLIDE: per run at the strong tier it is about 7 cents for plain, 10 for ours, 11 for the control.\n\nTHE NUANCE WORTH SAYING: our layer is nearly free and nearly useless against current models. Those are not in tension — free means there is little reason to remove it, in case a weaker or older model is the one generating."
+    "THE SAME FIVE SETTINGS AS TWO SLIDES AGO, now priced. The Worked column is identical — "
+    + "same 44 runs each.\n\n"
+    + "HOW TO READ IT\n"
+    + "· compiler_only is the value winner: 7 points for 6% more tokens\n"
+    + "· hybrid buys the top score at +50% tokens and +50% time, and is not significant\n"
+    + "· pyverilog_only is 2% CHEAPER than baseline, because we skip the reasoning call when "
+    + "the report comes back clean — which it almost always did\n\n"
+    + "PER RUN at the strong tier: about 7 cents baseline, 10 ours, 11 the control.\n\n"
+    + "THE NUANCE WORTH SAYING OUT LOUD: our layer is nearly free and nearly useless against "
+    + "current models. Not in tension — free means there is little reason to remove it, in "
+    + "case a weaker or older model is the one generating."
   );
 }
 
