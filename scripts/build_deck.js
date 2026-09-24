@@ -532,8 +532,9 @@ const NODES = [
     why: "There is exactly one correct answer to both of those, so a script is better than " +
          "a model: faster, free, and it does the same thing every time.",
     stat: "6 / 188", statLabel: "sequential runs where it had\nanything to fix",
-    found: "AutoBench's version of this step was their single biggest win — worth 42 " +
-           "points. Ours does almost nothing.",
+    found: "The same idea was AutoBench's single biggest win: inserting missing display " +
+           "statements took their compile rate from 55% to 97%. Forty-two points. Ours does " +
+           "almost nothing, because the mistake stopped happening.",
     ex: { kind: "code", cap: "what it inserts, and how it marks its own work",
           lines: ["// [standardised]",
                   "$monitor(\"out = %b\", out);",
@@ -790,10 +791,10 @@ NODES.forEach((nd, i) => {
      { text: "Our 8 scenarios cover", options: hdr }, { text: "Caught", options: hdr }],
     [{ text: "dff  — one input bit", options: { bold: true } }, "2",
      { text: "all of them", options: { color: ACC } },
-     { text: "95%", options: { bold: true, color: ACC } }],
+     { text: "5 of our 5", options: { bold: true, color: ACC } }],
     [{ text: "Prob081_7458  — ten input bits", options: { bold: true } }, "1,024",
      { text: "under 1%", options: { color: WARN } },
-     { text: "2 or 3 of 10", options: { bold: true, color: WARN } }],
+     { text: "2 of AutoBench's 10", options: { bold: true, color: WARN } }],
   ], [3.5, 2.5, 2.3, W - 2 * M - 1.8 - 8.3], false);
 
   s.addText("A one-bit flip-flop has nowhere for a bug to hide, so almost any testbench " +
@@ -802,21 +803,23 @@ NODES.forEach((nd, i) => {
     fontFace: BODY, fontSize: 14, bold: true, color: INK, align: "center",
   });
   s.addNotes(
-    "NOT ON SLIDE — the terms. A mutant is a copy of the circuit with one deliberate bug. " +
-    "Eval2 asks whether the testbench notices. It is the third and last of our three " +
-    "scores, and it only runs on testbenches that already passed Eval1.\n\n" +
-    "NOT ON SLIDE: 5 mutants per run, 440 generated in total, 437 of them valid. The three " +
-    "that were dropped would not compile.\n\n" +
-    "THE LINK BACK TO gen_scenarios, worth making explicitly: eight scenarios is our own " +
-    "prompt instruction. On a one-bit flip-flop eight covers everything there is. On a " +
-    "ten-input circuit there are 1,024 input combinations, so eight is under one percent of " +
-    "them, and a bug living in the other 99% is simply never visited.\n\n" +
-    "IF ASKED whether the mutants were too easy — we tested that rather than assuming. " +
-    "Regenerating them with a better model, using AutoBench's own prompt, and filtering out " +
-    "the ones that were not really broken moved the score from 96.7% to 97.4%. One point. " +
-    "Swapping in bigger circuits moved it forty-four. So it is the circuits.\n\n" +
-    "IF ASKED who makes the mutants: the cheap model, because introducing one deliberate bug " +
-    "is a structural edit, not a reasoning task."
+    "WHOSE MUTANTS — do not let this blur.\n"
+    + "· ours: 5 per run, made by the cheap model. 440 generated, 437 valid.\n"
+    + "· AutoBench's: 10 per problem, published with their paper, 1,525 in total.\n"
+    + "· the table's two rows use different sets — 5 of ours, 10 of theirs.\n\n"
+    + "THE KINDS WE ASK FOR — one line of logic, never a port:\n"
+    + "· flip an operator      (+ becomes -, & becomes |)\n"
+    + "· invert a signal       (rst becomes !rst)\n"
+    + "· change a constant     (4'b1111 becomes 4'b1110)\n"
+    + "· swap two signals      (a and b exchanged)\n\n"
+    + "THE LINK TO gen_scenarios\n"
+    + "· eight scenarios is our own prompt instruction, not a model limit\n"
+    + "· eight of 1,024 combinations is under 1% — the bug lives in the rest\n"
+    + "· this is our best explanation, not a measured one. Say so.\n\n"
+    + "WHAT WE DID MEASURE\n"
+    + "· better mutants moved the score 1 point (96.7 to 97.4)\n"
+    + "· different circuits moved it 44 points\n"
+    + "· so it is the circuits, not the mutants"
   );
 }
 
@@ -893,79 +896,62 @@ NODES.forEach((nd, i) => {
   table(s, M, y, W - 2 * M, [
     [{ text: "", options: hdr }, { text: "What it asks", options: hdr },
      { text: "Ours", options: hdr }, { text: "AutoBench", options: hdr },
-     { text: "Read it as", options: hdr }],
-    [{ text: "Eval0", options: { bold: true } }, "does the testbench compile?",
-     { text: "92.5%", options: { bold: true } }, "95.7%",
-     { text: "level — 98.7% on our strong model", options: { color: INK2 } }],
-    [{ text: "Eval1", options: { bold: true } }, "does it pass against the real circuit?",
-     { text: "31.4%", options: { bold: true, color: ACC } }, "51.5%   ·   37.1% clocked",
-     { text: "comparable — ours are mostly clocked", options: { color: INK2 } }],
-    [{ text: "Eval2", options: { bold: true } }, "does it catch deliberately broken copies?",
-     { text: "95%", options: { bold: true } }, "44.8%",
-     { text: "NOT comparable — different rule", options: { color: WARN, bold: true } }],
-    [{ text: "Eval2", options: { bold: true, color: INK2 } },
-     { text: "…scored under AutoBench's own rule", options: { color: INK2 } },
+     { text: "Why", options: hdr }],
+    [{ text: "Eval0", options: { bold: true } }, "does it compile?",
+     { text: "92.5%  ·  98.7% strong", options: { bold: true } }, "95.7%",
+     { text: "level — theirs used one good model throughout", options: { color: INK2 } }],
+    [{ text: "Eval1", options: { bold: true } }, "does it pass on the real circuit?",
+     { text: "31.4%  ·  49.2% strong", options: { bold: true, color: ACC } },
+     "51.5%  ·  37.1% clocked",
+     { text: "level — compare strong to clocked", options: { color: INK2 } }],
+    [{ text: "Eval2", options: { bold: true } }, "catches broken copies — our circuits",
+     { text: "95%", options: { bold: true } }, "—",
+     { text: "our circuits are too small to hide a bug", options: { color: WARN } }],
+    [{ text: "Eval2", options: { bold: true } },
+     { text: "…the same testbenches on THEIR circuits", options: { color: INK2 } },
+     { text: "67%", options: { bold: true } }, "—",
+     { text: "harder circuits cost ~28 points", options: { color: INK2 } }],
+    [{ text: "Eval2", options: { bold: true } },
+     { text: "…their circuits AND their stricter rule", options: { color: INK2 } },
      { text: "20%", options: { bold: true } }, "26.0% clocked",
-     { text: "comparable — no ranking at n=20", options: { color: INK2 } }],
-  ], [1.3, 4.35, 1.5, 2.7, W - 2 * M - 9.85], false);
+     { text: "level — their rule needs 80% agreement", options: { color: INK2 } }],
+  ], [1.1, 4.5, 2.35, 2.2, W - 2 * M - 10.15], false);
 
-  const cw = (W - 2 * M - 0.5) / 2;
-  const cy = y + 3.35;
-  card(s, M, cy, cw, 1.9, false);
-  s.addText("Why our Eval2 is not a win", {
-    x: M + 0.26, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: WARN,
+  card(s, M, 6.05, W - 2 * M, 0.95, false);
+  s.addText([
+    { text: "Read the three Eval2 rows downwards.  ", options: { bold: true, color: WARN } },
+    { text: "95 to 67 is the circuits getting harder. 67 to 20 is their stricter rule, not " +
+            "our testbenches getting worse. Only the bottom row compares like with like — " +
+            "and every like-for-like row is level.", options: {} },
+  ], {
+    x: M + 0.26, y: 6.18, w: W - 2 * M - 0.52, h: 0.72, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK, lineSpacingMultiple: 1.15, valign: "middle",
   });
-  s.addText("95% is a ceiling — our own test circuits are too small for a bug to hide in. " +
-            "We checked: better broken copies moved the score one point, bigger circuits " +
-            "moved it forty-four. So it measures our choice of circuits, not our testbenches.", {
-    x: M + 0.26, y: cy + 0.5, w: cw - 0.52, h: 1.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
-  });
-  card(s, M + cw + 0.5, cy, cw, 1.9, false);
-  s.addText("Why the rest is a fair comparison", {
-    x: M + cw + 0.76, y: cy + 0.16, w: cw - 0.5, h: 0.32, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, bold: true, charSpacing: 1.1, color: ACC,
-  });
-  s.addText("Our 20 benchmark circuits are the hardest fifth of theirs, and three quarters " +
-            "are clocked — the hard case. Where the measures line up we are in the same " +
-            "range, with a newer model, on harder circuits.", {
-    x: M + cw + 0.76, y: cy + 0.5, w: cw - 0.52, h: 1.3, isTextBox: true, margin: 0,
-    fontFace: BODY, fontSize: 13, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
-  });
+
   s.addNotes(
-    "WHERE EACH NUMBER COMES FROM, in case any one of them is queried.\n\n"
-    + "92.5% — our compile rate pooled over both models. Half our runs deliberately used a "
-    + "cheap model they never tested, which drags it down.\n\n"
-    + "98.7% — the same measure on the strong model alone. That is the like-for-like "
-    + "comparison with their 95.7%, because they used one good model throughout.\n\n"
-    + "31.4% — our pass rate against the real circuit, pooled. Low because these are the "
-    + "hardest fifth of their benchmark and three quarters of them are clocked, meaning the "
-    + "circuit has memory and a clock. Clocked circuits are the hard case for everyone: you "
-    + "have to get the timing right as well as the values.\n\n"
-    + "51.5% and 37.1% — theirs, across all circuits and across clocked ones only. Compare "
-    + "against 37.1, not 51.5.\n\n"
-    + "95% — our broken-copy detection. This counts individual broken copies caught, on our "
-    + "own small circuits. A one-bit flip-flop has nowhere for a bug to hide, so almost "
-    + "everything gets caught. It is a ceiling, not a result.\n\n"
-    + "44.8% — theirs, and NOT the same measure. They count a circuit as passed only if the "
-    + "testbench agrees with a reference testbench on at least 80% of the broken copies. "
-    + "Per-circuit with a threshold, against our per-copy raw rate.\n\n"
-    + "20% — our runs scored under their rule instead of ours: 4 of the 20 benchmark "
-    + "circuits cleared their 80% bar. That is the only honest comparison on this row, and "
-    + "it goes against their 26%.\n\n"
-    + "IF ASKED WHAT CHANGED BETWEEN 95 AND 20 — two things at once, so do not let it be "
-    + "read as one. The circuits got harder AND the scoring rule changed. The number that "
-    + "separates them is our raw detection on their circuits: about 54% with the weak model "
-    + "and 67% with the strong one. So harder circuits take it from 95 to roughly 60, and "
-    + "their stricter rule takes it from there to 20.\n\n"
-    + "IF ASKED WHAT n=20 MEANS: we tested 20 circuits, so 20% is 4 of them. With a sample "
-    + "that small the true value could plausibly sit anywhere from about 8% to 42%. Their "
-    + "26% is inside that range, so neither of us is measurably ahead. I would not claim a "
-    + "ranking from 20 circuits and I do not.\n\n"
-    + "NOT ON SLIDE: the pilot behind the ceiling claim was pre-registered — we wrote the "
-    + "criteria down before generating anything. Better broken copies moved the score one "
-    + "point; different circuits moved it forty-four."
+    "DEFENDING 31.4% — the number they will pick on.\n"
+    + "· it is pooled over both models; half our runs used a cheap model they never tested\n"
+    + "· strong model alone is 49.2%, against their 51.5%. That is the like-for-like figure\n"
+    + "· ours are the hardest fifth of their benchmark, 16 of 20 clocked — their own clocked "
+    + "figure is 37.1%\n"
+    + "· so on comparable circuits with a comparable model we are level or ahead\n"
+    + "· it is NOT caused by the scenario count — that affects Eval2, not Eval1\n\n"
+    + "CLOCKED means the circuit has memory and a clock. Hard case for everyone: timing as "
+    + "well as values.\n\n"
+    + "THE THREE Eval2 ROWS, read downwards\n"
+    + "· 95% — our circuits, our 5 mutants each, raw count\n"
+    + "· 67% — same testbenches, THEIR circuits. The 28-point fall is circuit difficulty\n"
+    + "· 20% — their circuits AND their rule. Their rule counts a circuit as passed only if "
+    + "the testbench agrees with a reference testbench on 80% of copies\n"
+    + "· only the bottom row compares like with like: 20 against their 26\n\n"
+    + "WHY THEIR 44.8% IS NOT LOW — pre-empt this misreading\n"
+    + "· it is their pass rate under that same 80% rule across all 156 problems\n"
+    + "· nothing to do with display statements — that was their compile rate, a different "
+    + "metric\n\n"
+    + "WHAT n=20 MEANS\n"
+    + "· 20 circuits, so 20% is 4 of them\n"
+    + "· at that size the true value could be anywhere from about 8% to 42%\n"
+    + "· their 26% sits inside that. Neither of us is measurably ahead, and I do not claim it"
   );
 }
 
