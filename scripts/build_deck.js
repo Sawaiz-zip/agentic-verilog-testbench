@@ -187,6 +187,7 @@ function progress(s, idx, total) {
     "Opening line is yours — the slide says the title. One sentence on what the project is and move.\n\n"
     + "TIMING: 20 minutes. Protect the results, slides 20 to 25, above everything else. If you are past 5 minutes when you leave the pipeline overview, speed up — the node slides are built to run at about 30 seconds each and they are deliberately uniform so the audience learns the layout once.\n\n"
     + "The three chips on the slide are there so the scale lands before you say anything: 280 runs, 215 injected faults, 4 sweeps."
+    + "\n\nLIKELY QUESTIONS\nQ: How long did this take?\nA: One semester. Twenty weeks, five phases, from literature to report.\nQ: Summarise the contribution in one sentence.\nA: A tool that finds testbench bugs before running anything, measured properly, plus the finding that current models have largely stopped making the bugs it finds."
   );
 }
 
@@ -229,6 +230,7 @@ function progress(s, idx, total) {
               "report success, and have checked almost nothing.");
   s.addNotes(
     "NOT ON SLIDE, worth saying: Verilog does not execute line by line like a normal programme. Everything happens at once, because it describes physical hardware. That is the single biggest source of confusion for a software audience.\n\nDUT is the jargon they will hear for the rest of the talk — say it once here so it lands."
+    + "\n\nLIKELY QUESTIONS\nQ: Why Verilog and not SystemVerilog?\nA: The benchmark ships Verilog, and the parser we use targets it. The models often write SystemVerilog anyway, which is where our parse-coverage problem comes from.\nQ: Why not formal verification instead of testbenches?\nA: Different tool for a different job, and out of scope. Testbench generation is what the prior work does and what the project brief asked for."
   );
 }
 
@@ -264,6 +266,7 @@ function progress(s, idx, total) {
               "looking. Running it can never find that.", ACC);
   s.addNotes(
     "Source for the 60%: Foster 2022, the Wilson Research industry survey.\n\nPAUSE after the box. That one sentence is the reason the whole project exists, and the rest of the talk only makes sense if it lands."
+    + "\n\nLIKELY QUESTIONS\nQ: Is the 60% figure still current?\nA: It is from the 2022 Wilson Research survey — the standard citation. I would not claim precision beyond about three-fifths.\nQ: Why not just write testbenches by hand?\nA: People do, and that is the cost. The question is whether a model can take some of it on."
   );
 }
 
@@ -292,6 +295,7 @@ function progress(s, idx, total) {
   });
   s.addNotes(
     "Thirty seconds. Plant them, do not answer them — the answers get their own slide at the end, and the payoff depends on them not being spoiled here."
+    + "\n\nLIKELY QUESTIONS\nQ: Who set these questions?\nA: They come from the project brief, refined with my supervisor after the scope was confirmed in May."
   );
 }
 
@@ -332,6 +336,7 @@ function progress(s, idx, total) {
               "anything runs, and add a control group so we can tell whether it helped.");
   s.addNotes(
     "IF ASKED why build on AutoBench: it is the closest prior work on this exact task and it uses the standard benchmark, so our numbers sit on the same ground as theirs.\n\nNOT ON SLIDE: they ran 156 circuits with GPT-4-turbo. We run a 20-circuit subset of the same benchmark, chosen as the hardest fifth, plus 12 of our own."
+    + "\n\nLIKELY QUESTIONS\nQ: Why not just use AutoBench directly?\nA: We do use its structure. The project is about what it leaves out: it never reads the Verilog, and it has no control group.\nQ: Did you contact the authors?\nA: No. Their mutants and numbers are published, which is what the comparison needs."
   );
 }
 
@@ -380,6 +385,7 @@ function progress(s, idx, total) {
     + "we do not. They check that every scenario they planned actually made it into the "
     + "generated testbench, retrying up to three times. We have no equivalent, and it is in "
     + "our future work."
+    + "\n\nLIKELY QUESTIONS\nQ: Why LangGraph rather than a plain script?\nA: Because of the repair loop. In a script the conditions controlling it get scattered; as a graph each is a small named function, and we could verify the five settings genuinely differ rather than assume it.\nQ: Thirteen steps — is that not over-engineered?\nA: Four exist only because we added them. The rest map one-to-one onto AutoBench's stages."
   );
 }
 
@@ -401,7 +407,8 @@ const NODES = [
                   "",
                   "        \u2192   SEQ"] },
     notes:
-      "Cheap model — a yes/no question from a paragraph does not need the expensive one.\n\nNOT ON SLIDE: AutoBench does this differently — they have the AI write a sample of the circuit, then text-search it for a clock. We just ask the model.\n\nIF ASKED how often it is wrong: we never traced a failure back to a wrong answer here. It is the easy part of the problem.",
+      "Cheap model — a yes/no question from a paragraph does not need the expensive one.\n\nNOT ON SLIDE: AutoBench does this differently — they have the AI write a sample of the circuit, then text-search it for a clock. We just ask the model.\n\nIF ASKED how often it is wrong: we never traced a failure back to a wrong answer here. It is the easy part of the problem."
+      + "\n\nLIKELY QUESTIONS\nQ: What happens if it classifies wrong?\nA: A combinational circuit treated as clocked gets a clock it does not need — harmless. The other way round is worse, but we never observed it.\nQ: Why not just detect it from the description with a keyword?\nA: That is roughly what AutoBench does. Asking the model is more robust to phrasing, and at this price there was no reason not to.",
   },
   {
     n: "gen_dut", plain: "Write the circuit itself", ours: true,
@@ -421,7 +428,8 @@ const NODES = [
                   "  output [3:0] out",
                   ");"] },
     notes:
-      "SAY OUT LOUD, it is not on the slide: for most of the pipeline we work with the AI's own version of the circuit, and only swap in the real one at marking. Two versions in play. We measured how far apart they get.\n\nIF PUSHED: the 273/280 is the pin interface only — no equivalence check was run, so it bounds the structural side and says nothing about behaviour. The seven exceptions are all Prob150, under both models and all five settings, so it is that problem's description and not sampling noise. All seven fail Eval1 anyway.\n\nIF ASKED why AutoBench does not do this: they argue mixing the two makes it impossible to tell a bad test from a bad design. Fair — our answer is the golden circuit at marking.",
+      "SAY OUT LOUD, it is not on the slide: for most of the pipeline we work with the AI's own version of the circuit, and only swap in the real one at marking. Two versions in play. We measured how far apart they get.\n\nIF PUSHED: the 273/280 is the pin interface only — no equivalence check was run, so it bounds the structural side and says nothing about behaviour. The seven exceptions are all Prob150, under both models and all five settings, so it is that problem's description and not sampling noise. All seven fail Eval1 anyway.\n\nIF ASKED why AutoBench does not do this: they argue mixing the two makes it impossible to tell a bad test from a bad design. Fair — our answer is the golden circuit at marking."
+      + "\n\nLIKELY QUESTIONS\nQ: Is this not circular — the AI testing its own circuit?\nA: It would be if we marked against the generated circuit. We do not. Marking always uses the known-correct one, which the model never sees.\nQ: Why not use the known-correct circuit throughout?\nA: Then the model could read the answers out of it while writing the test. And you would no longer be testing the realistic flow.",
   },
   {
     n: "extract_spec", plain: "Turn the English into a checklist",
@@ -442,7 +450,8 @@ const NODES = [
                  ["reset", "rst"],
                  ["timing", "synchronous, posedge"]] },
     notes:
-      "Straight out of AutoBench — their Stage 1. Nothing interesting happened here, and saying that plainly is better than padding it.\n\nThirty seconds. Move.\n\nIF ASKED why not just re-read the description each time: the AI answers slightly differently each time it reads prose. Pinning it down once means every later step agrees.",
+      "Straight out of AutoBench — their Stage 1. Nothing interesting happened here, and saying that plainly is better than padding it.\n\nThirty seconds. Move.\n\nIF ASKED why not just re-read the description each time: the AI answers slightly differently each time it reads prose. Pinning it down once means every later step agrees."
+      + "\n\nLIKELY QUESTIONS\nQ: What if the spec it extracts is wrong?\nA: Then everything downstream is wrong, and it shows up as a failed run. We did not measure spec accuracy separately — a fair gap.",
   },
   {
     n: "gen_scenarios", plain: "Decide what to test",
@@ -463,7 +472,8 @@ const NODES = [
                  ["hold_value_on_reset", "PASS"],
                  ["increment_to_fourteen", "FAIL"]] },
     notes:
-      "NOT ON SLIDE — the eight is our own instruction, not a model limit. The prompt says \u201Cgenerate between 5 and 10 scenarios\u201D and the distribution peaks at 8 and 9.\n\nIF ASKED whether eight is enough: on a circuit with ten input bits there are 1,024 input combinations, so eight is under one percent of them. That is the honest reason our broken-copy detection falls from 95% on our small circuits to about half on the big benchmark ones — the bug lives in a case the eight never visit. Raising the count is in the report as future work.\n\nIF ASKED about AutoBench: they check that every scenario they planned actually made it into the testbench, with up to three retries. We have no equivalent. Also future work.",
+      "NOT ON SLIDE — the eight is our own instruction, not a model limit. The prompt says \u201Cgenerate between 5 and 10 scenarios\u201D and the distribution peaks at 8 and 9.\n\nIF ASKED whether eight is enough: on a circuit with ten input bits there are 1,024 input combinations, so eight is under one percent of them. That is the honest reason our broken-copy detection falls from 95% on our small circuits to about half on the big benchmark ones — the bug lives in a case the eight never visit. Raising the count is in the report as future work.\n\nIF ASKED about AutoBench: they check that every scenario they planned actually made it into the testbench, with up to three retries. We have no equivalent. Also future work."
+      + "\n\nLIKELY QUESTIONS\nQ: Why between five and ten? Did you try more?\nA: We did not, and I would not defend the number as optimal. It was chosen to keep the testbench short enough to compile reliably. Raising it is in future work.\nQ: Could more scenarios fix the mutant score?\nA: That is our hypothesis, not a result. The measured facts are that better mutants moved the score one point and bigger circuits moved it forty-four.",
   },
   {
     n: "gen_driver", plain: "Write the testbench",
@@ -481,7 +491,8 @@ const NODES = [
                   "  .out(out)",
                   ");"] },
     notes:
-      "Strong model — writing correct hardware code is genuinely hard.\n\nNOT ON SLIDE: 92.5% compile but only 31% pass. That gap is where this project lives.\n\nIF ASKED what the failures look like: almost all are wrong expected values rather than broken structure. 87% of them.",
+      "Strong model — writing correct hardware code is genuinely hard.\n\nNOT ON SLIDE: 92.5% compile but only 31% pass. That gap is where this project lives.\n\nIF ASKED what the failures look like: almost all are wrong expected values rather than broken structure. 87% of them."
+      + "\n\nLIKELY QUESTIONS\nQ: Why does only a third pass?\nA: Hardest fifth of the benchmark, mostly clocked. On the strong model alone it is 49%, against AutoBench's 51.5%.\nQ: Would a better prompt fix it?\nA: Probably some of it. We froze the prompts before the experiments deliberately, so that tuning could not leak into the results.",
   },
   {
     n: "gen_checker", plain: "A Python checker, written alongside",
@@ -507,7 +518,8 @@ const NODES = [
       + "stimulus from the checking, which in principle allows more thorough checking. We did "
       + "not test which is better and I would not guess.\n\n"
       + "IF ASKED why the two run in parallel: both read the same inputs and neither needs the "
-      + "other's output. Nothing is executing at this point — both steps are writing files.",
+      + "other's output. Nothing is executing at this point — both steps are writing files."
+      + "\n\nLIKELY QUESTIONS\nQ: Why two tracks at all?\nA: It is AutoBench's structure and we kept it. Ours carries less of the load because our testbench prints its own verdicts.",
   },
   {
     n: "merge_generation", plain: "Wait for both",
@@ -522,7 +534,8 @@ const NODES = [
                   "             \u251c\u2500\u2192  merge  \u2192  next step",
                   "gen_checker  \u2518"] },
     notes:
-      "Fifteen seconds. It is on its own slide for completeness, not because it is interesting.\n\nIF ASKED why it exists at all: the two previous steps run in parallel to save wall-clock time, and something has to wait for both.",
+      "Fifteen seconds. It is on its own slide for completeness, not because it is interesting.\n\nIF ASKED why it exists at all: the two previous steps run in parallel to save wall-clock time, and something has to wait for both."
+      + "\n\nLIKELY QUESTIONS\nQ: How much time does the parallelism actually save?\nA: One model call's worth per run — roughly ten to fifteen seconds of a forty-second run.",
   },
   {
     n: "standardise", plain: "Mechanical cleanup, no AI",
@@ -541,7 +554,8 @@ const NODES = [
                   "",
                   "// it skips anything already marked"] },
     notes:
-      "THE POINT, and it is only half on the slide: AutoBench has the same idea and for them it was the single biggest improvement in the paper — sequential compile rate 55% to 97%. Forty-two points. Ours fired six times in 188 runs.\n\nThat is not because ours is worse. The mistake it fixes has stopped happening. I show the number that proves it in the results.\n\nIF ASKED for the proof now: the 182 runs where our script never fired still compile at 90.7%, against AutoBench's 55.5% without theirs.\n\nIF ASKED why Python rather than a model: one correct answer, so a script is faster, free, and does the same thing every time. It also marks its own work so a second pass cannot double-insert.",
+      "THE POINT, and it is only half on the slide: AutoBench has the same idea and for them it was the single biggest improvement in the paper — sequential compile rate 55% to 97%. Forty-two points. Ours fired six times in 188 runs.\n\nThat is not because ours is worse. The mistake it fixes has stopped happening. I show the number that proves it in the results.\n\nIF ASKED for the proof now: the 182 runs where our script never fired still compile at 90.7%, against AutoBench's 55.5% without theirs.\n\nIF ASKED why Python rather than a model: one correct answer, so a script is faster, free, and does the same thing every time. It also marks its own work so a second pass cannot double-insert."
+      + "\n\nLIKELY QUESTIONS\nQ: How do you know it is the models and not that your script is weaker than theirs?\nA: Because the runs where ours never fired at all still compile at 90.7%, against their 55.5% without theirs. The baseline moved, not the fix.\nQ: Would it still help on an older model?\nA: Very likely, and that is the honest framing — the technique has a shelf life rather than being wrong.",
   },
   {
     n: "pyverilog_analysis", plain: "Read the code without running it", ours: true,
@@ -579,7 +593,8 @@ const NODES = [
       + "fail Eval1 far more often, so our result is measured on the healthier half.\n\n"
       + "IF ASKED whether we tuned the checks to flatter ourselves: we built seven and deleted "
       + "one. It caught none of the five faults it was built for and raised the only false "
-      + "alarm on a correct testbench, so we removed it rather than patch it.",
+      + "alarm on a correct testbench, so we removed it rather than patch it."
+      + "\n\nLIKELY QUESTIONS\nQ: Why Pyverilog and not a commercial linter?\nA: Free, scriptable, and gives an syntax tree we can query. A commercial linter would likely parse more files — that is the main limitation here.\nQ: Why only six checks?\nA: Seven were built. One was deleted for catching nothing and raising a false alarm. The six are the ones that survived measurement.\nQ: Did you pick checks you knew would pass?\nA: The opposite — we included two fault classes deliberately built to be undetectable, and we score zero on them.",
   },
   {
     n: "error_reasoner", plain: "Turn findings into instructions",
@@ -599,7 +614,8 @@ const NODES = [
                   "\u201Cthe output q is never printed \u2014",
                   " add a display after each check\u201D"] },
     notes:
-      "Thirty seconds.\n\nNOT ON SLIDE: because our reports were almost always clean, skipping the call made the static-only setting cheaper to run than doing nothing at all — 2% fewer tokens than baseline.",
+      "Thirty seconds.\n\nNOT ON SLIDE: because our reports were almost always clean, skipping the call made the static-only setting cheaper to run than doing nothing at all — 2% fewer tokens than baseline."
+      + "\n\nLIKELY QUESTIONS\nQ: Why use a model here rather than a template?\nA: A template would probably do for the six we have. It exists so the layer generalises to findings we did not anticipate.",
   },
   {
     n: "repair", plain: "Try again, knowing what went wrong",
@@ -617,7 +633,8 @@ const NODES = [
                  ["2", "clean  \u2014 the repair worked"],
                  ["3", "the problem came back"]] },
     notes:
-      "NOT ON SLIDE — two safeguards. If the same error comes back twice we stop, because a fourth identical attempt will not work. And we keep the best version rather than the last, because repair rewrites the whole file and attempt three can be worse than attempt one. Without that a setting that repairs more could score worse, which an experiment cannot allow.\n\nIF ASKED why three quarters fail: two patterns. Some regenerate a testbench failing the exact same scenarios — the diagnosis was not acted on. Others produce a different error every iteration until the budget runs out. Across fourteen multi-attempt runs, no error signature ever repeated. Prior work does not report this.\n\nIF ASKED about the example: the repair worked at attempt 2 and the loop then undid it. Cause is on the gen_dut slide — our checker reads the generated circuit, marking uses the real one.",
+      "NOT ON SLIDE — two safeguards. If the same error comes back twice we stop, because a fourth identical attempt will not work. And we keep the best version rather than the last, because repair rewrites the whole file and attempt three can be worse than attempt one. Without that a setting that repairs more could score worse, which an experiment cannot allow.\n\nIF ASKED why three quarters fail: two patterns. Some regenerate a testbench failing the exact same scenarios — the diagnosis was not acted on. Others produce a different error every iteration until the budget runs out. Across fourteen multi-attempt runs, no error signature ever repeated. Prior work does not report this.\n\nIF ASKED about the example: the repair worked at attempt 2 and the loop then undid it. Cause is on the gen_dut slide — our checker reads the generated circuit, marking uses the real one."
+      + "\n\nLIKELY QUESTIONS\nQ: Why cap at three attempts?\nA: Cost, and diminishing returns — by attempt three we were seeing a different error every time rather than convergence.\nQ: Did you try more?\nA: No. AutoBench allows up to five restarts, so it is a fair thing to raise, and it is in future work.",
   },
   {
     n: "regenerate", plain: "Try again, told nothing — the control", ours: true,
@@ -635,7 +652,8 @@ const NODES = [
                  ["retry_only — a blind second attempt", "13 of 44"],
                  ["difference", "1 circuit  ·  p = 1.000"]] },
     notes:
-      "THE METHODOLOGICAL POINT. Spend your time here, not on the mechanics.\n\nNOT ON SLIDE: AutoBench has no arm like this, so their reported gains cannot separate \u201Cthe feedback worked\u201D from \u201Cthe model got another go\u201D.\n\nIF ASKED whose idea it was: ours, and it came from catching our own mistake. We re-audited the earlier results before building on them and found an apparent win was fake — all five of its static-triggered repairs traced to a single false positive. So that setting was really just one extra attempt, and nothing could tell the two apart. The control was built to expose exactly that.",
+      "THE METHODOLOGICAL POINT. Spend your time here, not on the mechanics.\n\nNOT ON SLIDE: AutoBench has no arm like this, so their reported gains cannot separate \u201Cthe feedback worked\u201D from \u201Cthe model got another go\u201D.\n\nIF ASKED whose idea it was: ours, and it came from catching our own mistake. We re-audited the earlier results before building on them and found an apparent win was fake — all five of its static-triggered repairs traced to a single false positive. So that setting was really just one extra attempt, and nothing could tell the two apart. The control was built to expose exactly that."
+      + "\n\nLIKELY QUESTIONS\nQ: Is the control not just wasted compute?\nA: It is 29% more tokens for no gain — which is precisely the finding. Without it we would have reported a win we cannot support.\nQ: Whose idea was it?\nA: Ours, after auditing our own earlier result and finding its apparent win came from a single false positive.",
   },
   {
     n: "evaluate", plain: "Mark it",
@@ -651,7 +669,8 @@ const NODES = [
                  ["Eval1  — works on the real circuit?", "8 of 11 scenarios"],
                  ["Eval2  — catches broken copies?", "not reached"]] },
     notes:
-      "NOT ON SLIDE: Eval2's 95% on our own circuits is a ceiling, not a result, and I would say so before being asked. Our circuits are too small for a bug to hide in. We tested that rather than assuming — regenerating the broken copies with a better model moved the score one point; swapping in bigger circuits moved it forty-four.\n\nIF ASKED how 31% compares: AutoBench report 37% on clocked circuits, and ours are mostly clocked and the hardest fifth of their benchmark. Same range.\n\nIF ASKED whether our 95 beats their 44.8: it does not — they measure agreement with a reference testbench at an 80% threshold. Under their rule we get 20% against their 26%. Next section has the table.",
+      "NOT ON SLIDE: Eval2's 95% on our own circuits is a ceiling, not a result, and I would say so before being asked. Our circuits are too small for a bug to hide in. We tested that rather than assuming — regenerating the broken copies with a better model moved the score one point; swapping in bigger circuits moved it forty-four.\n\nIF ASKED how 31% compares: AutoBench report 37% on clocked circuits, and ours are mostly clocked and the hardest fifth of their benchmark. Same range.\n\nIF ASKED whether our 95 beats their 44.8: it does not — they measure agreement with a reference testbench at an 80% threshold. Under their rule we get 20% against their 26%. Next section has the table."
+      + "\n\nLIKELY QUESTIONS\nQ: Why Icarus and not a commercial simulator?\nA: Free, standard, and what the prior work used, so the numbers sit on the same ground.\nQ: Is three levels enough?\nA: It is what AutoBench defined and we kept it for comparability. Eval2 turned out to be the weak one, and we say so.",
   },
 ];
 
@@ -820,6 +839,7 @@ NODES.forEach((nd, i) => {
     + "· better mutants moved the score 1 point (96.7 to 97.4)\n"
     + "· different circuits moved it 44 points\n"
     + "· so it is the circuits, not the mutants"
+    + "\n\nLIKELY QUESTIONS\nQ: Are model-generated mutants realistic bugs?\nA: Not necessarily, and we tested whether it mattered: regenerating them with a better model and their own prompt moved the score one point.\nQ: Why five per run?\nA: Cost. AutoBench publishes ten per problem and we score against those too, which is where the 20% comes from."
   );
 }
 
@@ -883,6 +903,7 @@ NODES.forEach((nd, i) => {
     + "the CIRCUIT to test whether the TESTBENCH notices — that is Eval2. Fault injection "
     + "breaks the TESTBENCH to test whether OUR CHECKER notices.\n\n"
     + "This is the strongest slide in the talk. Take your time."
+    + "\n\nLIKELY QUESTIONS\nQ: Only fourteen testbenches — is that enough?\nA: Fourteen testbenches but 215 faults, and each fault class has its own denominator. The per-class rates are what matter, not the file count.\nQ: Did you write the injectors to suit your checker?\nA: That is exactly why the two negative controls are in there. We built faults our checker provably cannot see and reported scoring zero on them."
   );
 }
 
@@ -952,6 +973,7 @@ NODES.forEach((nd, i) => {
     + "· 20 circuits, so 20% is 4 of them\n"
     + "· at that size the true value could be anywhere from about 8% to 42%\n"
     + "· their 26% sits inside that. Neither of us is measurably ahead, and I do not claim it"
+    + "\n\nLIKELY QUESTIONS\nQ: So did you beat AutoBench?\nA: No, and we do not claim to. Where the measures line up we are level, with a newer model on harder circuits. That is as far as the evidence goes."
   );
 }
 
@@ -1031,6 +1053,7 @@ NODES.forEach((nd, i) => {
     + "· so any real gain must sit on the diagnosis, not the extra try\n\n"
     + "THIS SLIDE ANSWERS \u2018which setting wins\u2019. The next answers \u2018what caused "
     + "the repairs\u2019. Say that as you move — they are easy to conflate."
+    + "\n\nLIKELY QUESTIONS\nQ: Why not more repeats to tighten the numbers?\nA: Budget. The whole project cost about sixteen dollars fifty; more repeats was the first thing we would spend on.\nQ: Is n=44 not too small to conclude anything?\nA: It is too small to conclude a win, which is why we do not claim one. It is large enough to measure the noise floor, which is what we did."
   );
 }
 
@@ -1091,6 +1114,7 @@ NODES.forEach((nd, i) => {
     + "feedback, so its lead cannot be credited to our checker. No simulation-only arm exists "
     + "to separate them. It is in the report.\n\n"
     + "102 runs attempted a repair, 26 succeeded. About one in four."
+    + "\n\nLIKELY QUESTIONS\nQ: So is static analysis useless?\nA: Not in general. It costs essentially nothing, both findings we did get were real, and smaller or older models are untested. What we rule out is treating it as the primary defence against current frontier models."
   );
 }
 
@@ -1148,6 +1172,7 @@ NODES.forEach((nd, i) => {
   });
   s.addNotes(
     "BE EXPLICIT ABOUT THE BOUNDARY: the measurements are solid — 87% of failures are semantic, the checker fired once. The explanation on the left and right is a reasonable reading of that, not something we ran an experiment on. Say so if pushed; it costs nothing and being caught overclaiming costs a lot.\n\nIF ASKED what would bring structural faults back: larger designs, or smaller and older models. Both are untested and both are in future work."
+    + "\n\nLIKELY QUESTIONS\nQ: Could this reverse — will structural faults come back?\nA: Plausibly, on larger designs or with smaller models. Both untested, both in future work.\nQ: Is this not just saying your tool was pointless?\nA: It says the tool works and the problem has moved. That is a finding about the field, and prior work could not have found it without a control group."
   );
 }
 
@@ -1197,6 +1222,7 @@ NODES.forEach((nd, i) => {
     + "THE NUANCE WORTH SAYING OUT LOUD: our layer is nearly free and nearly useless against "
     + "current models. Not in tension — free means there is little reason to remove it, in "
     + "case a weaker or older model is the one generating."
+    + "\n\nLIKELY QUESTIONS\nQ: Would this scale to a real design?\nA: Unknown. Everything here is benchmark-sized. The cost per testbench is about ten cents, so scale is not the obstacle — circuit complexity is."
   );
 }
 
@@ -1240,6 +1266,7 @@ NODES.forEach((nd, i) => {
               "reporting.", ACC);
   s.addNotes(
     "Keep this quick — they have seen all four answers already. The line that matters is the last one: a negative answer with a validated instrument behind it is worth more than a positive one without."
+    + "\n\nLIKELY QUESTIONS\nQ: Which question is the real contribution?\nA: Two and three together. Two says the tool works; three says there is little left for it to find. Neither is worth much without the other."
   );
 }
 
@@ -1285,6 +1312,7 @@ NODES.forEach((nd, i) => {
   });
   s.addNotes(
     "IF ASKED whether the project succeeded, the precise answer: we set out to find whether you can localise testbench errors before simulation. You can — completely, for the faults it targets, including ones nothing else sees. But against current models there is little left to find. We can say that with confidence rather than as a guess, because we validated the tool separately and ran a control group.\n\nIF ASKED what you would do differently: run a simulation-only arm to separate the two feedback sources, and use bigger circuits so the broken-copy score discriminates."
+    + "\n\nLIKELY QUESTIONS\nQ: What would you do differently?\nA: Run a simulation-only arm to separate the two feedback sources, and use bigger circuits so the mutant score discriminates.\nQ: What is the single most defensible thing here?\nA: The control group. It changed our own conclusion, which is the point of having one."
   );
 }
 
