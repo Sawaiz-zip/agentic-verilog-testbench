@@ -358,7 +358,28 @@ function progress(s, idx, total) {
     fontFace: BODY, fontSize: 13, italic: true, color: INK3,
   });
   s.addNotes(
-    "Do not read the boxes out. Point at the four blue ones and move. Leave by 5:00.\n\nNOT ON SLIDE — mention it, it shows you read the paper properly: they have one thing we do not. They check that every scenario they planned actually made it into the generated testbench, retrying up to three times. We have no equivalent, and it is in our future work."
+    "Do not read the boxes out. Point at the four blue ones and move. Leave by 5:00.\n\n"
+    + "WHICH MODEL DOES WHAT, if asked — we route by difficulty to keep the cost down:\n"
+    + "  strong (claude-sonnet-4.5): writes the circuit, the spec, the testbench, the Python "
+    + "checker, the error reasoning, and every repair.\n"
+    + "  cheap (gpt-4o-mini): the combinational-or-sequential decision, the scenario list, "
+    + "and the broken copies used for scoring.\n"
+    + "The rule is simple: anything that writes Verilog gets the strong model; anything that "
+    + "classifies or lists gets the cheap one.\n\n"
+    + "THE CIRCUITS, if asked — 32 in total, in two sets.\n"
+    + "  12 of our own: 6 combinational, 6 sequential. Six are the small originals — dff, "
+    + "alu_1bit, mux2to1, comparator_2bit, priority_encoder, shift_register. The other six "
+    + "were purpose-built to be hard enough for the checks to fire at all: alu_8bit, "
+    + "barrel_shifter_8bit, bcd_to_7seg, fsm_sequence_detector, fifo_8x8, traffic_light_fsm.\n"
+    + "  20 from the public benchmark: 16 sequential, 4 combinational — the hardest fifth of "
+    + "their 156, chosen before any run.\n\n"
+    + "WHY SIX WERE PURPOSE-BUILT: the originals were 8 to 17 lines with two to four "
+    + "unambiguous ports, so four of the checks could not physically fire on them. You cannot "
+    + "wire a pin to the wrong name if there are only two pins.\n\n"
+    + "NOT ON SLIDE — mention it, it shows you read the paper properly: they have one thing "
+    + "we do not. They check that every scenario they planned actually made it into the "
+    + "generated testbench, retrying up to three times. We have no equivalent, and it is in "
+    + "our future work."
   );
 }
 
@@ -722,6 +743,83 @@ NODES.forEach((nd, i) => {
   s.addNotes(nd.notes);
 });
 
+// ── How Eval2 works: mutants ────────────────────────────────────────────────
+{
+  const s = slide(false);
+  kicker(s, "HOW WE TEST THE TESTBENCH");
+  const y = title(s, "Mutants — deliberately broken copies of the circuit",
+                  "This is what Eval2 measures, and it is the number most often misread",
+                  false);
+  const cw = (W - 2 * M - 0.5) / 2;
+
+  card(s, M, y, cw, 2.55, false);
+  s.addText("How we make them", {
+    x: M + 0.26, y: y + 0.18, w: cw - 0.5, h: 0.34, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 18, bold: true, color: INK,
+  });
+  s.addText("Five per run. We ask the cheap model to change exactly one line of logic in " +
+            "the circuit — flip an operator, invert a signal, alter a constant. It must " +
+            "still compile, and no ports may change.\n\n" +
+            "A copy that will not compile is a bad mutation, not a testbench failure, so it " +
+            "is dropped from both sides of the score.", {
+    x: M + 0.26, y: y + 0.62, w: cw - 0.52, h: 1.55, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
+
+  card(s, M + cw + 0.5, y, cw, 2.55, false);
+  s.addText("How a testbench scores", {
+    x: M + cw + 0.76, y: y + 0.18, w: cw - 0.5, h: 0.34, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 18, bold: true, color: ACC,
+  });
+  s.addText("We run the same testbench against each broken copy. It catches one if any of " +
+            "its scenarios behaves differently than it did on the good circuit.\n\n" +
+            "If none of them happens to exercise the situation where that bug shows up, the " +
+            "testbench sees no difference and reports PASS. The mutant escapes.", {
+    x: M + cw + 0.76, y: y + 0.62, w: cw - 0.52, h: 1.55, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, color: INK2, lineSpacingMultiple: 1.18, valign: "top",
+  });
+
+  s.addText("Which is why circuit size decides the score, not testbench quality", {
+    x: M, y: y + 2.78, w: W - 2 * M, h: 0.4, isTextBox: true, margin: 0,
+    fontFace: HEAD, fontSize: 19, bold: true, color: INK, align: "center",
+  });
+
+  const hdr = { bold: true, fill: { color: CARD } };
+  table(s, M + 0.9, y + 3.22, W - 2 * M - 1.8, [
+    [{ text: "Circuit", options: hdr }, { text: "Input combinations", options: hdr },
+     { text: "Our 8 scenarios cover", options: hdr }, { text: "Caught", options: hdr }],
+    [{ text: "dff  — one input bit", options: { bold: true } }, "2",
+     { text: "all of them", options: { color: ACC } },
+     { text: "95%", options: { bold: true, color: ACC } }],
+    [{ text: "Prob081_7458  — ten input bits", options: { bold: true } }, "1,024",
+     { text: "under 1%", options: { color: WARN } },
+     { text: "2 or 3 of 10", options: { bold: true, color: WARN } }],
+  ], [3.5, 2.5, 2.3, W - 2 * M - 1.8 - 8.3], false);
+
+  s.addText("A one-bit flip-flop has nowhere for a bug to hide, so almost any testbench " +
+            "catches everything. That is why we report our 95% as a limitation.", {
+    x: M + 0.9, y: y + 5.05, w: W - 2 * M - 1.8, h: 0.5, isTextBox: true, margin: 0,
+    fontFace: BODY, fontSize: 14, bold: true, color: INK, align: "center",
+  });
+  s.addNotes(
+    "NOT ON SLIDE — the terms. A mutant is a copy of the circuit with one deliberate bug. " +
+    "Eval2 asks whether the testbench notices. It is the third and last of our three " +
+    "scores, and it only runs on testbenches that already passed Eval1.\n\n" +
+    "NOT ON SLIDE: 5 mutants per run, 440 generated in total, 437 of them valid. The three " +
+    "that were dropped would not compile.\n\n" +
+    "THE LINK BACK TO gen_scenarios, worth making explicitly: eight scenarios is our own " +
+    "prompt instruction. On a one-bit flip-flop eight covers everything there is. On a " +
+    "ten-input circuit there are 1,024 input combinations, so eight is under one percent of " +
+    "them, and a bug living in the other 99% is simply never visited.\n\n" +
+    "IF ASKED whether the mutants were too easy — we tested that rather than assuming. " +
+    "Regenerating them with a better model, using AutoBench's own prompt, and filtering out " +
+    "the ones that were not really broken moved the score from 96.7% to 97.4%. One point. " +
+    "Swapping in bigger circuits moved it forty-four. So it is the circuits.\n\n" +
+    "IF ASKED who makes the mutants: the cheap model, because introducing one deliberate bug " +
+    "is a structural edit, not a reasoning task."
+  );
+}
+
 // ═══════════════════════════════ RESULTS ═════════════════════════════════════
 
 // ── 1 · Does the checker work ───────────────────────────────────────────────
@@ -766,7 +864,22 @@ NODES.forEach((nd, i) => {
               "output, running it PASSES — nothing else can see that. The last two rows are " +
               "controls, built to be impossible to spot from structure.", INK);
   s.addNotes(
-    "NOT ON SLIDE: 215 faults, eight kinds, injected into testbenches that already passed. The checker localises to the right signal as well as the right class, not just \u201Csomething is wrong\u201D.\n\nIF ASKED how we know the injected faults were legal Verilog: an injector that produced a syntax error would score as the compiler catching a fault the injector itself created. Mutations must produce legal code, and injectors that cannot mutate cleanly decline — those cases are excluded from the denominator.\n\nThis is the strongest slide in the talk. Take your time."
+    "HOW IT WAS DONE, if asked — it is a separate experiment, not part of a pipeline run. "
+    + "We took 14 testbenches already known to pass, injected one known fault at a time, and "
+    + "recorded whether each of three layers noticed: our checker, the compiler, and the "
+    + "simulator. Fully offline, no model involved, so it cost nothing.\n\n"
+    + "That control is why we can say 100% — we chose exactly what went in, so we know "
+    + "exactly what should have come out.\n\n"
+    + "NOT ON SLIDE: 215 faults across eight kinds. The checker localises to the right signal "
+    + "as well as the right class, not just \u201Csomething is wrong\u201D.\n\n"
+    + "IF ASKED how we know the injected faults were legal Verilog: an injector that produced "
+    + "a syntax error would score as the compiler catching a fault the injector itself "
+    + "created. Mutations must produce compiling code, and injectors that cannot mutate "
+    + "cleanly decline — those cases are excluded from the denominator.\n\n"
+    + "IF ASKED the difference between this and mutants: opposite directions. Mutants break "
+    + "the CIRCUIT to test whether the TESTBENCH notices — that is Eval2. Fault injection "
+    + "breaks the TESTBENCH to test whether OUR CHECKER notices.\n\n"
+    + "This is the strongest slide in the talk. Take your time."
   );
 }
 
