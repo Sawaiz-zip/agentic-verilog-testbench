@@ -524,20 +524,40 @@ const NODES = [
   {
     n: "pyverilog_analysis", plain: "Read the code without running it", ours: true,
     does: "Parses the testbench and the circuit into a structure — not text — and runs six " +
-          "checks looking for mistakes. No simulation.",
+          "checks looking for mistakes. Nothing is simulated.",
     why: "Two of the six catch faults that nothing else can see: an output nobody checks, " +
-         "and a sequential output that is never printed. If the testbench stops looking, " +
+         "and a clocked output that is never printed. If the testbench stops looking, " +
          "running it passes.",
+    ex: { kind: "rows", cap: "the six checks, and what each one catches",
+          head: ["check", "catches"],
+          rows: [["port_binding_mismatch", "a pin wired to the wrong name"],
+                 ["width_mismatch", "a 3-bit signal in a 4-bit port"],
+                 ["undriven_input", "an input never given a value"],
+                 ["unobserved_output", "an output nobody ever checks"],
+                 ["missing_fdisplay", "a clocked output never printed"],
+                 ["clock_never_toggled", "a clock that never ticks"]] },
     stat: "100%", statLabel: "detection on every fault class\nit was built for",
-    found: "Zero false alarms on clean testbenches. This is the core contribution.",
-    ex: { kind: "rows", cap: "a real finding — Prob150, where the AI invented a clock pin",
-          head: ["field", "value"],
-          rows: [["error_type", "port_binding_mismatch"],
-                 ["affected_signal", "clk"],
-                 ["severity", "ERROR"],
-                 ["found by", "reading the code, before running"]] },
+    found: "Zero false alarms on clean testbenches. This is the core contribution — the " +
+           "next section shows how we measured it.",
     notes:
-      "Do NOT give the performance number here — the results slide has it. Set it up and move.\n\nIF ASKED about coverage: the parser could only read 262 of 434 files. The rest use newer SystemVerilog syntax it does not support and fall back to a second parser that only checks validity. Real limitation, in the report. Worse, those unreadable files are not a random sample — they fail Eval1 far more often, so our result is measured on the healthier half.\n\nIF ASKED whether we tuned the checks to flatter ourselves: we built seven and deleted one. It caught none of the five faults it was built for and raised the only false alarm on a correct testbench, so we removed it rather than patch it.",
+      "Do NOT give the performance number here — the results slide has it. Set it up and "
+      + "move.\n\nTHE TWO BOLD ROWS carry the argument. unobserved_output and "
+      + "missing_fdisplay are the ones nothing else can catch.\n\n"
+      + "WHAT THIS DOES NOT DO — worth being clear if asked: it is not part of Eval0, 1 or 2. "
+      + "It runs before any of them, before anything is compiled or simulated. That earliness "
+      + "is the whole point — \u201Cearly error localisation\u201D in the title.\n\n"
+      + "THE INFERENCE WORTH DRAWING, and it is the cleanest way to put the whole project: "
+      + "the checker detects 100% of these six in a controlled test, and in 280 real runs it "
+      + "found almost nothing. Both things being true means the real testbenches did not "
+      + "contain these mistakes. That is a statement about what current models produce, not "
+      + "about whether our tool works.\n\n"
+      + "IF ASKED about coverage: the parser could only read 262 of 434 files. The rest use "
+      + "newer SystemVerilog syntax it does not support and fall back to a second parser that "
+      + "only checks validity. Real limitation, in the report. Worse, those unreadable files "
+      + "fail Eval1 far more often, so our result is measured on the healthier half.\n\n"
+      + "IF ASKED whether we tuned the checks to flatter ourselves: we built seven and deleted "
+      + "one. It caught none of the five faults it was built for and raised the only false "
+      + "alarm on a correct testbench, so we removed it rather than patch it.",
   },
   {
     n: "error_reasoner", plain: "Turn findings into instructions",
