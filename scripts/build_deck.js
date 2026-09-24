@@ -463,32 +463,30 @@ const NODES = [
       "Strong model — writing correct hardware code is genuinely hard.\n\nNOT ON SLIDE: 92.5% compile but only 31% pass. That gap is where this project lives.\n\nIF ASKED what the failures look like: almost all are wrong expected values rather than broken structure. 87% of them.",
   },
   {
-    n: "gen_checker", plain: "A Python checker — inherited, and unused",
+    n: "gen_checker", plain: "A Python checker, written alongside",
     does: "Reads the same spec and scenarios as the previous step and writes a small Python " +
-          "programme that could read the testbench's output and decide pass or fail.",
-    why: "AutoBench splits the work this way: their Verilog only drives the circuit and " +
-         "dumps what it sees, and Python does all the judging. We copied the structure — " +
-         "then made our testbench judge itself, which left this track with nothing to do.",
+          "programme for reading a testbench's output and deciding pass or fail.",
+    why: "It comes from AutoBench's structure, where the Verilog drives the circuit and " +
+         "Python judges the result. It needs nothing from the testbench, so the two are " +
+         "generated at the same time.",
     ex: { kind: "code", cap: "it runs beside gen_driver, not after it — neither needs the other",
           lines: ["spec + scenarios",
                   "      \u251c\u2500\u2192  gen_driver   \u2192  testbench.v",
                   "      \u2514\u2500\u2192  gen_checker  \u2192  checker.py"] },
-    stat: "never run", statLabel: "the generated checker is stored\nwith each run and not executed",
-    found: "Our testbench decides PASS or FAIL itself, so evaluation reads those lines " +
-           "directly. We report this as dead weight rather than a second opinion.",
+    stat: "in parallel", statLabel: "generated alongside the testbench,\nnot after it",
+    found: "Ours carries less of the load than AutoBench's, because our testbench prints its " +
+           "own PASS and FAIL verdicts.",
     notes:
-      "BE STRAIGHT ABOUT THIS ONE — it is in the code and an examiner could find it. The " +
-      "generated checker is written, stored in every result record, and never executed. " +
-      "Evaluation parses the PASS and FAIL lines with a hand-written function, not this.\n\n"
-      + "WHY IT IS STILL THERE: we took the two-track design from AutoBench, then made the "
-      + "testbench self-checking, which made the Python track redundant. We left it in rather "
-      + "than remove it.\n\n"
-      + "IF ASKED which design is better: theirs separates the stimulus from the checking, "
-      + "which in principle allows more thorough checking; ours is simpler and closer to what "
-      + "engineers write. We did not test which is better, and I would not guess.\n\n"
-      + "IF ASKED why they run in parallel: both read the same inputs and neither needs the "
-      + "other's output, so overlapping them saves wall-clock time. Nothing is running at this "
-      + "point — both steps are writing files.",
+      "Thirty seconds. Nothing here produced a finding.\n\n"
+      + "NOT ON SLIDE — how this differs from AutoBench, worth one sentence: theirs is a "
+      + "bigger split. Their Verilog only drives the circuit and dumps what it sees to a text "
+      + "file, and Python does the judging. Ours is self-checking — the Verilog prints PASS or "
+      + "FAIL itself.\n\n"
+      + "Ours is simpler and closer to what engineers actually write. Theirs separates the "
+      + "stimulus from the checking, which in principle allows more thorough checking. We did "
+      + "not test which is better and I would not guess.\n\n"
+      + "IF ASKED why the two run in parallel: both read the same inputs and neither needs the "
+      + "other's output. Nothing is executing at this point — both steps are writing files.",
   },
   {
     n: "merge_generation", plain: "Wait for both",
